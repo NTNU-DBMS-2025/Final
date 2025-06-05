@@ -189,7 +189,7 @@ export default {
     </nav>
 
     <!-- Main Content -->
-    <main class="flex-1 w-full min-h-0">
+    <main class="flex-1 w-full min-h-0 scroll-container">
       <div class="w-full px-4 sm:px-6 lg:px-8 py-6">
         <!-- Debug info - remove later -->
         <div v-if="isAuthenticated" class="mb-4 p-4 bg-blue-100 rounded-lg text-sm">
@@ -213,18 +213,27 @@ export default {
   width: 100%;
   min-width: 100vw;
   height: 100vh;
+  max-height: 100vh;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
-/* Ensure body has no margins */
-body {
+/* Ensure body has no margins and prevent bounce scrolling */
+html, body {
   margin: 0;
   padding: 0;
   width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: fixed;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
 }
 
 /* Better responsive text scaling */
@@ -239,16 +248,22 @@ nav {
   position: relative;
   flex-shrink: 0;
   z-index: 50;
+  width: 100%;
+  min-height: 64px; /* Ensure consistent nav height */
 }
 
 /* Main content area */
 main {
   flex: 1;
   width: 100%;
+  height: 0; /* Force flex item to respect flex-basis */
   overflow-y: auto;
+  overflow-x: hidden;
   background-color: #f9fafb;
   margin: 0;
   padding: 0;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
 }
 
 /* Container improvements */
@@ -315,5 +330,27 @@ nav a:hover {
 /* Mobile menu button animation */
 .lg\:hidden button svg {
   transition: transform 0.2s ease-in-out;
+}
+
+/* Prevent scroll bounce and over-scrolling */
+.scroll-container {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Ensure no unwanted scrollbars or overflow */
+* {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* For Webkit browsers - prevent bounce scrolling */
+body {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: none;
+}
+
+/* Prevent pull-to-refresh on mobile */
+html {
+  overscroll-behavior: none;
 }
 </style>
