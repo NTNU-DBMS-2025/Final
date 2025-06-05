@@ -72,8 +72,39 @@ export default {
       }
     }
   },
+  mounted() {
+    // Fix stuck hover states and cursor issues
+    this.fixHoverStates()
+  },
   methods: {
     ...mapActions(['logout', 'fetchCurrentUser', 'showNotification']),
+    
+    fixHoverStates() {
+      // Reset any stuck hover states
+      document.addEventListener('mousemove', () => {
+        // Force refresh of hover states by briefly removing and re-adding hover class
+        const hoveredElements = document.querySelectorAll(':hover')
+        hoveredElements.forEach(el => {
+          if (el.classList.contains('group') || el.classList.contains('card-hover')) {
+            el.style.pointerEvents = 'none'
+            setTimeout(() => {
+              el.style.pointerEvents = 'auto'
+            }, 1)
+          }
+        })
+      }, { passive: true })
+      
+      // Fix touch device hover states
+      document.addEventListener('touchstart', () => {
+        document.body.classList.add('touching')
+      }, { passive: true })
+      
+      document.addEventListener('touchend', () => {
+        setTimeout(() => {
+          document.body.classList.remove('touching')
+        }, 100)
+      }, { passive: true })
+    },
     async handleLogout() {
       try {
         await this.logout()
@@ -189,7 +220,7 @@ export default {
     </nav>
 
     <!-- Main Content -->
-    <main class="flex-1 w-full min-h-0 scroll-container">
+    <main class="flex-1 w-full min-h-0">
       <div class="w-full px-4 sm:px-6 lg:px-8 py-6">
         <!-- Debug info - remove later -->
         <div v-if="isAuthenticated" class="mb-4 p-4 bg-blue-100 rounded-lg text-sm">
@@ -332,25 +363,100 @@ nav a:hover {
   transition: transform 0.2s ease-in-out;
 }
 
-/* Prevent scroll bounce and over-scrolling */
-.scroll-container {
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-}
-
-/* Ensure no unwanted scrollbars or overflow */
-* {
-  -webkit-overflow-scrolling: touch;
-}
-
-/* For Webkit browsers - prevent bounce scrolling */
-body {
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: none;
-}
-
 /* Prevent pull-to-refresh on mobile */
 html {
   overscroll-behavior: none;
+}
+
+/* Fix cursor and hover behavior issues */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Reset cursor and pointer behavior */
+body, html, #app {
+  cursor: default;
+}
+
+/* Ensure proper cursor behavior for interactive elements */
+button, a, [role="button"] {
+  cursor: pointer;
+}
+
+button:disabled, a[disabled] {
+  cursor: not-allowed;
+}
+
+/* Fix hover states being stuck */
+@media (hover: hover) and (pointer: fine) {
+  /* Only apply hover effects on devices that actually support hovering */
+  .hover\:bg-blue-100:hover {
+    background-color: rgb(219 234 254);
+  }
+  
+  .hover\:bg-green-100:hover {
+    background-color: rgb(220 252 231);
+  }
+  
+  .hover\:bg-purple-100:hover {
+    background-color: rgb(243 232 255);
+  }
+  
+  .hover\:bg-yellow-100:hover {
+    background-color: rgb(254 249 195);
+  }
+  
+  .hover\:bg-indigo-100:hover {
+    background-color: rgb(224 231 255);
+  }
+  
+  .hover\:bg-pink-100:hover {
+    background-color: rgb(252 231 243);
+  }
+  
+  .hover\:shadow-xl:hover {
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  }
+}
+
+/* Reset any stuck hover states on touch devices */
+@media (hover: none) {
+  .hover\:bg-blue-100:hover,
+  .hover\:bg-green-100:hover,
+  .hover\:bg-purple-100:hover,
+  .hover\:bg-yellow-100:hover,
+  .hover\:bg-indigo-100:hover,
+  .hover\:bg-pink-100:hover,
+  .hover\:shadow-xl:hover {
+    /* Reset to default state on touch devices */
+  }
+}
+
+/* Fix navigation hover effects */
+nav a {
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  nav a:hover {
+    transform: translateY(-1px);
+  }
+}
+
+/* Ensure buttons have proper cursor */
+.bg-blue-500, .bg-red-600, .bg-green-600 {
+  cursor: pointer;
+}
+
+/* Fix any z-index issues that might cause phantom clicks */
+.relative {
+  z-index: auto;
+}
+
+/* Ensure no invisible elements are capturing events */
+.group::before,
+.group::after {
+  content: none;
 }
 </style>

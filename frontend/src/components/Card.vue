@@ -58,7 +58,7 @@ export default {
   computed: {
     cardClasses() {
       return [
-        'rounded-lg shadow-lg p-6 transition-shadow hover:shadow-xl',
+        'rounded-lg shadow-lg p-6 transition-shadow card-hover',
         this.color
       ]
     },
@@ -87,4 +87,27 @@ export default {
     }
   }
 }
-</script> 
+</script>
+
+<style scoped>
+/* Card hover effects - only on hover-capable devices */
+.card-hover {
+  cursor: default;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card-hover:hover {
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  }
+}
+
+/* Ensure links within cards have proper cursor */
+a {
+  cursor: pointer;
+}
+
+/* Reset any unwanted pointer behavior */
+.card-hover * {
+  pointer-events: auto;
+}
+</style>

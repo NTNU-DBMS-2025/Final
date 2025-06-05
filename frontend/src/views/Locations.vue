@@ -22,6 +22,7 @@
       <DataTable
         :columns="columns"
         :data="locations"
+        :actions="actions"
         :loading="loading"
         :total="total"
         :current-page="currentPage"
@@ -29,6 +30,8 @@
         @page-change="handlePageChange"
         @sort="handleSort"
         @search="handleSearch"
+        @edit="editLocation"
+        @view="viewLocation"
         search-placeholder="搜尋位置編號、區域或類型..."
       />
     </div>
@@ -211,9 +214,22 @@ export default {
         { key: 'location_type', label: '類型', sortable: true },
         { key: 'capacity', label: '容量', sortable: true },
         { key: 'utilization', label: '使用率', sortable: true },
-        { key: 'status', label: '狀態', sortable: true },
-        { key: 'actions', label: '操作', sortable: false }
-      ]
+        { key: 'status', label: '狀態', sortable: true }
+      ],
+             actions: [
+         {
+           name: 'edit',
+           label: '編輯',
+           event: 'edit',
+           type: 'edit'
+         },
+         {
+           name: 'view',
+           label: '查看',
+           event: 'view',
+           type: 'view'
+         }
+       ]
     }
   },
   async created() {
@@ -265,19 +281,7 @@ export default {
           ...location,
           location_type: this.getLocationTypeText(location.location_type),
           utilization: `${Math.round((location.current_stock / location.capacity) * 100)}%`,
-          status: this.getStatusText(location.status),
-          actions: [
-            {
-              label: '編輯',
-              action: () => this.editLocation(location),
-              class: 'text-blue-600 hover:text-blue-900'
-            },
-            {
-              label: '查看',
-              action: () => this.viewLocation(location),
-              class: 'text-green-600 hover:text-green-900'
-            }
-          ]
+          status: this.getStatusText(location.status)
         }))
         
         this.total = mockLocations.length
