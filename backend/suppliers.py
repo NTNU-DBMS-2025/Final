@@ -18,7 +18,8 @@ def get_suppliers():
         if search:
             query = query.filter(
                 Supplier.supplier_name.contains(search) |
-                Supplier.contact.contains(search)
+                Supplier.contact_name.contains(search) |
+                Supplier.email.contains(search)
             )
 
         pagination = query.paginate(
@@ -32,7 +33,14 @@ def get_suppliers():
             suppliers.append({
                 'supplier_id': supplier.supplier_id,
                 'supplier_name': supplier.supplier_name,
-                'contact': supplier.contact,
+                'contact_name': supplier.contact_name,
+                'phone': supplier.phone,
+                'email': supplier.email,
+                'address': supplier.address,
+                'supplier_type': supplier.supplier_type,
+                'status': supplier.status,
+                'notes': supplier.notes,
+                'created_at': supplier.created_at.isoformat() if supplier.created_at else None,
                 'products_count': len(supplier.products),
                 'products': [{'product_id': p.product_id, 'name': p.name}
                              for p in supplier.products]
@@ -64,7 +72,14 @@ def get_supplier(supplier_id):
             'data': {
                 'supplier_id': supplier.supplier_id,
                 'supplier_name': supplier.supplier_name,
-                'contact': supplier.contact,
+                'contact_name': supplier.contact_name,
+                'phone': supplier.phone,
+                'email': supplier.email,
+                'address': supplier.address,
+                'supplier_type': supplier.supplier_type,
+                'status': supplier.status,
+                'notes': supplier.notes,
+                'created_at': supplier.created_at.isoformat() if supplier.created_at else None,
                 'products': [{'product_id': p.product_id, 'name': p.name, 'category': p.category}
                              for p in supplier.products]
             }
@@ -92,7 +107,13 @@ def create_supplier():
 
         supplier = Supplier(
             supplier_name=data['supplier_name'],
-            contact=data.get('contact')
+            contact_name=data.get('contact_name'),
+            phone=data.get('phone'),
+            email=data.get('email'),
+            address=data.get('address'),
+            supplier_type=data.get('supplier_type'),
+            status=data.get('status', 'active'),
+            notes=data.get('notes')
         )
 
         db.session.add(supplier)
@@ -111,7 +132,14 @@ def create_supplier():
             'data': {
                 'supplier_id': supplier.supplier_id,
                 'supplier_name': supplier.supplier_name,
-                'contact': supplier.contact,
+                'contact_name': supplier.contact_name,
+                'phone': supplier.phone,
+                'email': supplier.email,
+                'address': supplier.address,
+                'supplier_type': supplier.supplier_type,
+                'status': supplier.status,
+                'notes': supplier.notes,
+                'created_at': supplier.created_at.isoformat() if supplier.created_at else None,
                 'products': [{'product_id': p.product_id, 'name': p.name}
                              for p in supplier.products]
             }
@@ -139,8 +167,20 @@ def update_supplier(supplier_id):
                 return jsonify({'success': False, 'error': 'Supplier name already exists'}), 400
             supplier.supplier_name = data['supplier_name']
 
-        if 'contact' in data:
-            supplier.contact = data['contact']
+        if 'contact_name' in data:
+            supplier.contact_name = data['contact_name']
+        if 'phone' in data:
+            supplier.phone = data['phone']
+        if 'email' in data:
+            supplier.email = data['email']
+        if 'address' in data:
+            supplier.address = data['address']
+        if 'supplier_type' in data:
+            supplier.supplier_type = data['supplier_type']
+        if 'status' in data:
+            supplier.status = data['status']
+        if 'notes' in data:
+            supplier.notes = data['notes']
 
         # Update products if provided
         if 'product_ids' in data:
@@ -159,7 +199,14 @@ def update_supplier(supplier_id):
             'data': {
                 'supplier_id': supplier.supplier_id,
                 'supplier_name': supplier.supplier_name,
-                'contact': supplier.contact,
+                'contact_name': supplier.contact_name,
+                'phone': supplier.phone,
+                'email': supplier.email,
+                'address': supplier.address,
+                'supplier_type': supplier.supplier_type,
+                'status': supplier.status,
+                'notes': supplier.notes,
+                'created_at': supplier.created_at.isoformat() if supplier.created_at else None,
                 'products': [{'product_id': p.product_id, 'name': p.name, 'category': p.category}
                              for p in supplier.products]
             }

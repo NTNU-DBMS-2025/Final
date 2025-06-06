@@ -55,18 +55,66 @@ def init_sample_data():
 
         print("Creating suppliers...")
         suppliers_data = [
-            {'supplier_name': 'Tech Supplier Inc.',
-                'contact': 'tech@supplier.com'},
-            {'supplier_name': 'Electronics Wholesale',
-                'contact': 'sales@electronics.com'},
-            {'supplier_name': 'Office Equipment Ltd.',
-                'contact': 'orders@office-eq.com'},
-            {'supplier_name': 'Global Components Co.',
-                'contact': 'info@globalcomp.com'},
-            {'supplier_name': 'Premium Hardware Store',
-                'contact': 'sales@premiumhw.com'},
-            {'supplier_name': 'Digital Solutions Provider',
-                'contact': 'orders@digitalsol.com'}
+            {
+                'supplier_name': 'Tech Supplier Inc.',
+                'contact_name': 'John Smith',
+                'phone': '02-2123-4567',
+                'email': 'tech@supplier.com',
+                'address': '123 Tech Street, Taipei, Taiwan',
+                'supplier_type': 'manufacturer',
+                'status': 'active',
+                'notes': 'Primary technology supplier for laptops and computers'
+            },
+            {
+                'supplier_name': 'Electronics Wholesale',
+                'contact_name': 'Sarah Chen',
+                'phone': '04-2456-7890',
+                'email': 'sales@electronics.com',
+                'address': '456 Electronics Blvd, Taichung, Taiwan',
+                'supplier_type': 'wholesaler',
+                'status': 'active',
+                'notes': 'Wholesale electronics and accessories'
+            },
+            {
+                'supplier_name': 'Office Equipment Ltd.',
+                'contact_name': 'Mike Wang',
+                'phone': '07-789-0123',
+                'email': 'orders@office-eq.com',
+                'address': '789 Office Park, Kaohsiung, Taiwan',
+                'supplier_type': 'distributor',
+                'status': 'active',
+                'notes': 'Office furniture and equipment distributor'
+            },
+            {
+                'supplier_name': 'Global Components Co.',
+                'contact_name': 'Lisa Liu',
+                'phone': '03-321-6547',
+                'email': 'info@globalcomp.com',
+                'address': '321 Component Ave, Taoyuan, Taiwan',
+                'supplier_type': 'manufacturer',
+                'status': 'active',
+                'notes': 'Global supplier of electronic components'
+            },
+            {
+                'supplier_name': 'Premium Hardware Store',
+                'contact_name': 'David Huang',
+                'phone': '05-654-9870',
+                'email': 'sales@premiumhw.com',
+                'address': '654 Premium St, Chiayi, Taiwan',
+                'supplier_type': 'distributor',
+                'status': 'active',
+                'notes': 'Premium hardware and gaming equipment'
+            },
+            {
+                'supplier_name': 'Digital Solutions Provider',
+                'contact_name': 'Emma Lin',
+                'phone': '08-987-1234',
+                'email': 'orders@digitalsol.com',
+                'address': '987 Digital Road, Pingtung, Taiwan',
+                'supplier_type': 'service',
+                'status': 'active',
+                'notes': 'Digital solutions and software services'
+            }
         ]
 
         for supplier_data in suppliers_data:

@@ -42,7 +42,14 @@ class Supplier(db.Model):
 
     supplier_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     supplier_name = db.Column(db.String(100), nullable=False)
-    contact = db.Column(db.String(100))
+    contact_name = db.Column(db.String(100))
+    phone = db.Column(db.String(20))
+    email = db.Column(db.String(100))
+    address = db.Column(db.String(255))
+    supplier_type = db.Column(db.String(50))
+    status = db.Column(db.String(20), default='active')
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relationships
     products = db.relationship(

@@ -216,6 +216,8 @@
 
 <script>
 import DataTable from '../components/DataTable.vue'
+import { fetchSuppliers, createSupplier, updateSupplier, deleteSupplier } from '../api/suppliers'
+import { mapActions } from 'vuex'
 
 export default {
   name: 'Suppliers',
@@ -253,9 +255,9 @@ export default {
         { key: 'contact_name', label: '聯絡人', sortable: true },
         { key: 'phone', label: '電話', sortable: false },
         { key: 'email', label: '電子郵件', sortable: false },
-        { key: 'supplier_type', label: '類型', sortable: true },
-        { key: 'status', label: '狀態', sortable: true },
-        { key: 'created_at', label: '建立時間', sortable: true }
+        { key: 'supplier_type_display', label: '類型', sortable: true },
+        { key: 'status_display', label: '狀態', sortable: true },
+        { key: 'created_at_display', label: '建立時間', sortable: true }
       ],
       actions: [
         {
@@ -277,88 +279,43 @@ export default {
     await this.loadSuppliers()
   },
   methods: {
+    ...mapActions(['showNotification']),
+    
     async loadSuppliers() {
       try {
         this.loading = true
         
-        // Mock API call - replace with actual API
-        const mockSuppliers = [
-          {
-            id: 1,
-            supplier_name: '台灣科技股份有限公司',
-            contact_name: '張志明',
-            phone: '02-2123-4567',
-            email: 'contact@taiwantech.com',
-            address: '台北市信義區信義路五段7號',
-            supplier_type: 'manufacturer',
-            status: 'active',
-            notes: '主要電子元件供應商',
-            created_at: '2024-01-15'
-          },
-          {
-            id: 2,
-            supplier_name: '聯合供應商',
-            contact_name: '李美華',
-            phone: '04-2456-7890',
-            email: 'service@united-supply.com',
-            address: '台中市西屯區台灣大道三段99號',
-            supplier_type: 'wholesaler',
-            status: 'active',
-            notes: '批發商品供應',
-            created_at: '2024-02-20'
-          },
-          {
-            id: 3,
-            supplier_name: '南方貿易公司',
-            contact_name: '陳大偉',
-            phone: '07-789-0123',
-            email: 'info@south-trade.com',
-            address: '高雄市前鎮區中山二路132號',
-            supplier_type: 'distributor',
-            status: 'inactive',
-            notes: '進口商品經銷',
-            created_at: '2024-03-10'
-          }
-        ]
-        
-        // Apply search filter
-        let filtered = mockSuppliers
+        // Real API call to backend
+        const params = {}
         if (this.searchQuery) {
-          filtered = mockSuppliers.filter(supplier =>
-            supplier.supplier_name.includes(this.searchQuery) ||
-            supplier.contact_name.includes(this.searchQuery) ||
-            supplier.phone.includes(this.searchQuery)
-          )
+          params.search = this.searchQuery
         }
-        
-        // Apply sorting
         if (this.sortBy) {
-          filtered.sort((a, b) => {
-            const aVal = a[this.sortBy]
-            const bVal = b[this.sortBy]
-            if (this.sortOrder === 'asc') {
-              return aVal > bVal ? 1 : -1
-            } else {
-              return aVal < bVal ? 1 : -1
-            }
-          })
+          params.sort = this.sortBy
+          params.order = this.sortOrder
         }
+        params.page = this.currentPage
+        params.per_page = this.pageSize
         
-        // Add formatted data
-        this.suppliers = filtered.map(supplier => ({
-          ...supplier,
-          supplier_type_key: supplier.supplier_type, // Keep original key for editing
-          status_key: supplier.status, // Keep original key for editing
-          supplier_type: this.getSupplierTypeText(supplier.supplier_type),
-          status: this.getStatusText(supplier.status),
-          created_at: this.formatDate(supplier.created_at)
-        }))
+        const response = await fetchSuppliers(params)
         
-        this.total = filtered.length
+        if (response.data.success) {
+          // Add formatted data for display
+          this.suppliers = response.data.data.map(supplier => ({
+            ...supplier,
+            supplier_type_display: this.getSupplierTypeText(supplier.supplier_type),
+            status_display: this.getStatusText(supplier.status),
+            created_at_display: this.formatDate(supplier.created_at)
+          }))
+          
+          this.total = response.data.pagination?.total || this.suppliers.length
+        } else {
+          throw new Error(response.data.error || 'Failed to load suppliers')
+        }
         
       } catch (error) {
         console.error('Error loading suppliers:', error)
-        this.$store.dispatch('setNotification', {
+        this.showNotification({
           type: 'error',
           message: '載入供應商資料失敗'
         })
@@ -393,15 +350,15 @@ export default {
 
     editSupplier(supplier) {
       this.isEditMode = true
-      this.editingId = supplier.id
+      this.editingId = supplier.supplier_id
       this.form = {
         supplier_name: supplier.supplier_name,
         contact_name: supplier.contact_name,
         phone: supplier.phone,
         email: supplier.email,
         address: supplier.address || '',
-        supplier_type: supplier.supplier_type_key || '',
-        status: supplier.status_key || 'active',
+        supplier_type: supplier.supplier_type || '',
+        status: supplier.status || 'active',
         notes: supplier.notes || ''
       }
       this.showModal = true
@@ -416,24 +373,27 @@ export default {
       try {
         this.submitting = true
 
-        // Mock API call
+        // Real API call
         if (this.isEditMode) {
-          console.log('Updating supplier:', this.editingId, this.form)
+          await updateSupplier(this.editingId, this.form)
+          this.showNotification({
+            type: 'success',
+            message: '供應商更新成功'
+          })
         } else {
-          console.log('Creating supplier:', this.form)
+          await createSupplier(this.form)
+          this.showNotification({
+            type: 'success',
+            message: '供應商新增成功'
+          })
         }
-
-        this.$store.dispatch('setNotification', {
-          type: 'success',
-          message: this.isEditMode ? '供應商更新成功' : '供應商新增成功'
-        })
 
         this.closeModal()
         await this.loadSuppliers()
 
       } catch (error) {
         console.error('Error saving supplier:', error)
-        this.$store.dispatch('setNotification', {
+        this.showNotification({
           type: 'error',
           message: '供應商儲存失敗'
         })
@@ -446,10 +406,10 @@ export default {
       try {
         this.submitting = true
 
-        // Mock API call
-        console.log('Deleting supplier:', this.deleteItem.id)
+        // Real API call
+        await deleteSupplier(this.deleteItem.supplier_id)
 
-        this.$store.dispatch('setNotification', {
+        this.showNotification({
           type: 'success',
           message: '供應商刪除成功'
         })
@@ -459,7 +419,7 @@ export default {
 
       } catch (error) {
         console.error('Error deleting supplier:', error)
-        this.$store.dispatch('setNotification', {
+        this.showNotification({
           type: 'error',
           message: '供應商刪除失敗'
         })
