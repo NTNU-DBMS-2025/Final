@@ -81,13 +81,13 @@
             </td>
             <td v-if="actions.length > 0" class="px-3 sm:px-6 py-3 sm:py-4 text-right text-sm font-medium">
               <div class="flex justify-end space-x-2">
-                                  <button
-                    v-for="action in actions"
-                    :key="action.name"
-                    @click="$emit(action.event, row)"
-                    :class="getActionClass(action.type)"
-                    class="px-2 sm:px-3 py-1 rounded transition-colors text-xs sm:text-sm"
-                  >
+                <button
+                  v-for="action in actions"
+                  :key="action.name"
+                  @click="$emit(action.event, row)"
+                  :class="getActionClass(action.type)"
+                  class="px-2 sm:px-3 py-1 rounded transition-colors text-xs sm:text-sm"
+                >
                   {{ action.label }}
                 </button>
               </div>

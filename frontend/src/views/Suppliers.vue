@@ -22,6 +22,7 @@
       <DataTable
         :columns="columns"
         :data="suppliers"
+        :actions="actions"
         :loading="loading"
         :total="total"
         :current-page="currentPage"
@@ -29,6 +30,8 @@
         @page-change="handlePageChange"
         @sort="handleSort"
         @search="handleSearch"
+        @edit="editSupplier"
+        @delete="deleteSupplier"
         search-placeholder="搜尋供應商名稱、聯絡人或電話..."
       />
     </div>
@@ -252,8 +255,21 @@ export default {
         { key: 'email', label: '電子郵件', sortable: false },
         { key: 'supplier_type', label: '類型', sortable: true },
         { key: 'status', label: '狀態', sortable: true },
-        { key: 'created_at', label: '建立時間', sortable: true },
-        { key: 'actions', label: '操作', sortable: false }
+        { key: 'created_at', label: '建立時間', sortable: true }
+      ],
+      actions: [
+        {
+          name: 'edit',
+          label: '編輯',
+          event: 'edit',
+          type: 'edit'
+        },
+        {
+          name: 'delete',
+          label: '刪除',
+          event: 'delete',
+          type: 'delete'
+        }
       ]
     }
   },
@@ -328,24 +344,14 @@ export default {
           })
         }
         
-        // Add formatted data and actions
+        // Add formatted data
         this.suppliers = filtered.map(supplier => ({
           ...supplier,
+          supplier_type_key: supplier.supplier_type, // Keep original key for editing
+          status_key: supplier.status, // Keep original key for editing
           supplier_type: this.getSupplierTypeText(supplier.supplier_type),
           status: this.getStatusText(supplier.status),
-          created_at: this.formatDate(supplier.created_at),
-          actions: [
-            {
-              label: '編輯',
-              action: () => this.editSupplier(supplier),
-              class: 'text-blue-600 hover:text-blue-900'
-            },
-            {
-              label: '刪除',
-              action: () => this.deleteSupplier(supplier),
-              class: 'text-red-600 hover:text-red-900'
-            }
-          ]
+          created_at: this.formatDate(supplier.created_at)
         }))
         
         this.total = filtered.length

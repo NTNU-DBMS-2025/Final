@@ -22,6 +22,7 @@
       <DataTable
         :columns="columns"
         :data="customers"
+        :actions="actions"
         :loading="loading"
         :total="total"
         :current-page="currentPage"
@@ -29,6 +30,9 @@
         @page-change="handlePageChange"
         @sort="handleSort"
         @search="handleSearch"
+        @edit="editCustomer"
+        @view="viewOrders"
+        @delete="deleteCustomer"
         search-placeholder="搜尋客戶名稱、聯絡人或電話..."
       />
     </div>
@@ -283,8 +287,27 @@ export default {
         { key: 'customer_type', label: '類型', sortable: true },
         { key: 'customer_level', label: '等級', sortable: true },
         { key: 'status', label: '狀態', sortable: true },
-        { key: 'created_at', label: '建立時間', sortable: true },
-        { key: 'actions', label: '操作', sortable: false }
+        { key: 'created_at', label: '建立時間', sortable: true }
+      ],
+      actions: [
+        {
+          name: 'edit',
+          label: '編輯',
+          event: 'edit',
+          type: 'edit'
+        },
+        {
+          name: 'view',
+          label: '訂單',
+          event: 'view',
+          type: 'view'
+        },
+        {
+          name: 'delete',
+          label: '刪除',
+          event: 'delete',
+          type: 'delete'
+        }
       ]
     }
   },
@@ -379,30 +402,16 @@ export default {
           })
         }
         
-        // Add formatted data and actions
+        // Add formatted data
         this.customers = filtered.map(customer => ({
           ...customer,
+          customer_type_key: customer.customer_type, // Keep original key for editing
+          customer_level_key: customer.customer_level, // Keep original key for editing
+          status_key: customer.status, // Keep original key for editing
           customer_type: this.getCustomerTypeText(customer.customer_type),
           customer_level: this.getCustomerLevelText(customer.customer_level),
           status: this.getStatusText(customer.status),
-          created_at: this.formatDate(customer.created_at),
-          actions: [
-            {
-              label: '編輯',
-              action: () => this.editCustomer(customer),
-              class: 'text-blue-600 hover:text-blue-900'
-            },
-            {
-              label: '訂單',
-              action: () => this.viewOrders(customer),
-              class: 'text-green-600 hover:text-green-900'
-            },
-            {
-              label: '刪除',
-              action: () => this.deleteCustomer(customer),
-              class: 'text-red-600 hover:text-red-900'
-            }
-          ]
+          created_at: this.formatDate(customer.created_at)
         }))
         
         this.total = filtered.length
