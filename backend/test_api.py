@@ -94,6 +94,67 @@ def test_products(session):
     print("-" * 50)
 
 
+def test_suppliers(session):
+    """Test suppliers endpoints"""
+    print("Testing suppliers endpoints...")
+
+    # Test getting suppliers
+    response = session.get(f"{BASE_URL}/suppliers")
+    print(f"Get Suppliers Status: {response.status_code}")
+    print(f"Get Suppliers Response: {response.json()}")
+
+    # Test creating a supplier
+    supplier_data = {
+        "supplier_name": "Test Supplier API",
+        "contact": "test@supplier.com"
+    }
+
+    response = session.post(f"{BASE_URL}/suppliers", json=supplier_data)
+    print(f"Create Supplier Status: {response.status_code}")
+    print(f"Create Supplier Response: {response.json()}")
+
+    if response.status_code == 201:
+        supplier_id = response.json()['data']['supplier_id']
+
+        # Test getting the specific supplier
+        response = session.get(f"{BASE_URL}/suppliers/{supplier_id}")
+        print(f"Get Supplier Status: {response.status_code}")
+        print(f"Get Supplier Response: {response.json()}")
+
+    print("-" * 50)
+
+
+def test_customers(session):
+    """Test customers endpoints"""
+    print("Testing customers endpoints...")
+
+    # Test getting customers
+    response = session.get(f"{BASE_URL}/customers")
+    print(f"Get Customers Status: {response.status_code}")
+    print(f"Get Customers Response: {response.json()}")
+
+    # Test creating a customer
+    customer_data = {
+        "name": "Test Customer API",
+        "contact": "test@customer.com",
+        "address": "123 Test Street, Test City"
+    }
+
+    response = session.post(f"{BASE_URL}/customers", json=customer_data)
+    print(f"Create Customer Status: {response.status_code}")
+    print(f"Create Customer Response: {response.json()}")
+
+    if response.status_code == 201:
+        customer_id = response.json()['data']['customer_id']
+
+        # Test getting the specific customer
+        response = session.get(f"{BASE_URL}/customers/{customer_id}")
+        print(f"Get Customer Status: {response.status_code}")
+        print(f"Get Customer Response: {response.json()}")
+
+    print("-" * 50)
+
+
 def main():
     """Run all tests"""
     print("=== Warehouse Management System API Test ===\n")
@@ -103,9 +164,11 @@ def main():
         test_health()
         test_init_db()
 
-        # Test authentication and products
+        # Test authentication and CRUD operations
         session = test_login()
         test_products(session)
+        test_suppliers(session)
+        test_customers(session)
 
         print("✅ All tests completed!")
 

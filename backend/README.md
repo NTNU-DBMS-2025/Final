@@ -68,6 +68,13 @@ The API will be available at `http://localhost:5001`
 - Role-based permissions
 - Supplier relationship management
 
+### ✅ Checkpoint 5: Suppliers & Customers APIs
+- Full CRUD operations for suppliers and customers
+- Pagination and search functionality
+- Product-supplier relationship management
+- Customer order history tracking
+- Role-based permissions (Admin/Warehouse for suppliers, Admin/Sales for customers)
+
 ## 🧪 Testing
 
 ### Run API tests:
@@ -94,14 +101,32 @@ python test_api.py
 - `PUT /api/products/{id}` - Update product (Admin/Warehouse)
 - `DELETE /api/products/{id}` - Delete product (Admin only)
 
+### Suppliers
+- `GET /api/suppliers` - List suppliers (with pagination/search)
+- `GET /api/suppliers/{id}` - Get specific supplier
+- `POST /api/suppliers` - Create supplier (Admin/Warehouse)
+- `PUT /api/suppliers/{id}` - Update supplier (Admin/Warehouse)
+- `DELETE /api/suppliers/{id}` - Delete supplier (Admin only)
+- `GET /api/suppliers/{id}/products` - Get supplier's products
+- `POST /api/suppliers/{id}/products/{product_id}` - Add product to supplier
+- `DELETE /api/suppliers/{id}/products/{product_id}` - Remove product from supplier
+
+### Customers
+- `GET /api/customers` - List customers (with pagination/search)
+- `GET /api/customers/{id}` - Get specific customer
+- `POST /api/customers` - Create customer (Admin/Sales)
+- `PUT /api/customers/{id}` - Update customer (Admin/Sales)
+- `DELETE /api/customers/{id}` - Delete customer (Admin only)
+- `GET /api/customers/{id}/orders` - Get customer's order history
+
 ### System
 - `GET /api/health` - Health check
 - `GET /api/init-db` - Initialize database tables
 
 ## 🔄 Next Steps
 
-- [ ] Suppliers API endpoints
-- [ ] Customers API endpoints  
+- [x] Suppliers API endpoints
+- [x] Customers API endpoints  
 - [ ] Orders and OrderItems API
 - [ ] Inventory management API
 - [ ] Shipments API

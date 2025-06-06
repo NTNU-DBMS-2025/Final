@@ -45,34 +45,52 @@ const store = createStore({
     actions: {
         async login({ commit }, credentials) {
             try {
-                // Mock login for frontend development
-                // This will be replaced with actual API call later
-                const mockResponse = await mockLogin(credentials)
+                // Real API call to backend
+                const { login } = await import('../api/auth')
+                const response = await login(credentials)
 
-                commit('setToken', mockResponse.token)
-                commit('setUser', mockResponse.user)
-                commit('setRoles', mockResponse.roles)
+                if (response.data.success) {
+                    const userData = response.data.data
+                    // Session-based auth - no token needed, server handles sessions
+                    commit('setUser', userData)
+                    commit('setRoles', [userData.role_name])
+                    commit('setToken', 'session-based') // Just to mark as authenticated
 
-                return mockResponse
+                    return userData
+                } else {
+                    throw new Error(response.data.error || 'Login failed')
+                }
             } catch (error) {
                 throw error
             }
         },
-        logout({ commit }) {
-            commit('clearUser')
-        },
-        async fetchCurrentUser({ commit, state }) {
-            if (!state.token) return null
-
+        async logout({ commit }) {
             try {
-                // Mock user fetch for frontend development
-                const mockUser = {
-                    user_id: 1,
-                    account: 'admin',
-                    name: 'Administrator'
+                // Real API call to backend
+                const { logout } = await import('../api/auth')
+                await logout()
+            } catch (error) {
+                console.error('Logout error:', error)
+            } finally {
+                commit('clearUser')
+            }
+        },
+        async fetchCurrentUser({ commit }) {
+            try {
+                // Real API call to backend
+                const { getCurrentUser } = await import('../api/auth')
+                const response = await getCurrentUser()
+
+                if (response.data.success) {
+                    const userData = response.data.data
+                    commit('setUser', userData)
+                    commit('setRoles', [userData.role_name])
+                    commit('setToken', 'session-based')
+                    return userData
+                } else {
+                    commit('clearUser')
+                    return null
                 }
-                commit('setUser', mockUser)
-                return mockUser
             } catch (error) {
                 commit('clearUser')
                 throw error
@@ -91,34 +109,5 @@ const store = createStore({
         hasAnyRole: state => roles => roles.some(role => state.roles.includes(role))
     }
 })
-
-// Mock login function for frontend development
-function mockLogin(credentials) {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            if (credentials.account === 'admin' && credentials.password === 'admin') {
-                resolve({
-                    token: 'mock-jwt-token-admin',
-                    user: { user_id: 1, account: 'admin', name: 'Administrator' },
-                    roles: ['Admin']
-                })
-            } else if (credentials.account === 'sales' && credentials.password === 'sales') {
-                resolve({
-                    token: 'mock-jwt-token-sales',
-                    user: { user_id: 2, account: 'sales', name: 'Sales Manager' },
-                    roles: ['Sales']
-                })
-            } else if (credentials.account === 'warehouse' && credentials.password === 'warehouse') {
-                resolve({
-                    token: 'mock-jwt-token-warehouse',
-                    user: { user_id: 3, account: 'warehouse', name: 'Warehouse Staff' },
-                    roles: ['Warehouse']
-                })
-            } else {
-                reject(new Error('無效的帳號或密碼'))
-            }
-        }, 1000)
-    })
-}
 
 export default store 

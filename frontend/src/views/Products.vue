@@ -178,7 +178,7 @@ export default {
       this.loading = true
       try {
         const response = await fetchProducts()
-        this.products = response.data.data.products
+        this.products = response.data.data
       } catch (error) {
         console.error('Failed to load products:', error)
         this.showNotification({
@@ -194,7 +194,7 @@ export default {
       this.loading = true
       try {
         const response = await fetchProducts({ search: query })
-        this.products = response.data.data.products
+        this.products = response.data.data
       } catch (error) {
         console.error('Search failed:', error)
       } finally {

@@ -6,18 +6,16 @@ import router from '../router'
 const apiClient = axios.create({
     baseURL: 'http://localhost:5001/api',
     timeout: 10000,
+    withCredentials: true, // Include cookies for session-based auth
     headers: {
         'Content-Type': 'application/json'
     }
 })
 
-// Request interceptor to add auth token
+// Request interceptor (session-based auth doesn't need Authorization header)
 apiClient.interceptors.request.use(
     config => {
-        const token = store.state.token
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`
-        }
+        // Session-based authentication uses cookies, no Authorization header needed
         return config
     },
     error => {

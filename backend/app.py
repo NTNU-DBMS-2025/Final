@@ -21,13 +21,17 @@ def create_app():
 
     # Initialize extensions
     db.init_app(app)
-    CORS(app)
+    CORS(app, supports_credentials=True, origins=['http://localhost:5173'])
 
     # Register blueprints
     from auth import auth_bp
     from products import products_bp
+    from suppliers import suppliers_bp
+    from customers import customers_bp
     app.register_blueprint(auth_bp)
     app.register_blueprint(products_bp)
+    app.register_blueprint(suppliers_bp)
+    app.register_blueprint(customers_bp)
 
     @app.route('/api/health')
     def health_check():
