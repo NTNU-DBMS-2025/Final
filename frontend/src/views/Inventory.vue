@@ -30,28 +30,39 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
       <Card 
         title="總庫存值" 
-        :value="`$${totalInventoryValue.toLocaleString()}`" 
-        icon="💰" 
-        color="green"
-      />
+        icon="inventory" 
+        color="bg-white"
+      >
+        <p class="text-3xl font-bold text-green-600">${{ totalInventoryValue.toLocaleString() }}</p>
+        <p class="text-sm text-gray-500">總價值</p>
+      </Card>
+      
       <Card 
         title="庫存品項" 
-        :value="totalItems" 
-        icon="📦" 
-        color="blue"
-      />
+        icon="products" 
+        color="bg-white"
+      >
+        <p class="text-3xl font-bold text-blue-600">{{ totalItems }}</p>
+        <p class="text-sm text-gray-500">個品項</p>
+      </Card>
+      
       <Card 
         title="低庫存警告" 
-        :value="lowStockCount" 
-        icon="⚠️" 
-        color="red"
-      />
+        icon="warning" 
+        color="bg-white"
+      >
+        <p class="text-3xl font-bold text-red-600">{{ lowStockCount }}</p>
+        <p class="text-sm text-gray-500">項商品</p>
+      </Card>
+      
       <Card 
         title="缺貨品項" 
-        :value="outOfStockCount" 
-        icon="❌" 
-        color="red"
-      />
+        icon="warning" 
+        color="bg-white"
+      >
+        <p class="text-3xl font-bold text-red-600">{{ outOfStockCount }}</p>
+        <p class="text-sm text-gray-500">項商品</p>
+      </Card>
     </div>
 
     <!-- Inventory DataTable -->

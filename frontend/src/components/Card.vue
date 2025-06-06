@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between mb-4" v-if="title || icon">
       <div class="flex items-center">
         <div v-if="icon" :class="iconClasses" class="mr-3">
-          <component :is="iconComponent" class="w-6 h-6" />
+          <span class="text-lg">{{ iconEmoji }}</span>
         </div>
         <h3 v-if="title" class="text-lg font-semibold text-gray-900">{{ title }}</h3>
       </div>
@@ -81,9 +81,19 @@ export default {
           return [baseClasses, 'bg-gray-100 text-gray-600']
       }
     },
-    iconComponent() {
-      // For now, using simple div. In production, you might use an icon library
-      return 'div'
+    iconEmoji() {
+      const iconMap = {
+        'inventory': '📦',
+        'orders': '📋',
+        'shipments': '🚚',
+        'products': '🏷️',
+        'customers': '👥',
+        'warning': '⚠️',
+        'scrap': '🗑️',
+        'suppliers': '🏭',
+        'reports': '📊'
+      }
+      return iconMap[this.icon] || '📄'
     }
   }
 }
