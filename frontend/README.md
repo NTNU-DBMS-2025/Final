@@ -1,29 +1,35 @@
-# .
+# Frontend - 倉儲管理系統
 
-This template should help get you started developing with Vue 3 in Vite.
+Vue.js frontend for the Warehouse Management System.
 
-## Recommended IDE Setup
+## Quick Start
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
+```bash
+# Install dependencies
 npm install
-```
 
-### Compile and Hot-Reload for Development
-
-```sh
+# Start development server
 npm run dev
 ```
 
-### Compile and Minify for Production
+## Available Scripts
 
-```sh
-npm run build
-```
+- `npm run dev` - Start development server with hot reload
+- `npm run build` - Build for production  
+- `npm run preview` - Preview production build locally
+- `npm run serve` - Alternative dev server command
+
+## Tech Stack
+
+- **Vue 3** - Progressive JavaScript framework
+- **Vue Router 4** - Official router for Vue.js
+- **Vuex 4** - State management pattern + library
+- **Axios** - Promise-based HTTP client
+- **Tailwind CSS** - Utility-first CSS framework
+- **Vite** - Next generation frontend build tool
+
+## Development
+
+The app runs on `http://localhost:5173` by default.
+
+For complete setup instructions, troubleshooting, and project overview, see the [main README](../README.md) in the root directory.

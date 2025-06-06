@@ -1,4 +1,0 @@
-sqlserver:
-  servername: "localhost"
-  username: "root"
-  password: ""
