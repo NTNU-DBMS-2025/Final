@@ -5,6 +5,8 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import apiPlugin from './api'
+import messagePlugin from './utils/message'
 
 // Global responsive utilities
 const globalStyles = `
@@ -152,5 +154,7 @@ const app = createApp(App)
 
 app.use(store)
 app.use(router)
+app.use(apiPlugin)
+app.use(messagePlugin)
 
 app.mount('#app')

@@ -7,13 +7,22 @@
           <h1 class="text-2xl font-bold text-gray-900 mb-2">倉位管理</h1>
           <p class="text-gray-600">管理倉庫位置、區域與空間配置</p>
         </div>
-        <button 
-          @click="openAddModal"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
-        >
-          <span class="mr-2">+</span>
-          新增倉位
-        </button>
+        <div class="flex space-x-2">
+          <button 
+            @click="loadLocations"
+            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center"
+          >
+            <span class="mr-2">🔄</span>
+            重新載入
+          </button>
+          <button 
+            @click="openAddModal"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
+          >
+            <span class="mr-2">+</span>
+            新增倉位
+          </button>
+        </div>
       </div>
     </div>
 
@@ -178,6 +187,7 @@
 
 <script>
 import DataTable from '../components/DataTable.vue'
+import { fetchLocations, createLocation, updateLocation } from '../api/locations'
 
 export default {
   name: 'Locations',
@@ -238,58 +248,56 @@ export default {
   methods: {
     async loadLocations() {
       try {
+        console.log('🔄 Starting to load locations...')
         this.loading = true
         
-        // Mock API call
-        const mockLocations = [
-          {
-            id: 1,
-            location_code: 'A1-01',
-            location_name: 'A區第1排第1位',
-            zone: 'A',
-            location_type: 'storage',
-            capacity: 100,
-            current_stock: 85,
-            status: 'occupied',
-            notes: '主要儲存區'
-          },
-          {
-            id: 2,
-            location_code: 'A1-02',
-            location_name: 'A區第1排第2位',
-            zone: 'A',
-            location_type: 'storage',
-            capacity: 100,
-            current_stock: 20,
-            status: 'active',
-            notes: ''
-          },
-          {
-            id: 3,
-            location_code: 'B2-15',
-            location_name: 'B區第2排第15位',
-            zone: 'B',
-            location_type: 'picking',
-            capacity: 50,
-            current_stock: 45,
-            status: 'occupied',
-            notes: '揀貨專用區'
-          }
-        ]
+        const params = {
+          page: this.currentPage,
+          per_page: this.pageSize
+        }
         
-        this.locations = mockLocations.map(location => ({
-          ...location,
-          location_type: this.getLocationTypeText(location.location_type),
-          utilization: `${Math.round((location.current_stock / location.capacity) * 100)}%`,
-          status: this.getStatusText(location.status)
-        }))
+        if (this.searchQuery) {
+          params.search = this.searchQuery
+        }
         
-        this.total = mockLocations.length
+        console.log('📡 Calling API with params:', params)
+        const response = await fetchLocations(params)
+        console.log('📦 Raw API response:', response)
+        
+        if (response && response.data && response.data.success && response.data.data) {
+          console.log('✅ API call successful, processing data...')
+          
+          this.locations = response.data.data.map(location => {
+            const processed = {
+              ...location,
+              id: location.location_id,
+              location_type_key: location.location_type,
+              location_type: this.getLocationTypeText(location.location_type),
+              status_key: location.status,
+              status: this.getStatusText(location.status),
+              utilization: `${location.utilization_rate}%`
+            }
+            console.log('📍 Processed location:', processed)
+            return processed
+          })
+          
+          this.total = response.data.pagination?.total || this.locations.length
+          console.log(`📊 Loaded ${this.locations.length} locations, total: ${this.total}`)
+          
+        } else {
+          console.error('❌ Invalid API response structure:', response)
+          this.locations = []
+          this.total = 0
+        }
         
       } catch (error) {
-        console.error('Error loading locations:', error)
+        console.error('💥 Error loading locations:', error)
+        this.$message && this.$message.error('載入倉位資料失敗: ' + error.message)
+        this.locations = []
+        this.total = 0
       } finally {
         this.loading = false
+        console.log('🏁 Loading complete. Final locations:', this.locations)
       }
     },
 
@@ -339,11 +347,21 @@ export default {
     async handleSubmit() {
       try {
         this.submitting = true
-        console.log(this.isEditMode ? 'Updating' : 'Creating', this.form)
+        
+        if (this.isEditMode) {
+          await updateLocation(this.editingId, this.form)
+          this.$message && this.$message.success('倉位更新成功')
+        } else {
+          await createLocation(this.form)
+          this.$message && this.$message.success('倉位建立成功')
+        }
+        
         this.closeModal()
         await this.loadLocations()
+        
       } catch (error) {
         console.error('Error saving location:', error)
+        this.$message && this.$message.error(this.isEditMode ? '倉位更新失敗' : '倉位建立失敗')
       } finally {
         this.submitting = false
       }

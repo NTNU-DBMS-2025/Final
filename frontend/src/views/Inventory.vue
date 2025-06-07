@@ -86,9 +86,11 @@
             class="border border-gray-300 rounded-md px-3 py-2 text-sm"
           >
             <option value="">全部位置</option>
-            <option value="A1">A1區</option>
-            <option value="B2">B2區</option>
-            <option value="C3">C3區</option>
+            <option value="A">A區</option>
+            <option value="B">B區</option>
+            <option value="C">C區</option>
+            <option value="D">D區</option>
+            <option value="E">E區</option>
           </select>
         </div>
       </div>
@@ -178,10 +180,19 @@
                   v-model="adjustmentForm.location"
                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="A1-01">A1-01</option>
-                  <option value="A1-02">A1-02</option>
-                  <option value="B2-15">B2-15</option>
-                  <option value="C3-08">C3-08</option>
+                  <option value="">請選擇位置</option>
+                  <option value="A1-01">A1-01 - A區第1排第1位</option>
+                  <option value="A1-02">A1-02 - A區第1排第2位</option>
+                  <option value="A1-03">A1-03 - A區第1排第3位</option>
+                  <option value="B2-01">B2-01 - B區第2排第1位</option>
+                  <option value="B2-02">B2-02 - B區第2排第2位</option>
+                  <option value="B2-15">B2-15 - B區第2排第15位</option>
+                  <option value="C3-01">C3-01 - C區第3排第1位</option>
+                  <option value="C3-02">C3-02 - C區第3排第2位</option>
+                  <option value="D4-01">D4-01 - D區第4排第1位</option>
+                  <option value="D4-02">D4-02 - D區第4排第2位</option>
+                  <option value="E5-01">E5-01 - E區第5排第1位</option>
+                  <option value="E5-02">E5-02 - E區第5排第2位</option>
                 </select>
               </div>
 
@@ -291,10 +302,19 @@
                   v-model="movementForm.location"
                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="A1-01">A1-01</option>
-                  <option value="A1-02">A1-02</option>
-                  <option value="B2-15">B2-15</option>
-                  <option value="C3-08">C3-08</option>
+                  <option value="">請選擇位置</option>
+                  <option value="A1-01">A1-01 - A區第1排第1位</option>
+                  <option value="A1-02">A1-02 - A區第1排第2位</option>
+                  <option value="A1-03">A1-03 - A區第1排第3位</option>
+                  <option value="B2-01">B2-01 - B區第2排第1位</option>
+                  <option value="B2-02">B2-02 - B區第2排第2位</option>
+                  <option value="B2-15">B2-15 - B區第2排第15位</option>
+                  <option value="C3-01">C3-01 - C區第3排第1位</option>
+                  <option value="C3-02">C3-02 - C區第3排第2位</option>
+                  <option value="D4-01">D4-01 - D區第4排第1位</option>
+                  <option value="D4-02">D4-02 - D區第4排第2位</option>
+                  <option value="E5-01">E5-01 - E區第5排第1位</option>
+                  <option value="E5-02">E5-02 - E區第5排第2位</option>
                 </select>
               </div>
 
@@ -408,7 +428,7 @@ export default {
         
         if (this.searchQuery) params.search = this.searchQuery
         if (this.statusFilter === 'low_stock') params.low_stock = true
-        if (this.locationFilter) params.location_id = this.locationFilter
+        if (this.locationFilter) params.zone = this.locationFilter
         
         const response = await inventoryAPI.fetchInventory(params)
         
@@ -418,7 +438,7 @@ export default {
           sku: `SKU-${item.product_id}`,
           quantity_on_hand: item.quantity,
           reorder_level: 10, // Default reorder level
-          location: `${item.location_zone}-${item.location_shelf}`,
+          location: item.location_code,
           unit_cost: 50, // Default unit cost
           total_value: `$${(item.quantity * 50).toFixed(2)}`,
           status: this.getStockStatusFromAPI(item.stock_status),

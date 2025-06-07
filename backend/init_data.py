@@ -266,24 +266,131 @@ def init_sample_data():
 
         print("Creating locations...")
         locations_data = [
-            {'zone': 'A', 'shelf': '01'},
-            {'zone': 'A', 'shelf': '02'},
-            {'zone': 'A', 'shelf': '03'},
-            {'zone': 'B', 'shelf': '01'},
-            {'zone': 'B', 'shelf': '02'},
-            {'zone': 'B', 'shelf': '03'},
-            {'zone': 'C', 'shelf': '01'},
-            {'zone': 'C', 'shelf': '02'},
-            {'zone': 'D', 'shelf': '01'},
-            {'zone': 'D', 'shelf': '02'},
-            {'zone': 'E', 'shelf': '01'},
-            {'zone': 'E', 'shelf': '02'}
+            {
+                'location_code': 'A1-01',
+                'location_name': 'A區第1排第1位',
+                'zone': 'A',
+                'shelf': '01',
+                'location_type': 'storage',
+                'capacity': 100,
+                'status': 'active',
+                'notes': '主要儲存區域'
+            },
+            {
+                'location_code': 'A1-02',
+                'location_name': 'A區第1排第2位',
+                'zone': 'A',
+                'shelf': '02',
+                'location_type': 'storage',
+                'capacity': 100,
+                'status': 'active',
+                'notes': '標準儲存位置'
+            },
+            {
+                'location_code': 'A1-03',
+                'location_name': 'A區第1排第3位',
+                'zone': 'A',
+                'shelf': '03',
+                'location_type': 'storage',
+                'capacity': 80,
+                'status': 'active',
+                'notes': '小型物品儲存'
+            },
+            {
+                'location_code': 'B2-01',
+                'location_name': 'B區第2排第1位',
+                'zone': 'B',
+                'shelf': '01',
+                'location_type': 'picking',
+                'capacity': 60,
+                'status': 'active',
+                'notes': '揀貨專用區域'
+            },
+            {
+                'location_code': 'B2-02',
+                'location_name': 'B區第2排第2位',
+                'zone': 'B',
+                'shelf': '02',
+                'location_type': 'storage',
+                'capacity': 90,
+                'status': 'active',
+                'notes': '中型物品儲存'
+            },
+            {
+                'location_code': 'B2-15',
+                'location_name': 'B區第2排第15位',
+                'zone': 'B',
+                'shelf': '15',
+                'location_type': 'picking',
+                'capacity': 50,
+                'status': 'occupied',
+                'notes': '揀貨專用區'
+            },
+            {
+                'location_code': 'C3-01',
+                'location_name': 'C區第3排第1位',
+                'zone': 'C',
+                'shelf': '01',
+                'location_type': 'receiving',
+                'capacity': 120,
+                'status': 'active',
+                'notes': '收貨暫存區'
+            },
+            {
+                'location_code': 'C3-02',
+                'location_name': 'C區第3排第2位',
+                'zone': 'C',
+                'shelf': '02',
+                'location_type': 'storage',
+                'capacity': 110,
+                'status': 'maintenance',
+                'notes': '維護中，暫停使用'
+            },
+            {
+                'location_code': 'D4-01',
+                'location_name': 'D區第4排第1位',
+                'zone': 'D',
+                'shelf': '01',
+                'location_type': 'shipping',
+                'capacity': 150,
+                'status': 'active',
+                'notes': '出貨準備區'
+            },
+            {
+                'location_code': 'D4-02',
+                'location_name': 'D區第4排第2位',
+                'zone': 'D',
+                'shelf': '02',
+                'location_type': 'storage',
+                'capacity': 95,
+                'status': 'active',
+                'notes': '大型物品儲存'
+            },
+            {
+                'location_code': 'E5-01',
+                'location_name': 'E區第5排第1位',
+                'zone': 'E',
+                'shelf': '01',
+                'location_type': 'staging',
+                'capacity': 75,
+                'status': 'active',
+                'notes': '暫存中轉區'
+            },
+            {
+                'location_code': 'E5-02',
+                'location_name': 'E區第5排第2位',
+                'zone': 'E',
+                'shelf': '02',
+                'location_type': 'storage',
+                'capacity': 85,
+                'status': 'active',
+                'notes': '高價值物品儲存'
+            }
         ]
 
         for location_data in locations_data:
             location = Location.query.filter_by(
-                zone=location_data['zone'],
-                shelf=location_data['shelf']
+                location_code=location_data['location_code']
             ).first()
             if not location:
                 location = Location(**location_data)
@@ -343,33 +450,37 @@ def init_sample_data():
             from datetime import date, timedelta
 
             inventory_data = [
-                {'product_name': 'Laptop Dell XPS 13', 'zone': 'A',
-                    'shelf': '01', 'quantity': 25, 'days_to_expiry': 365},
-                {'product_name': 'iPhone 15 Pro', 'zone': 'A',
-                    'shelf': '02', 'quantity': 50, 'days_to_expiry': 180},
-                {'product_name': 'MacBook Pro M3', 'zone': 'B',
-                    'shelf': '01', 'quantity': 15, 'days_to_expiry': 365},
-                {'product_name': 'Wireless Mouse Logitech', 'zone': 'B',
-                    'shelf': '02', 'quantity': 100, 'days_to_expiry': 90},
-                {'product_name': 'Monitor 24 inch LG', 'zone': 'C',
-                    'shelf': '01', 'quantity': 30, 'days_to_expiry': 180},
-                {'product_name': 'Office Chair Ergonomic', 'zone': 'D',
-                    'shelf': '01', 'quantity': 8, 'days_to_expiry': None},
-                {'product_name': 'Standing Desk', 'zone': 'D',
-                    'shelf': '02', 'quantity': 5, 'days_to_expiry': None},
-                {'product_name': 'Wireless Keyboard', 'zone': 'A',
-                    'shelf': '03', 'quantity': 60, 'days_to_expiry': 120},
-                {'product_name': 'Tablet iPad Air', 'zone': 'B',
-                    'shelf': '03', 'quantity': 20, 'days_to_expiry': 90},
-                {'product_name': 'Printer HP LaserJet', 'zone': 'E',
-                    'shelf': '01', 'quantity': 12, 'days_to_expiry': 365}
+                {'product_name': 'Laptop Dell XPS 13', 'location_code': 'A1-01',
+                    'quantity': 25, 'days_to_expiry': 365},
+                {'product_name': 'iPhone 15 Pro', 'location_code': 'A1-02',
+                    'quantity': 50, 'days_to_expiry': 180},
+                {'product_name': 'MacBook Pro M3', 'location_code': 'B2-01',
+                    'quantity': 15, 'days_to_expiry': 365},
+                {'product_name': 'Wireless Mouse Logitech',
+                    'location_code': 'B2-02', 'quantity': 100, 'days_to_expiry': 90},
+                {'product_name': 'Monitor 24 inch LG', 'location_code': 'C3-01',
+                    'quantity': 30, 'days_to_expiry': 180},
+                {'product_name': 'Office Chair Ergonomic',
+                    'location_code': 'D4-01', 'quantity': 8, 'days_to_expiry': None},
+                {'product_name': 'Standing Desk', 'location_code': 'D4-02',
+                    'quantity': 5, 'days_to_expiry': None},
+                {'product_name': 'Wireless Keyboard', 'location_code': 'A1-03',
+                    'quantity': 60, 'days_to_expiry': 120},
+                {'product_name': 'Tablet iPad Air', 'location_code': 'B2-15',
+                    'quantity': 20, 'days_to_expiry': 90},
+                {'product_name': 'Printer HP LaserJet', 'location_code': 'E5-01',
+                    'quantity': 12, 'days_to_expiry': 365},
+                {'product_name': 'Gaming Chair', 'location_code': 'E5-02',
+                    'quantity': 6, 'days_to_expiry': None},
+                {'product_name': 'Conference Table', 'location_code': 'C3-02',
+                    'quantity': 2, 'days_to_expiry': None}
             ]
 
             for inv_data in inventory_data:
                 product = Product.query.filter_by(
                     name=inv_data['product_name']).first()
                 location = Location.query.filter_by(
-                    zone=inv_data['zone'], shelf=inv_data['shelf']).first()
+                    location_code=inv_data['location_code']).first()
 
                 if product and location:
                     # Check if inventory lot already exists

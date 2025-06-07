@@ -15,6 +15,7 @@ def get_inventory():
         per_page = request.args.get('per_page', 10, type=int)
         product_filter = request.args.get('product_id', type=int)
         location_filter = request.args.get('location_id', type=int)
+        zone_filter = request.args.get('zone', '').strip()
         low_stock = request.args.get('low_stock', type=bool)
         search = request.args.get('search', '').strip()
 
@@ -26,6 +27,8 @@ def get_inventory():
             query = query.filter(InventoryLot.product_id == product_filter)
         if location_filter:
             query = query.filter(InventoryLot.location_id == location_filter)
+        if zone_filter:
+            query = query.filter(Location.zone == zone_filter)
         if low_stock:
             # Consider low stock as quantity <= 10
             query = query.filter(InventoryLot.quantity <= 10)
@@ -69,6 +72,7 @@ def get_inventory():
                 'location_id': lot.location_id,
                 'product_name': lot.product.name,
                 'category': lot.product.category,
+                'location_code': lot.location.location_code,
                 'location_zone': lot.location.zone,
                 'location_shelf': lot.location.shelf,
                 'quantity': lot.quantity,
@@ -119,6 +123,7 @@ def get_inventory_lot(product_id, location_id):
                 'location_id': lot.location_id,
                 'product_name': lot.product.name,
                 'category': lot.product.category,
+                'location_code': lot.location.location_code,
                 'location_zone': lot.location.zone,
                 'location_shelf': lot.location.shelf,
                 'quantity': lot.quantity,

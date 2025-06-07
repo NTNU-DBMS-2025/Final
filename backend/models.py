@@ -168,12 +168,52 @@ class Location(db.Model):
     __tablename__ = 'Location'
 
     location_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    location_code = db.Column(db.String(50), nullable=False, unique=True)
+    location_name = db.Column(db.String(100), nullable=False)
     zone = db.Column(db.String(50), nullable=False)
     shelf = db.Column(db.String(50), nullable=False)
+    location_type = db.Column(db.String(50), nullable=False, default='storage')
+    capacity = db.Column(db.Integer, nullable=False, default=0)
+    status = db.Column(db.String(20), nullable=False, default='active')
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
     inventory_lots = db.relationship('InventoryLot', back_populates='location')
     scraps = db.relationship('Scrap', back_populates='location')
+
+    def get_current_stock(self):
+        """Calculate total current stock in this location"""
+        total = db.session.query(db.func.sum(InventoryLot.quantity)).filter_by(
+            location_id=self.location_id).scalar()
+        return int(total or 0)
+
+    def get_utilization_rate(self):
+        """Calculate utilization rate as percentage"""
+        if self.capacity == 0:
+            return 0.0
+        current_stock = self.get_current_stock()
+        return round((current_stock / self.capacity) * 100, 1)
+
+    def to_dict(self):
+        """Convert Location object to dictionary"""
+        return {
+            'location_id': self.location_id,
+            'location_code': self.location_code,
+            'location_name': self.location_name,
+            'zone': self.zone,
+            'shelf': self.shelf,
+            'location_type': self.location_type,
+            'capacity': self.capacity,
+            'status': self.status,
+            'notes': self.notes,
+            'current_stock': self.get_current_stock(),
+            'utilization_rate': self.get_utilization_rate(),
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
 
 
 class InventoryLot(db.Model):

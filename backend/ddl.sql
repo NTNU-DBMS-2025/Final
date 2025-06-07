@@ -144,9 +144,21 @@ CREATE TABLE Shipment (
 -- 9. Location
 CREATE TABLE Location (
   location_id INT NOT NULL AUTO_INCREMENT,
+  location_code VARCHAR(50) NOT NULL UNIQUE,
+  location_name VARCHAR(100) NOT NULL,
   zone VARCHAR(50) NOT NULL,
   shelf VARCHAR(50) NOT NULL,
-  PRIMARY KEY (location_id)
+  location_type VARCHAR(50) NOT NULL DEFAULT 'storage',
+  capacity INT NOT NULL DEFAULT 0,
+  status VARCHAR(20) NOT NULL DEFAULT 'active',
+  notes TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (location_id),
+  INDEX idx_location_code (location_code),
+  INDEX idx_location_zone (zone),
+  INDEX idx_location_type (location_type),
+  INDEX idx_location_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 9.1 Inventory_Lot
