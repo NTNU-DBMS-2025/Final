@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed top-4 right-4 z-50">
+  <div class="fixed top-4 inset-x-0 flex justify-center z-50">
     <div
       v-for="notification in notifications"
       :key="notification.id"

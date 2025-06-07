@@ -5,28 +5,28 @@
       <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
         <h3 class="responsive-title text-gray-900">{{ title }}</h3>
         <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-          <button 
-            v-if="showAddButton"
-            @click="$emit('add')"
-            class="bg-blue-500 hover:bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm w-full sm:w-auto"
-          >
-            新增
-          </button>
           <input
             v-if="searchable"
             v-model="searchQuery"
             @input="handleSearch"
             type="text"
-            placeholder="搜尋..."
+            placeholder="輸入要尋找的內容..."
             class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm w-full sm:w-auto min-w-0"
           />
+          <button 
+            v-if="showAddButton"
+            @click="$emit('add')"
+            class="bg-blue-500 hover:bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm w-full sm:w-auto"
+          >
+            搜尋
+          </button>
         </div>
       </div>
     </div>
 
     <!-- Table -->
     <div class="table-responsive">
-      <table class="min-w-full divide-y divide-gray-200">
+      <table class="min-w-full divide-y divide-gray-200 text-center">
         <thead class="bg-gray-50">
           <tr>
             <th 
@@ -34,18 +34,19 @@
               :key="column.key"
               @click="column.sortable ? handleSort(column.key) : null"
               :class="[
-                'px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap',
+                'px-3 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap',
                 column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''
               ]"
             >
-              <div class="flex items-center">
+              <div class="flex justify-center items-center">
                 {{ column.label }}
                 <span v-if="column.sortable && sortKey === column.key" class="ml-2">
                   {{ sortOrder === 'asc' ? '↑' : '↓' }}
                 </span>
               </div>
             </th>
-            <th v-if="actions.length > 0" class="px-3 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th v-if="actions.length > 0" 
+              class="px-3 sm:px-6 py-3 text-center text-xs font-medium text-gray-500">
               操作
             </th>
           </tr>
@@ -92,14 +93,14 @@
                 {{ row[column.key] }}
               </div>
             </td>
-            <td v-if="actions.length > 0" class="px-3 sm:px-6 py-3 sm:py-4 text-right text-sm font-medium">
+            <td v-if="actions.length > 0" class="px-3 sm:px-6 py-3 sm:py-4 text-center text-sm font-medium">
               <div class="flex justify-end space-x-2">
                 <button
                   v-for="action in actions"
                   :key="action.name"
                   @click="$emit(action.event, row)"
                   :class="getActionClass(action.type)"
-                  class="px-2 sm:px-3 py-1 rounded transition-colors text-xs sm:text-sm"
+                  class="px-2 sm:px-3 py-2 rounded transition-colors text-xs sm:text-sm"
                 >
                   {{ action.label }}
                 </button>

@@ -38,7 +38,7 @@
         </div>
 
         <div v-if="error" class="bg-red-50 border border-red-300 rounded-md p-3">
-          <p class="text-sm text-red-700">{{ error }}</p>
+          <p class="text-sm text-red-700 text-center">{{ error }}</p>
         </div>
 
         <div>
