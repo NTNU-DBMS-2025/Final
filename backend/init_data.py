@@ -4,7 +4,7 @@ Initialize sample data for the Warehouse Management System
 """
 
 from app import create_app
-from models import db, Role, User, Product, Supplier, Customer, Location
+from models import db, Role, User, Product, Supplier, Customer, Location, InventoryLot
 from werkzeug.security import generate_password_hash
 
 

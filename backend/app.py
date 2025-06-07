@@ -28,10 +28,23 @@ def create_app():
     from products import products_bp
     from suppliers import suppliers_bp
     from customers import customers_bp
+    from orders import orders_bp
+    from inventory import inventory_bp
+    from locations import locations_bp
+    from shipments import shipments_bp
+    from scrap import scrap_bp
+    from users import users_bp
+
     app.register_blueprint(auth_bp)
     app.register_blueprint(products_bp)
     app.register_blueprint(suppliers_bp)
     app.register_blueprint(customers_bp)
+    app.register_blueprint(orders_bp)
+    app.register_blueprint(inventory_bp)
+    app.register_blueprint(locations_bp)
+    app.register_blueprint(shipments_bp)
+    app.register_blueprint(scrap_bp)
+    app.register_blueprint(users_bp)
 
     @app.route('/api/health')
     def health_check():
