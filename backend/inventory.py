@@ -75,6 +75,8 @@ def get_inventory():
                 'location_code': lot.location.location_code,
                 'location_zone': lot.location.zone,
                 'location_shelf': lot.location.shelf,
+                'location_capacity': lot.location.capacity,
+                'location_utilization_rate': lot.location.get_utilization_rate(),
                 'quantity': lot.quantity,
                 'expiry_date': lot.expiry_date.isoformat() if lot.expiry_date else None,
                 'stock_status': stock_status,
@@ -126,6 +128,8 @@ def get_inventory_lot(product_id, location_id):
                 'location_code': lot.location.location_code,
                 'location_zone': lot.location.zone,
                 'location_shelf': lot.location.shelf,
+                'location_capacity': lot.location.capacity,
+                'location_utilization_rate': lot.location.get_utilization_rate(),
                 'quantity': lot.quantity,
                 'expiry_date': lot.expiry_date.isoformat() if lot.expiry_date else None
             }

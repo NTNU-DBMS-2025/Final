@@ -404,6 +404,7 @@ export default {
         { key: 'quantity_on_hand', label: '現有庫存', sortable: true },
         { key: 'reorder_level', label: '再訂購點', sortable: true },
         { key: 'location', label: '位置', sortable: true },
+        { key: 'location_utilization', label: '位置使用率', sortable: true },
         { key: 'unit_cost', label: '成本', sortable: true },
         { key: 'total_value', label: '總值', sortable: true },
         { key: 'status', label: '狀態', sortable: true },
@@ -439,6 +440,7 @@ export default {
           quantity_on_hand: item.quantity,
           reorder_level: 10, // Default reorder level
           location: item.location_code,
+          location_utilization: `${item.location_utilization_rate}%`,
           unit_cost: 50, // Default unit cost
           total_value: `$${(item.quantity * 50).toFixed(2)}`,
           status: this.getStockStatusFromAPI(item.stock_status),
