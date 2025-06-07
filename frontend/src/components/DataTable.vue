@@ -75,6 +75,19 @@
               <div v-else-if="column.type === 'currency'">
                 NT$ {{ Number(row[column.key]).toLocaleString() }}
               </div>
+              <div v-else-if="column.key === 'actions'">
+                <div class="flex justify-end space-x-2">
+                  <button
+                    v-for="action in row[column.key]"
+                    :key="action.label"
+                    @click="action.action()"
+                    :class="action.class"
+                    class="px-2 sm:px-3 py-1 rounded transition-colors text-xs sm:text-sm hover:underline"
+                  >
+                    {{ action.label }}
+                  </button>
+                </div>
+              </div>
               <div v-else class="text-sm text-gray-900">
                 {{ row[column.key] }}
               </div>

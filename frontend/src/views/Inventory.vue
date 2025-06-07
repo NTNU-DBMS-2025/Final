@@ -394,32 +394,35 @@ export default {
   },
   async created() {
     await this.loadInventory()
+    await this.loadStatistics()
   },
   methods: {
     async loadInventory() {
       try {
         this.loading = true
         
-        const response = await inventoryAPI.getInventory({
+        const params = {
           page: this.currentPage,
-          limit: this.pageSize,
-          search: this.searchQuery,
-          sortBy: this.sortBy,
-          sortOrder: this.sortOrder,
-          status: this.statusFilter,
-          location: this.locationFilter
-        })
+          per_page: this.pageSize
+        }
         
-        // Calculate statistics
-        this.calculateStatistics(response.data)
+        if (this.searchQuery) params.search = this.searchQuery
+        if (this.statusFilter === 'low_stock') params.low_stock = true
+        if (this.locationFilter) params.location_id = this.locationFilter
+        
+        const response = await inventoryAPI.fetchInventory(params)
         
         // Format data for display
-        this.inventory = response.data.map(item => ({
+        this.inventory = response.data.data.map(item => ({
           ...item,
-          unit_cost: `$${item.unit_cost.toFixed(2)}`,
-          total_value: `$${(item.quantity_on_hand * item.unit_cost).toFixed(2)}`,
-          status: this.getStockStatus(item),
-          last_updated: this.formatDate(item.last_updated),
+          sku: `SKU-${item.product_id}`,
+          quantity_on_hand: item.quantity,
+          reorder_level: 10, // Default reorder level
+          location: `${item.location_zone}-${item.location_shelf}`,
+          unit_cost: 50, // Default unit cost
+          total_value: `$${(item.quantity * 50).toFixed(2)}`,
+          status: this.getStockStatusFromAPI(item.stock_status),
+          last_updated: this.formatDate(new Date()),
           actions: [
             {
               label: '調整',
@@ -439,7 +442,7 @@ export default {
           ]
         }))
         
-        this.total = response.total
+        this.total = response.data.pagination.total
         
       } catch (error) {
         console.error('Error loading inventory:', error)
@@ -452,17 +455,22 @@ export default {
       }
     },
 
+    async loadStatistics() {
+      try {
+        const response = await inventoryAPI.fetchInventoryStats()
+        const stats = response.data.data
+        
+        this.totalInventoryValue = parseInt(stats.total_items) * 50 // Rough estimate
+        this.totalItems = parseInt(stats.total_items)
+        this.lowStockCount = stats.low_stock_items
+        this.outOfStockCount = stats.critical_stock_items
+      } catch (error) {
+        console.error('Error loading statistics:', error)
+      }
+    },
+
     calculateStatistics(inventoryData) {
-      this.totalItems = inventoryData.length
-      this.totalInventoryValue = inventoryData.reduce((sum, item) => 
-        sum + (item.quantity_on_hand * item.unit_cost), 0
-      )
-      this.lowStockCount = inventoryData.filter(item => 
-        item.quantity_on_hand <= item.reorder_level && item.quantity_on_hand > 0
-      ).length
-      this.outOfStockCount = inventoryData.filter(item => 
-        item.quantity_on_hand === 0
-      ).length
+      // This method is now replaced by loadStatistics()
     },
 
     handlePageChange(page) {
@@ -480,6 +488,15 @@ export default {
       this.searchQuery = query
       this.currentPage = 1
       this.loadInventory()
+    },
+
+    getStockStatusFromAPI(status) {
+      const statusMap = {
+        'Critical': '缺貨',
+        'Low': '低庫存',
+        'Good': '正常'
+      }
+      return statusMap[status] || '正常'
     },
 
     openAdjustmentModal() {
@@ -531,6 +548,7 @@ export default {
         
         this.closeAdjustmentModal()
         await this.loadInventory()
+        await this.loadStatistics()
         
       } catch (error) {
         console.error('Error adjusting stock:', error)
@@ -556,6 +574,7 @@ export default {
         
         this.closeMovementModal()
         await this.loadInventory()
+        await this.loadStatistics()
         
       } catch (error) {
         console.error('Error processing movement:', error)

@@ -1,118 +1,118 @@
 import apiClient from './axios'
 
-// Mock inventory data
-const mockInventory = [
-    {
-        product_id: 1,
-        product_name: '筆記型電腦',
-        location_id: 1,
-        location_name: 'A-01-01',
-        zone: 'A區',
-        shelf: '01-01',
-        quantity: 45,
-        expiry_date: '2025-12-31'
-    },
-    {
-        product_id: 2,
-        product_name: '智慧型手機',
-        location_id: 2,
-        location_name: 'A-01-02',
-        zone: 'A區',
-        shelf: '01-02',
-        quantity: 8,
-        expiry_date: '2024-06-30'
-    },
-    {
-        product_id: 3,
-        product_name: '辦公椅',
-        location_id: 3,
-        location_name: 'B-02-01',
-        zone: 'B區',
-        shelf: '02-01',
-        quantity: 120,
-        expiry_date: null
-    }
-]
-
-const mockLocations = [
-    { location_id: 1, zone: 'A區', shelf: '01-01' },
-    { location_id: 2, zone: 'A區', shelf: '01-02' },
-    { location_id: 3, zone: 'B區', shelf: '02-01' },
-    { location_id: 4, zone: 'B區', shelf: '02-02' },
-    { location_id: 5, zone: 'C區', shelf: '03-01' }
-]
-
+// Real API functions
 export function fetchInventory(params = {}) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const { page = 1, pageSize = 10, lowStock = false } = params
-            let filteredInventory = mockInventory
+    const { page = 1, per_page = 10, low_stock, search, product_id, location_id } = params
 
-            if (lowStock) {
-                filteredInventory = mockInventory.filter(item => item.quantity < 20)
-            }
-
-            const startIndex = (page - 1) * pageSize
-            const endIndex = startIndex + pageSize
-            const paginatedInventory = filteredInventory.slice(startIndex, endIndex)
-
-            resolve({
-                data: {
-                    success: true,
-                    data: {
-                        inventory: paginatedInventory,
-                        total: filteredInventory.length,
-                        page,
-                        pageSize
-                    }
-                }
-            })
-        }, 500)
+    const queryParams = new URLSearchParams({
+        page: page.toString(),
+        per_page: per_page.toString()
     })
+
+    if (low_stock) queryParams.append('low_stock', 'true')
+    if (search) queryParams.append('search', search)
+    if (product_id) queryParams.append('product_id', product_id.toString())
+    if (location_id) queryParams.append('location_id', location_id.toString())
+
+    return apiClient.get(`/inventory?${queryParams}`)
 }
 
-export function updateInventory(productId, locationId, updateData) {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            const index = mockInventory.findIndex(
-                item => item.product_id === parseInt(productId) && item.location_id === parseInt(locationId)
-            )
-            if (index !== -1) {
-                mockInventory[index] = { ...mockInventory[index], ...updateData }
-                resolve({
-                    data: {
-                        success: true,
-                        data: mockInventory[index],
-                        message: '庫存更新成功'
-                    }
-                })
-            } else {
-                reject({
-                    response: {
-                        data: { error: '庫存記錄不存在' }
-                    }
-                })
-            }
-        }, 500)
-    })
+export function fetchInventoryStats() {
+    return apiClient.get('/inventory/stats')
 }
 
-export function fetchLocations() {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({
-                data: {
-                    success: true,
-                    data: mockLocations
-                }
-            })
-        }, 300)
-    })
+export function fetchLowStockItems(threshold = 10) {
+    return apiClient.get(`/inventory/low-stock?threshold=${threshold}`)
 }
 
-// Export as inventoryAPI for compatibility
+export function fetchExpiringItems(days = 30) {
+    return apiClient.get(`/inventory/expiring?days=${days}`)
+}
+
+export function getInventoryLot(productId, locationId) {
+    return apiClient.get(`/inventory/${productId}/${locationId}`)
+}
+
+export function createInventoryLot(data) {
+    return apiClient.post('/inventory', data)
+}
+
+export function updateInventoryLot(productId, locationId, data) {
+    return apiClient.put(`/inventory/${productId}/${locationId}`, data)
+}
+
+export function deleteInventoryLot(productId, locationId) {
+    return apiClient.delete(`/inventory/${productId}/${locationId}`)
+}
+
+export function bulkUpdateInventory(updates) {
+    return apiClient.post('/inventory/bulk-update', { updates })
+}
+
+// Locations API
+export function fetchLocations(params = {}) {
+    const { page = 1, per_page = 20, zone, search, include_stats } = params
+
+    const queryParams = new URLSearchParams({
+        page: page.toString(),
+        per_page: per_page.toString()
+    })
+
+    if (zone) queryParams.append('zone', zone)
+    if (search) queryParams.append('search', search)
+    if (include_stats) queryParams.append('include_stats', 'true')
+
+    return apiClient.get(`/locations?${queryParams}`)
+}
+
+export function fetchLocationStats() {
+    return apiClient.get('/locations/stats')
+}
+
+export function fetchZones(includeStats = false) {
+    const params = includeStats ? '?include_stats=true' : ''
+    return apiClient.get(`/locations/zones${params}`)
+}
+
+export function getLocation(locationId) {
+    return apiClient.get(`/locations/${locationId}`)
+}
+
+export function createLocation(data) {
+    return apiClient.post('/locations', data)
+}
+
+export function updateLocation(locationId, data) {
+    return apiClient.put(`/locations/${locationId}`, data)
+}
+
+export function deleteLocation(locationId) {
+    return apiClient.delete(`/locations/${locationId}`)
+}
+
+export function bulkCreateLocations(locations) {
+    return apiClient.post('/locations/bulk-create', { locations })
+}
+
+// Compatibility exports
 export const inventoryAPI = {
     fetchInventory,
-    updateInventory,
-    fetchLocations
-} 
+    fetchInventoryStats,
+    fetchLowStockItems,
+    fetchExpiringItems,
+    getInventoryLot,
+    createInventoryLot,
+    updateInventoryLot: updateInventoryLot,
+    deleteInventoryLot,
+    bulkUpdateInventory,
+    fetchLocations,
+    fetchLocationStats,
+    fetchZones,
+    getLocation,
+    createLocation,
+    updateLocation,
+    deleteLocation,
+    bulkCreateLocations
+}
+
+export default inventoryAPI 
