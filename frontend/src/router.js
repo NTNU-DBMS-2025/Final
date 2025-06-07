@@ -16,6 +16,8 @@ import Locations from './views/Locations.vue'
 import Scrap from './views/Scrap.vue'
 import Reports from './views/Reports.vue'
 
+
+
 const routes = [
     {
         path: '/',
