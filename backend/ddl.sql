@@ -36,8 +36,21 @@ CREATE TABLE Customer (
   customer_id INT NOT NULL AUTO_INCREMENT,
   name VARCHAR(100) NOT NULL,
   contact VARCHAR(100),
+  phone VARCHAR(20),
+  email VARCHAR(100),
   address VARCHAR(255),
-  PRIMARY KEY (customer_id)
+  customer_type VARCHAR(50) DEFAULT 'individual',
+  customer_level VARCHAR(50) DEFAULT 'bronze',
+  tax_id VARCHAR(20),
+  status VARCHAR(20) NOT NULL DEFAULT 'active',
+  notes TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (customer_id),
+  INDEX idx_customer_type (customer_type),
+  INDEX idx_customer_level (customer_level),
+  INDEX idx_customer_status (status),
+  INDEX idx_customer_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 4. User

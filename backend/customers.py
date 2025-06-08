@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 from models import db, Customer, Order
 from auth import require_auth, require_role
+from sqlalchemy import func
+from datetime import datetime, timedelta
 
 customers_bp = Blueprint('customers', __name__, url_prefix='/api/customers')
 
@@ -30,14 +32,7 @@ def get_customers():
 
         customers = []
         for customer in pagination.items:
-            customers.append({
-                'customer_id': customer.customer_id,
-                'name': customer.name,
-                'contact': customer.contact,
-                'address': customer.address,
-                'orders_count': len(customer.orders),
-                'latest_order_date': max([order.order_date for order in customer.orders], default=None)
-            })
+            customers.append(customer.to_dict())
 
         return jsonify({
             'success': True,
@@ -70,16 +65,13 @@ def get_customer(customer_id):
                 'ship_to': order.ship_to
             })
 
+        customer_data = customer.to_dict()
+        customer_data['total_orders'] = len(customer.orders)
+        customer_data['recent_orders'] = orders
+
         return jsonify({
             'success': True,
-            'data': {
-                'customer_id': customer.customer_id,
-                'name': customer.name,
-                'contact': customer.contact,
-                'address': customer.address,
-                'total_orders': len(customer.orders),
-                'recent_orders': orders
-            }
+            'data': customer_data
         })
 
     except Exception as e:
@@ -106,7 +98,14 @@ def create_customer():
         customer = Customer(
             name=data['name'],
             contact=data.get('contact'),
-            address=data.get('address')
+            phone=data.get('phone'),
+            email=data.get('email'),
+            address=data.get('address'),
+            customer_type=data.get('customer_type', 'individual'),
+            customer_level=data.get('customer_level', 'bronze'),
+            tax_id=data.get('tax_id'),
+            status=data.get('status', 'active'),
+            notes=data.get('notes')
         )
 
         db.session.add(customer)
@@ -114,12 +113,7 @@ def create_customer():
 
         return jsonify({
             'success': True,
-            'data': {
-                'customer_id': customer.customer_id,
-                'name': customer.name,
-                'contact': customer.contact,
-                'address': customer.address
-            }
+            'data': customer.to_dict()
         }), 201
 
     except Exception as e:
@@ -147,19 +141,35 @@ def update_customer(customer_id):
         if 'contact' in data:
             customer.contact = data['contact']
 
+        if 'phone' in data:
+            customer.phone = data['phone']
+
+        if 'email' in data:
+            customer.email = data['email']
+
         if 'address' in data:
             customer.address = data['address']
+
+        if 'customer_type' in data:
+            customer.customer_type = data['customer_type']
+
+        if 'customer_level' in data:
+            customer.customer_level = data['customer_level']
+
+        if 'tax_id' in data:
+            customer.tax_id = data['tax_id']
+
+        if 'status' in data:
+            customer.status = data['status']
+
+        if 'notes' in data:
+            customer.notes = data['notes']
 
         db.session.commit()
 
         return jsonify({
             'success': True,
-            'data': {
-                'customer_id': customer.customer_id,
-                'name': customer.name,
-                'contact': customer.contact,
-                'address': customer.address
-            }
+            'data': customer.to_dict()
         })
 
     except Exception as e:
@@ -237,6 +247,72 @@ def get_customer_orders(customer_id):
                     'per_page': pagination.per_page,
                     'total': pagination.total
                 }
+            }
+        })
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@customers_bp.route('/stats', methods=['GET'])
+@require_auth
+def get_customer_stats():
+    """Get customer statistics"""
+    try:
+        # Total customers
+        total_customers = Customer.query.count()
+
+        # Active customers
+        active_customers = Customer.query.filter_by(status='active').count()
+
+        # New customers this month
+        today = datetime.now()
+        month_start = datetime(today.year, today.month, 1)
+        new_customers_month = Customer.query.filter(
+            Customer.created_at >= month_start
+        ).count()
+
+        # Customer by type
+        customer_by_type = db.session.query(
+            Customer.customer_type,
+            func.count(Customer.customer_id).label('count')
+        ).group_by(Customer.customer_type).all()
+
+        type_breakdown = {stat[0]: stat[1] for stat in customer_by_type}
+
+        # Customer by level
+        customer_by_level = db.session.query(
+            Customer.customer_level,
+            func.count(Customer.customer_id).label('count')
+        ).group_by(Customer.customer_level).all()
+
+        level_breakdown = {stat[0]: stat[1] for stat in customer_by_level}
+
+        # Top customers by order count
+        top_customers = db.session.query(
+            Customer.customer_id,
+            Customer.name,
+            func.count(Order.order_id).label('count')
+        ).join(Order).group_by(Customer.customer_id)\
+         .order_by(func.count(Order.order_id).desc()).limit(5).all()
+
+        top_customers_list = [
+            {
+                'customer_id': stat[0],
+                'name': stat[1],
+                'order_count': stat[2]
+            } for stat in top_customers
+        ]
+
+        return jsonify({
+            'success': True,
+            'data': {
+                'total_customers': total_customers,
+                'active_customers': active_customers,
+                'new_customers_month': new_customers_month,
+                'customer_by_type': type_breakdown,
+                'customer_by_level': level_breakdown,
+                'top_customers': top_customers_list
             }
         })
 

@@ -214,44 +214,100 @@ def init_sample_data():
         print("Creating customers...")
         customers_data = [
             {
-                'name': 'ABC Corporation',
-                'contact': 'procurement@abc-corp.com',
-                'address': '123 Business St, New York, NY 10001'
+                'name': '台積電股份有限公司',
+                'contact': '林經理',
+                'phone': '03-5636688',
+                'email': 'manager@tsmc.com',
+                'address': '新竹市力行三路8號',
+                'customer_type': 'business',
+                'customer_level': 'platinum',
+                'tax_id': '11883105',
+                'status': 'active',
+                'notes': 'VIP客戶，半導體龍頭企業'
             },
             {
-                'name': 'XYZ Ltd.',
-                'contact': 'orders@xyz-ltd.com',
-                'address': '456 Commerce Ave, Los Angeles, CA 90210'
+                'name': '鴻海精密工業股份有限公司',
+                'contact': '陳副理',
+                'phone': '02-22680013',
+                'email': 'procurement@foxconn.com',
+                'address': '新北市土城區中山路66號',
+                'customer_type': 'business',
+                'customer_level': 'gold',
+                'tax_id': '04128089',
+                'status': 'active',
+                'notes': '長期合作夥伴，電子製造服務'
             },
             {
-                'name': 'StartUp Inc.',
-                'contact': 'admin@startup.com',
-                'address': '789 Innovation Blvd, San Francisco, CA 94105'
+                'name': '張小明',
+                'contact': '張小明',
+                'phone': '0912-345-678',
+                'email': 'xiaoming@gmail.com',
+                'address': '台北市大安區敦化南路二段77號',
+                'customer_type': 'individual',
+                'customer_level': 'silver',
+                'tax_id': '',
+                'status': 'active',
+                'notes': '個人客戶，定期採購辦公用品'
             },
             {
-                'name': 'Tech Solutions Corp',
-                'contact': 'purchasing@techsol.com',
-                'address': '321 Tech Park Dr, Austin, TX 78701'
+                'name': '台灣大學',
+                'contact': '王教授',
+                'phone': '02-33662001',
+                'email': 'admin@ntu.edu.tw',
+                'address': '台北市大安區羅斯福路四段一號',
+                'customer_type': 'educational',
+                'customer_level': 'gold',
+                'tax_id': '03722103',
+                'status': 'active',
+                'notes': '教育採購，研究設備需求'
             },
             {
-                'name': 'Modern Office Systems',
-                'contact': 'orders@modernoffice.com',
-                'address': '654 Corporate Way, Seattle, WA 98101'
+                'name': '台北市政府',
+                'contact': '李科長',
+                'phone': '02-27208889',
+                'email': 'procurement@gov.taipei',
+                'address': '台北市信義區市府路1號',
+                'customer_type': 'government',
+                'customer_level': 'gold',
+                'tax_id': '03722103',
+                'status': 'active',
+                'notes': '政府採購，需要完整發票'
             },
             {
-                'name': 'Digital Dynamics LLC',
-                'contact': 'procurement@digitaldyn.com',
-                'address': '987 Future Rd, Boston, MA 02101'
+                'name': '聯發科技股份有限公司',
+                'contact': '黃經理',
+                'phone': '03-5670766',
+                'email': 'supply@mediatek.com',
+                'address': '新竹市東區力行路1號',
+                'customer_type': 'business',
+                'customer_level': 'platinum',
+                'tax_id': '12345678',
+                'status': 'active',
+                'notes': 'IC設計公司，高科技設備需求'
             },
             {
-                'name': 'Green Energy Co.',
-                'contact': 'supplies@greenenergy.com',
-                'address': '147 Sustainability Ave, Portland, OR 97201'
+                'name': '王美麗',
+                'contact': '王美麗',
+                'phone': '0987-654-321',
+                'email': 'meili.wang@email.com',
+                'address': '高雄市前金區中正四路211號',
+                'customer_type': 'individual',
+                'customer_level': 'bronze',
+                'tax_id': '',
+                'status': 'active',
+                'notes': '新客戶，小量採購'
             },
             {
-                'name': 'Education First Academy',
-                'contact': 'admin@edufirst.edu',
-                'address': '258 Learning Lane, Chicago, IL 60601'
+                'name': '停用測試公司',
+                'contact': '測試聯絡人',
+                'phone': '02-12345678',
+                'email': 'test@inactive.com',
+                'address': '測試地址',
+                'customer_type': 'business',
+                'customer_level': 'bronze',
+                'tax_id': '99999999',
+                'status': 'inactive',
+                'notes': '測試用停用客戶'
             }
         ]
 
@@ -422,19 +478,26 @@ def init_sample_data():
             global_components = Supplier.query.filter_by(
                 supplier_name='Global Components Co.').first()
 
-            # Create relationships
-            if tech_supplier and laptop_dell:
-                tech_supplier.products.append(laptop_dell)
-            if tech_supplier and macbook:
-                tech_supplier.products.append(macbook)
-            if electronics_wholesale and iphone:
-                electronics_wholesale.products.append(iphone)
-            if electronics_wholesale and mouse:
-                electronics_wholesale.products.append(mouse)
-            if global_components and monitor:
-                global_components.products.append(monitor)
-            if office_equipment and office_chair:
-                office_equipment.products.append(office_chair)
+            # Create relationships with duplicate checking
+            relationships = [
+                (tech_supplier, laptop_dell),
+                (tech_supplier, macbook),
+                (electronics_wholesale, iphone),
+                (electronics_wholesale, mouse),
+                (global_components, monitor),
+                (office_equipment, office_chair)
+            ]
+
+            for supplier, product in relationships:
+                if supplier and product:
+                    # Check if relationship already exists
+                    if product not in supplier.products:
+                        supplier.products.append(product)
+                        print(
+                            f"   Added relationship: {supplier.supplier_name} -> {product.name}")
+                    else:
+                        print(
+                            f"   Relationship already exists: {supplier.supplier_name} -> {product.name}")
 
             db.session.commit()
             print("Product-supplier relationships created!")

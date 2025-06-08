@@ -63,7 +63,7 @@
                   客戶名稱 <span class="text-red-500">*</span>
                 </label>
                 <input
-                  v-model="form.customer_name"
+                  v-model="form.name"
                   type="text"
                   required
                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -75,7 +75,7 @@
                   聯絡人姓名 <span class="text-red-500">*</span>
                 </label>
                 <input
-                  v-model="form.contact_name"
+                  v-model="form.contact"
                   type="text"
                   required
                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -219,7 +219,7 @@
           <h3 class="text-lg font-medium text-gray-900 mt-2">確認刪除</h3>
           <div class="mt-2 px-7 py-3">
             <p class="text-sm text-gray-500">
-              您確定要刪除客戶「{{ deleteItem?.customer_name }}」嗎？此操作無法復原。
+              您確定要刪除客戶「{{ deleteItem?.name }}」嗎？此操作無法復原。
             </p>
           </div>
           <div class="flex justify-center space-x-3 mt-4">
@@ -245,6 +245,7 @@
 
 <script>
 import DataTable from '../components/DataTable.vue'
+import { fetchCustomers, fetchCustomerStats, createCustomer, updateCustomer, deleteCustomer } from '@/api/customers'
 
 export default {
   name: 'Customers',
@@ -268,8 +269,8 @@ export default {
       editingId: null,
       deleteItem: null,
       form: {
-        customer_name: '',
-        contact_name: '',
+        name: '',
+        contact: '',
         phone: '',
         email: '',
         address: '',
@@ -280,8 +281,8 @@ export default {
         notes: ''
       },
       columns: [
-        { key: 'customer_name', label: '客戶名稱', sortable: true },
-        { key: 'contact_name', label: '聯絡人', sortable: true },
+        { key: 'name', label: '客戶名稱', sortable: true },
+        { key: 'contact', label: '聯絡人', sortable: true },
         { key: 'phone', label: '電話', sortable: false },
         { key: 'email', label: '電子郵件', sortable: false },
         { key: 'customer_type', label: '類型', sortable: true },
@@ -319,102 +320,29 @@ export default {
       try {
         this.loading = true
         
-        // Mock API call - replace with actual API
-        const mockCustomers = [
-          {
-            id: 1,
-            customer_name: '台積電股份有限公司',
-            contact_name: '林經理',
-            phone: '03-5636688',
-            email: 'manager@tsmc.com',
-            address: '新竹市力行三路8號',
-            customer_type: 'business',
-            customer_level: 'platinum',
-            tax_id: '11883105',
-            status: 'active',
-            notes: 'VIP客戶',
-            created_at: '2024-01-10'
-          },
-          {
-            id: 2,
-            customer_name: '鴻海精密工業股份有限公司',
-            contact_name: '陳副理',
-            phone: '02-22680013',
-            email: 'procurement@foxconn.com',
-            address: '新北市土城區中山路66號',
-            customer_type: 'business',
-            customer_level: 'gold',
-            tax_id: '04128089',
-            status: 'active',
-            notes: '長期合作夥伴',
-            created_at: '2024-01-25'
-          },
-          {
-            id: 3,
-            customer_name: '張小明',
-            contact_name: '張小明',
-            phone: '0912-345-678',
-            email: 'xiaoming@gmail.com',
-            address: '台北市大安區敦化南路二段77號',
-            customer_type: 'individual',
-            customer_level: 'silver',
-            tax_id: '',
-            status: 'active',
-            notes: '個人客戶',
-            created_at: '2024-02-15'
-          },
-          {
-            id: 4,
-            customer_name: '台灣大學',
-            contact_name: '王教授',
-            phone: '02-33662001',
-            email: 'admin@ntu.edu.tw',
-            address: '台北市大安區羅斯福路四段一號',
-            customer_type: 'educational',
-            customer_level: 'gold',
-            tax_id: '03722103',
-            status: 'active',
-            notes: '教育採購',
-            created_at: '2024-03-01'
-          }
-        ]
+        const response = await fetchCustomers({
+          page: this.currentPage,
+          per_page: this.pageSize,
+          search: this.searchQuery
+        })
         
-        // Apply search filter
-        let filtered = mockCustomers
-        if (this.searchQuery) {
-          filtered = mockCustomers.filter(customer =>
-            customer.customer_name.includes(this.searchQuery) ||
-            customer.contact_name.includes(this.searchQuery) ||
-            customer.phone.includes(this.searchQuery)
-          )
+        if (response.data.success) {
+          // Format data for display
+          this.customers = response.data.data.map(customer => ({
+            ...customer,
+            customer_type_key: customer.customer_type, // Keep original key for editing
+            customer_level_key: customer.customer_level, // Keep original key for editing
+            status_key: customer.status, // Keep original key for editing
+            customer_type: this.getCustomerTypeText(customer.customer_type),
+            customer_level: this.getCustomerLevelText(customer.customer_level),
+            status: this.getStatusText(customer.status),
+            created_at: this.formatDate(customer.created_at)
+          }))
+          
+          this.total = response.data.pagination.total
+        } else {
+          throw new Error(response.data.error || 'Failed to load customers')
         }
-        
-        // Apply sorting
-        if (this.sortBy) {
-          filtered.sort((a, b) => {
-            const aVal = a[this.sortBy]
-            const bVal = b[this.sortBy]
-            if (this.sortOrder === 'asc') {
-              return aVal > bVal ? 1 : -1
-            } else {
-              return aVal < bVal ? 1 : -1
-            }
-          })
-        }
-        
-        // Add formatted data
-        this.customers = filtered.map(customer => ({
-          ...customer,
-          customer_type_key: customer.customer_type, // Keep original key for editing
-          customer_level_key: customer.customer_level, // Keep original key for editing
-          status_key: customer.status, // Keep original key for editing
-          customer_type: this.getCustomerTypeText(customer.customer_type),
-          customer_level: this.getCustomerLevelText(customer.customer_level),
-          status: this.getStatusText(customer.status),
-          created_at: this.formatDate(customer.created_at)
-        }))
-        
-        this.total = filtered.length
         
       } catch (error) {
         console.error('Error loading customers:', error)
@@ -453,10 +381,10 @@ export default {
 
     editCustomer(customer) {
       this.isEditMode = true
-      this.editingId = customer.id
+      this.editingId = customer.customer_id
       this.form = {
-        customer_name: customer.customer_name,
-        contact_name: customer.contact_name,
+        name: customer.name,
+        contact: customer.contact,
         phone: customer.phone,
         email: customer.email,
         address: customer.address || '',
@@ -475,27 +403,31 @@ export default {
     },
 
     viewOrders(customer) {
-      this.$router.push({ name: 'Orders', query: { customer_id: customer.id } })
+      this.$router.push({ name: 'Orders', query: { customer_id: customer.customer_id } })
     },
 
     async handleSubmit() {
       try {
         this.submitting = true
 
-        // Mock API call
+        let response
         if (this.isEditMode) {
-          console.log('Updating customer:', this.editingId, this.form)
+          response = await updateCustomer(this.editingId, this.form)
         } else {
-          console.log('Creating customer:', this.form)
+          response = await createCustomer(this.form)
         }
 
-        this.$store.dispatch('setNotification', {
-          type: 'success',
-          message: this.isEditMode ? '客戶更新成功' : '客戶新增成功'
-        })
+        if (response.data.success) {
+          this.$store.dispatch('setNotification', {
+            type: 'success',
+            message: this.isEditMode ? '客戶更新成功' : '客戶新增成功'
+          })
 
-        this.closeModal()
-        await this.loadCustomers()
+          this.closeModal()
+          await this.loadCustomers()
+        } else {
+          throw new Error(response.data.error || 'Failed to save customer')
+        }
 
       } catch (error) {
         console.error('Error saving customer:', error)
@@ -512,16 +444,19 @@ export default {
       try {
         this.submitting = true
 
-        // Mock API call
-        console.log('Deleting customer:', this.deleteItem.id)
+        const response = await deleteCustomer(this.deleteItem.customer_id)
 
-        this.$store.dispatch('setNotification', {
-          type: 'success',
-          message: '客戶刪除成功'
-        })
+        if (response.data.success) {
+          this.$store.dispatch('setNotification', {
+            type: 'success',
+            message: '客戶刪除成功'
+          })
 
-        this.closeDeleteModal()
-        await this.loadCustomers()
+          this.closeDeleteModal()
+          await this.loadCustomers()
+        } else {
+          throw new Error(response.data.error || 'Failed to delete customer')
+        }
 
       } catch (error) {
         console.error('Error deleting customer:', error)
@@ -546,8 +481,8 @@ export default {
 
     resetForm() {
       this.form = {
-        customer_name: '',
-        contact_name: '',
+        name: '',
+        contact: '',
         phone: '',
         email: '',
         address: '',
