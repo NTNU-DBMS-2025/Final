@@ -29,3 +29,4 @@
 **/*.tsbuildinfo
 
 .cursor/
+backend/phpadmin_sql.sql

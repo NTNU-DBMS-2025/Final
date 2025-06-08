@@ -4,7 +4,7 @@ import router from '../router'
 
 // Create axios instance
 const apiClient = axios.create({
-    baseURL: 'http://localhost:5001/api',
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api',
     timeout: 10000,
     withCredentials: true, // Include cookies for session-based auth
     headers: {
