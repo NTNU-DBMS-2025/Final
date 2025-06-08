@@ -21,10 +21,18 @@ def create_app():
 
     # Initialize extensions
     db.init_app(app)
-    CORS(app, supports_credentials=True, origins=[
-         os.getenv('FRONTEND_URL', 'http://localhost:5173'),
-         'https://final-ibglzoiuk-ethanlams-projects.vercel.app'
-         ])
+
+    # Simplified CORS configuration for development and production
+    CORS(app,
+         supports_credentials=True,
+         origins=[
+             'http://localhost:5173',  # Local frontend
+             'http://localhost:3000',  # Alternative local port
+             'https://final-ibglzoiuk-ethanlams-projects.vercel.app'  # Production frontend
+         ],
+         allow_headers=['Content-Type', 'Authorization'],
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+         )
 
     # Register blueprints
     from auth import auth_bp
