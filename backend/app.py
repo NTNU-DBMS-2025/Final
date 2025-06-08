@@ -101,6 +101,74 @@ def create_app():
                 'error': f'Failed to fetch dashboard statistics: {str(e)}'
             }), 500
 
+    @app.route('/api/dashboard/sales-stats')
+    def get_sales_dashboard_stats():
+        """Get aggregated sales dashboard statistics"""
+        try:
+            from models import InventoryLot, Order, Scrap, Product, Location, Customer
+            from sqlalchemy import func, and_
+            from datetime import date, timedelta, datetime
+
+            # Today's date
+            today = date.today()
+            month_start = date(today.year, today.month, 1)
+
+            # Today's orders count
+            today_orders = Order.query.filter(
+                func.date(Order.order_date) == today
+            ).count()
+
+            # Monthly revenue (sum of total_amount for this month)
+            monthly_revenue = db.session.query(
+                func.sum(Order.total_amount)
+            ).filter(
+                Order.order_date >= month_start
+            ).scalar() or 0
+
+            # Pending orders count
+            pending_orders = Order.query.filter(
+                Order.status == 'pending').count()
+
+            # Total customers count
+            total_customers = Customer.query.count()
+
+            # Top customers by total order amount
+            top_customers_data = db.session.query(
+                Customer.customer_id,
+                Customer.name,
+                Customer.email,
+                func.sum(Order.total_amount).label('total_amount'),
+                func.count(Order.order_id).label('order_count')
+            ).join(Order).group_by(Customer.customer_id)\
+             .order_by(func.sum(Order.total_amount).desc()).limit(5).all()
+
+            top_customers = [
+                {
+                    'id': stat[0],
+                    'name': stat[1],
+                    'email': stat[2] or 'No email',
+                    'total_orders': float(stat[3]) if stat[3] else 0,
+                    'order_count': stat[4]
+                } for stat in top_customers_data
+            ]
+
+            return jsonify({
+                'success': True,
+                'data': {
+                    'today_orders': today_orders,
+                    'monthly_revenue': float(monthly_revenue),
+                    'pending_orders': pending_orders,
+                    'total_customers': total_customers,
+                    'top_customers': top_customers
+                }
+            })
+
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': f'Failed to fetch sales dashboard statistics: {str(e)}'
+            }), 500
+
     return app
 
 

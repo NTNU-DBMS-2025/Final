@@ -3,34 +3,34 @@
     <!-- Dashboard Header -->
     <div class="bg-white shadow rounded-lg p-6">
       <h1 class="text-2xl font-bold text-gray-900 mb-2">銷售管理儀表板</h1>
-      <p class="text-gray-600">歡迎回來，{{ $store.state.user?.username || 'Sales User' }}</p>
+      <p class="text-gray-600">歡迎回來，{{ $store.state.user?.name || 'Sales User' }}</p>
     </div>
 
     <!-- Sales Statistics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <Card 
         title="今日訂單" 
-        :value="salesStats.todayOrders" 
+        :value="loading ? '...' : salesStats.todayOrders" 
         icon="📊" 
         color="blue"
         :link="{ name: 'Orders' }"
       />
       <Card 
         title="本月銷售額" 
-        :value="`$${salesStats.monthlyRevenue.toLocaleString()}`" 
+        :value="loading ? '...' : `NT$${salesStats.monthlyRevenue.toLocaleString()}`" 
         icon="💰" 
         color="green"
       />
       <Card 
         title="待處理訂單" 
-        :value="salesStats.pendingOrders" 
+        :value="loading ? '...' : salesStats.pendingOrders" 
         icon="⏳" 
         color="yellow"
         :link="{ name: 'Orders' }"
       />
       <Card 
         title="客戶總數" 
-        :value="salesStats.totalCustomers" 
+        :value="loading ? '...' : salesStats.totalCustomers" 
         icon="👥" 
         color="purple"
         :link="{ name: 'Customers' }"
@@ -88,7 +88,13 @@
         </router-link>
       </div>
       
-      <div class="overflow-x-auto">
+      <div v-if="loading" class="text-center py-8">
+        <p class="text-gray-500">載入中...</p>
+      </div>
+      <div v-else-if="recentOrders.length === 0" class="text-center py-8">
+        <p class="text-gray-500">暫無訂單資料</p>
+      </div>
+      <div v-else class="overflow-x-auto">
         <table class="min-w-full table-auto">
           <thead>
             <tr class="bg-gray-50">
@@ -100,10 +106,10 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
-            <tr v-for="order in recentOrders" :key="order.id" class="hover:bg-gray-50">
+            <tr v-for="order in recentOrders" :key="order.order_id" class="hover:bg-gray-50">
               <td class="px-4 py-2 text-sm font-medium text-gray-900">{{ order.order_number }}</td>
               <td class="px-4 py-2 text-sm text-gray-900">{{ order.customer_name }}</td>
-              <td class="px-4 py-2 text-sm text-gray-900">${{ order.total_amount.toLocaleString() }}</td>
+              <td class="px-4 py-2 text-sm text-gray-900">NT${{ order.total_amount.toLocaleString() }}</td>
               <td class="px-4 py-2 text-sm">
                 <span 
                   :class="getStatusClass(order.status)"
@@ -122,7 +128,13 @@
     <!-- Top Customers -->
     <div class="bg-white shadow rounded-lg p-6">
       <h2 class="text-lg font-semibold text-gray-900 mb-4">主要客戶</h2>
-      <div class="space-y-3">
+      <div v-if="loading" class="text-center py-8">
+        <p class="text-gray-500">載入中...</p>
+      </div>
+      <div v-else-if="topCustomers.length === 0" class="text-center py-8">
+        <p class="text-gray-500">暫無客戶資料</p>
+      </div>
+      <div v-else class="space-y-3">
         <div 
           v-for="customer in topCustomers" 
           :key="customer.id"
@@ -138,7 +150,7 @@
             </div>
           </div>
           <div class="text-right">
-            <div class="font-medium text-gray-900">${{ customer.total_orders.toLocaleString() }}</div>
+            <div class="font-medium text-gray-900">NT${{ customer.total_orders.toLocaleString() }}</div>
             <div class="text-sm text-gray-500">{{ customer.order_count }} 訂單</div>
           </div>
         </div>
@@ -149,7 +161,7 @@
 
 <script>
 import Card from '../components/Card.vue'
-import { ordersAPI } from '../api/orders'
+import { fetchSalesDashboardStats, fetchRecentOrders } from '../api/dashboard'
 
 export default {
   name: 'SalesDashboard',
@@ -166,7 +178,8 @@ export default {
       },
       recentOrders: [],
       topCustomers: [],
-      loading: true
+      loading: true,
+      error: null
     }
   },
   async created() {
@@ -174,56 +187,47 @@ export default {
   },
   methods: {
     async loadDashboardData() {
+      this.loading = true
+      this.error = null
+      
       try {
-        this.loading = true
-        
+        // Load sales dashboard stats
+        const statsResponse = await fetchSalesDashboardStats()
+        if (statsResponse.data.success) {
+          const stats = statsResponse.data.data
+          this.salesStats.todayOrders = stats.today_orders
+          this.salesStats.monthlyRevenue = stats.monthly_revenue
+          this.salesStats.pendingOrders = stats.pending_orders
+          this.salesStats.totalCustomers = stats.total_customers
+          this.topCustomers = stats.top_customers || []
+        }
+
         // Load recent orders
-        const ordersResponse = await ordersAPI.getOrders({ limit: 5 })
-        this.recentOrders = ordersResponse.data
-        
-        // Calculate statistics from orders data
-        this.calculateStats()
-        this.generateTopCustomers()
+        try {
+          const ordersResponse = await fetchRecentOrders({ page: 1, per_page: 5 })
+          if (ordersResponse.data.success) {
+            this.recentOrders = ordersResponse.data.data || []
+          }
+        } catch (error) {
+          console.warn('Failed to load recent orders:', error)
+          this.recentOrders = []
+        }
         
       } catch (error) {
         console.error('Error loading dashboard data:', error)
-        this.$store.dispatch('setNotification', {
-          type: 'error',
-          message: '載入儀表板資料失敗'
-        })
+        this.error = error.message
+        // Set fallback values
+        this.salesStats = {
+          todayOrders: 0,
+          monthlyRevenue: 0,
+          pendingOrders: 0,
+          totalCustomers: 0
+        }
+        this.topCustomers = []
+        this.recentOrders = []
       } finally {
         this.loading = false
       }
-    },
-    
-    calculateStats() {
-      const today = new Date().toDateString()
-      const currentMonth = new Date().getMonth()
-      
-      this.salesStats.todayOrders = this.recentOrders.filter(order => 
-        new Date(order.order_date).toDateString() === today
-      ).length
-      
-      this.salesStats.monthlyRevenue = this.recentOrders
-        .filter(order => new Date(order.order_date).getMonth() === currentMonth)
-        .reduce((sum, order) => sum + order.total_amount, 0)
-      
-      this.salesStats.pendingOrders = this.recentOrders.filter(order => 
-        order.status === 'pending'
-      ).length
-      
-      this.salesStats.totalCustomers = new Set(this.recentOrders.map(order => order.customer_id)).size
-    },
-    
-    generateTopCustomers() {
-      // Generate mock top customers data
-      this.topCustomers = [
-        { id: 1, name: '台積電', email: 'tsmc@example.com', total_orders: 150000, order_count: 12 },
-        { id: 2, name: '鴻海科技', email: 'foxconn@example.com', total_orders: 120000, order_count: 8 },
-        { id: 3, name: '聯發科', email: 'mediatek@example.com', total_orders: 95000, order_count: 6 },
-        { id: 4, name: '華碩電腦', email: 'asus@example.com', total_orders: 78000, order_count: 9 },
-        { id: 5, name: '宏碁', email: 'acer@example.com', total_orders: 65000, order_count: 7 }
-      ]
     },
     
     navigateTo(routeName) {
@@ -234,6 +238,7 @@ export default {
       const statusClasses = {
         'pending': 'bg-yellow-100 text-yellow-800',
         'confirmed': 'bg-blue-100 text-blue-800',
+        'processing': 'bg-blue-100 text-blue-800',
         'shipped': 'bg-green-100 text-green-800',
         'delivered': 'bg-green-100 text-green-800',
         'cancelled': 'bg-red-100 text-red-800'
@@ -245,6 +250,7 @@ export default {
       const statusTexts = {
         'pending': '待處理',
         'confirmed': '已確認',
+        'processing': '處理中',
         'shipped': '已出貨',
         'delivered': '已送達',
         'cancelled': '已取消'
@@ -253,6 +259,7 @@ export default {
     },
     
     formatDate(date) {
+      if (!date) return ''
       return new Date(date).toLocaleDateString('zh-TW')
     }
   }
