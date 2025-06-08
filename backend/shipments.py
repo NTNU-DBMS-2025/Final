@@ -48,8 +48,17 @@ def get_shipments():
                 'shipment_id': shipment.shipment_id,
                 'ship_date': shipment.ship_date.isoformat(),
                 'tracking_no': shipment.tracking_no,
+                'tracking_number': shipment.tracking_no,  # Frontend compatibility
                 'status': shipment.status,
-                'order_id': shipment.order_id,
+                'estimated_shipping_date': getattr(shipment, 'estimated_shipping_date', None),
+                'estimated_delivery_date': getattr(shipment, 'estimated_delivery_date', None),
+                'actual_shipping_date': shipment.ship_date.strftime('%Y-%m-%d') if shipment.ship_date else None,
+                'actual_delivery_date': getattr(shipment, 'actual_delivery_date', None),
+                'shipping_address': getattr(shipment, 'shipping_address', None) or shipment.order.ship_to,
+                'shipping_method': getattr(shipment, 'shipping_method', None) or shipment.shipping_vendor.mode,
+                'notes': getattr(shipment, 'notes', ''),
+                # Use order_number if available
+                'order_id': getattr(shipment.order, 'order_number', shipment.order_id),
                 'order_date': shipment.order.order_date.isoformat(),
                 'customer_name': shipment.order.customer.name,
                 'ship_to': shipment.order.ship_to,
@@ -188,13 +197,35 @@ def create_shipment():
                 'error': 'Tracking number already exists'
             }), 400
 
-        # Create shipment
+        # Parse dates
+        estimated_shipping_date = None
+        if 'estimated_shipping_date' in data and data['estimated_shipping_date']:
+            try:
+                estimated_shipping_date = datetime.strptime(
+                    data['estimated_shipping_date'], '%Y-%m-%d').date()
+            except ValueError:
+                pass
+
+        estimated_delivery_date = None
+        if 'estimated_delivery_date' in data and data['estimated_delivery_date']:
+            try:
+                estimated_delivery_date = datetime.strptime(
+                    data['estimated_delivery_date'], '%Y-%m-%d').date()
+            except ValueError:
+                pass
+
+        # Create shipment with new fields
         shipment = Shipment(
             order_id=data['order_id'],
             shipping_vendor_id=data['shipping_vendor_id'],
             tracking_no=data['tracking_no'],
             ship_date=ship_date,
-            status=data.get('status', 'In Transit')
+            status=data.get('status', 'pending'),
+            estimated_shipping_date=estimated_shipping_date,
+            estimated_delivery_date=estimated_delivery_date,
+            shipping_address=data.get('shipping_address', ''),
+            shipping_method=data.get('shipping_method', ''),
+            notes=data.get('notes', '')
         )
 
         db.session.add(shipment)

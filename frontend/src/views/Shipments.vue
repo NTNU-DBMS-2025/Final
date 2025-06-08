@@ -121,8 +121,21 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">訂單編號</label>
-                <input
+                <select
                   v-model="form.order_id"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">請選擇訂單</option>
+                  <option v-for="order in orders" :key="order.order_id" :value="order.order_id">
+                    {{ order.order_number }} - {{ order.customer_name }}
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">追蹤號碼</label>
+                <input
+                  v-model="form.tracking_number"
                   type="text"
                   required
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -206,6 +219,7 @@
 
 <script>
 import DataTable from '../components/DataTable.vue'
+import { shipmentsAPI } from '../api/shipments'
 
 export default {
   name: 'Shipments',
@@ -221,37 +235,15 @@ export default {
       statusFilter: '',
       dateFilter: '',
       shippingMethodFilter: '',
-      shipments: [
-        {
-          shipment_id: 1,
-          order_id: 'ORD-2024-001',
-          customer_name: '王小明',
-          shipping_address: '台北市信義區信義路五段7號',
-          shipping_method: '標準配送',
-          status: '運送中',
-          estimated_shipping_date: '2024-01-15',
-          estimated_delivery_date: '2024-01-17',
-          actual_shipping_date: '2024-01-15',
-          tracking_number: 'TRK123456789',
-          notes: ''
-        },
-        {
-          shipment_id: 2,
-          order_id: 'ORD-2024-002',
-          customer_name: '李小華',
-          shipping_address: '新北市板橋區中山路一段152號',
-          shipping_method: '快速配送',
-          status: '已送達',
-          estimated_shipping_date: '2024-01-14',
-          estimated_delivery_date: '2024-01-15',
-          actual_shipping_date: '2024-01-14',
-          actual_delivery_date: '2024-01-15',
-          tracking_number: 'TRK987654321',
-          notes: '客戶要求下午送達'
-        }
-      ],
+      shipments: [],
+      orders: [],
+      shippingVendors: [],
+      total: 0,
+      currentPage: 1,
+      pageSize: 10,
       form: {
         order_id: '',
+        tracking_number: '',
         shipping_method: '',
         shipping_address: '',
         estimated_shipping_date: '',
@@ -270,37 +262,87 @@ export default {
       ]
     }
   },
+  async created() {
+    try {
+      await this.loadShipments()
+      await this.loadOrders()
+      await this.loadShippingVendors()
+    } catch (error) {
+      console.error('Error during component initialization:', error)
+      // Don't show alert here since loadShipments already handles errors
+    }
+  },
   computed: {
     filteredShipments() {
-      let filtered = this.shipments
-
-      if (this.searchTerm) {
-        filtered = filtered.filter(shipment =>
-          shipment.order_id.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-          shipment.customer_name.includes(this.searchTerm) ||
-          shipment.tracking_number.toLowerCase().includes(this.searchTerm.toLowerCase())
-        )
-      }
-
-      if (this.statusFilter) {
-        filtered = filtered.filter(shipment => shipment.status === this.statusFilter)
-      }
-
-      if (this.shippingMethodFilter) {
-        filtered = filtered.filter(shipment => shipment.shipping_method === this.shippingMethodFilter)
-      }
-
-      if (this.dateFilter) {
-        filtered = filtered.filter(shipment => shipment.estimated_shipping_date === this.dateFilter)
-      }
-
-      return filtered
+      return this.shipments // API handles filtering now
     }
   },
   methods: {
+    async loadShipments() {
+      try {
+        this.loading = true
+        const response = await shipmentsAPI.fetchShipments({
+          page: this.currentPage,
+          per_page: this.pageSize,
+          status: this.statusFilter,
+          search: this.searchTerm
+        })
+
+        const shipmentsData = response.data.data || response.data || []
+        this.shipments = shipmentsData.map(shipment => ({
+          ...shipment,
+          // Map Chinese status
+          status: this.getStatusText(shipment.status),
+          // Ensure tracking_number field exists for frontend compatibility
+          tracking_number: shipment.tracking_number || shipment.tracking_no || ''
+        }))
+        this.total = response.data.total || response.total || shipmentsData.length
+
+      } catch (error) {
+        console.error('Error loading shipments:', error)
+        // Simple alert instead of store notification
+        alert('載入出貨資料失敗: ' + (error.response?.data?.error || error.message))
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async loadOrders() {
+      try {
+        const response = await fetch('http://localhost:5001/api/orders')
+        const data = await response.json()
+        if (data.success) {
+          this.orders = data.data
+        }
+      } catch (error) {
+        console.error('Error loading orders:', error)
+      }
+    },
+
+    async loadShippingVendors() {
+      try {
+        const response = await shipmentsAPI.fetchShippingVendors()
+        const vendorsData = response.data.data || response.data || []
+        this.shippingVendors = vendorsData
+      } catch (error) {
+        console.error('Error loading shipping vendors:', error)
+      }
+    },
+
+    getStatusText(status) {
+      const statusMap = {
+        'pending': '待出貨',
+        'in_transit': '運送中',
+        'delivered': '已送達',
+        'cancelled': '已取消'
+      }
+      return statusMap[status?.toLowerCase()] || status || '未知狀態'
+    },
+
     handleSort(column) {
       // Handle sorting logic
       console.log('Sorting by:', column)
+      this.loadShipments()
     },
     viewShipment(shipment) {
       console.log('Viewing shipment:', shipment)
@@ -310,11 +352,15 @@ export default {
       this.form = { ...shipment }
       this.showModal = true
     },
-    cancelShipment(shipment) {
+    async cancelShipment(shipment) {
       if (confirm('確定要取消此出貨嗎？')) {
-        const index = this.shipments.findIndex(s => s.shipment_id === shipment.shipment_id)
-        if (index !== -1) {
-          this.shipments[index].status = '已取消'
+        try {
+          await shipmentsAPI.updateShipmentStatus(shipment.shipment_id, 'cancelled')
+          alert('出貨已取消')
+          await this.loadShipments()
+        } catch (error) {
+          console.error('Error cancelling shipment:', error)
+          alert('取消出貨失敗')
         }
       }
     },
@@ -326,6 +372,7 @@ export default {
     resetForm() {
       this.form = {
         order_id: '',
+        tracking_number: '',
         shipping_method: '',
         shipping_address: '',
         estimated_shipping_date: '',
@@ -333,24 +380,39 @@ export default {
         notes: ''
       }
     },
-    submitForm() {
-      if (this.isEditing) {
-        // Update shipment
-        const index = this.shipments.findIndex(s => s.shipment_id === this.form.shipment_id)
-        if (index !== -1) {
-          this.shipments[index] = { ...this.form }
+    async submitForm() {
+      try {
+        this.loading = true
+        
+        const shipmentData = {
+          order_id: parseInt(this.form.order_id),
+          shipping_vendor_id: this.shippingVendors[0]?.user_id || 1, // Default to first vendor
+          tracking_no: this.form.tracking_number || 'TRK' + Date.now(),
+          shipping_method: this.form.shipping_method,
+          shipping_address: this.form.shipping_address,
+          estimated_shipping_date: this.form.estimated_shipping_date,
+          estimated_delivery_date: this.form.estimated_delivery_date,
+          notes: this.form.notes,
+          status: 'pending'
         }
-      } else {
-        // Create new shipment
-        const newShipment = {
-          ...this.form,
-          shipment_id: this.shipments.length + 1,
-          status: '待出貨',
-          tracking_number: 'TRK' + Date.now()
+
+        if (this.isEditing) {
+          await shipmentsAPI.updateShipment(this.form.shipment_id, shipmentData)
+        } else {
+          await shipmentsAPI.createShipment(shipmentData)
         }
-        this.shipments.unshift(newShipment)
+
+        alert(this.isEditing ? '出貨更新成功' : '出貨新增成功')
+
+        this.closeModal()
+        await this.loadShipments()
+
+      } catch (error) {
+        console.error('Error saving shipment:', error)
+        alert('出貨儲存失敗: ' + (error.response?.data?.error || error.message))
+      } finally {
+        this.loading = false
       }
-      this.closeModal()
     }
   }
 }

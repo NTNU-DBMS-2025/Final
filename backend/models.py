@@ -223,18 +223,52 @@ class Shipment(db.Model):
     __tablename__ = 'Shipment'
 
     shipment_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    ship_date = db.Column(db.DateTime, nullable=False)
-    tracking_no = db.Column(db.String(100), nullable=False)
-    status = db.Column(db.String(50), nullable=False)
+    ship_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    tracking_no = db.Column(db.String(100), nullable=False, unique=True)
+    status = db.Column(db.String(50), nullable=False, default='pending')
+    estimated_shipping_date = db.Column(db.Date)
+    estimated_delivery_date = db.Column(db.Date)
+    actual_delivery_date = db.Column(db.Date)
+    shipping_address = db.Column(db.Text)
+    shipping_method = db.Column(db.String(100))
+    notes = db.Column(db.Text)
     order_id = db.Column(db.Integer, db.ForeignKey(
         'Order.order_id'), nullable=False)
     shipping_vendor_id = db.Column(db.Integer, db.ForeignKey(
         'Shipping_Vendor.user_id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
     order = db.relationship('Order', back_populates='shipments')
     shipping_vendor = db.relationship(
         'ShippingVendor', back_populates='shipments')
+
+    def to_dict(self):
+        """Convert Shipment object to dictionary"""
+        return {
+            'shipment_id': self.shipment_id,
+            'ship_date': self.ship_date.isoformat() if self.ship_date else None,
+            'tracking_no': self.tracking_no,
+            'tracking_number': self.tracking_no,  # Frontend compatibility
+            'status': self.status,
+            'estimated_shipping_date': self.estimated_shipping_date.isoformat() if self.estimated_shipping_date else None,
+            'estimated_delivery_date': self.estimated_delivery_date.isoformat() if self.estimated_delivery_date else None,
+            'actual_shipping_date': self.ship_date.strftime('%Y-%m-%d') if self.ship_date else None,
+            'actual_delivery_date': self.actual_delivery_date.isoformat() if self.actual_delivery_date else None,
+            'shipping_address': self.shipping_address,
+            'shipping_method': self.shipping_method,
+            'notes': self.notes,
+            'order_id': self.order_id,
+            'order_number': self.order.order_number if self.order else None,
+            'customer_name': self.order.customer.name if self.order and self.order.customer else None,
+            'shipping_vendor_id': self.shipping_vendor_id,
+            'vendor_name': self.shipping_vendor.name if self.shipping_vendor else None,
+            'shipping_mode': self.shipping_vendor.mode if self.shipping_vendor else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
 
 
 class Location(db.Model):

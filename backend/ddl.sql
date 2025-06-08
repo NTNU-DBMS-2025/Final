@@ -151,14 +151,25 @@ CREATE TABLE Order_Item (
 -- 8. Shipment
 CREATE TABLE Shipment (
   shipment_id INT NOT NULL AUTO_INCREMENT,
-  ship_date DATETIME NOT NULL,
-  tracking_no VARCHAR(100) NOT NULL,
-  status VARCHAR(50) NOT NULL,
+  ship_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  tracking_no VARCHAR(100) NOT NULL UNIQUE,
+  status VARCHAR(50) NOT NULL DEFAULT 'pending',
+  estimated_shipping_date DATE,
+  estimated_delivery_date DATE,
+  actual_delivery_date DATE,
+  shipping_address TEXT,
+  shipping_method VARCHAR(100),
+  notes TEXT,
   order_id INT NOT NULL,
   shipping_vendor_id INT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (shipment_id),
   INDEX idx_ship_order (order_id),
   INDEX idx_ship_vendor (shipping_vendor_id),
+  INDEX idx_ship_tracking (tracking_no),
+  INDEX idx_ship_status (status),
+  INDEX idx_ship_date (ship_date),
   CONSTRAINT fk_ship_order
     FOREIGN KEY (order_id) REFERENCES `Order`(order_id)
     ON DELETE CASCADE ON UPDATE CASCADE,

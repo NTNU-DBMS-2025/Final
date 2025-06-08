@@ -57,23 +57,23 @@ export function fetchShippingVendors(params = {}) {
     if (search) queryParams.append('search', search)
     if (mode) queryParams.append('mode', mode)
 
-    return apiClient.get(`/shipping-vendors?${queryParams}`)
+    return apiClient.get(`/shipments/vendors?${queryParams}`)
 }
 
 export function getShippingVendor(vendorId) {
-    return apiClient.get(`/shipping-vendors/${vendorId}`)
+    return apiClient.get(`/shipments/vendors/${vendorId}`)
 }
 
 export function createShippingVendor(data) {
-    return apiClient.post('/shipping-vendors', data)
+    return apiClient.post('/shipments/vendors', data)
 }
 
 export function updateShippingVendor(vendorId, data) {
-    return apiClient.put(`/shipping-vendors/${vendorId}`, data)
+    return apiClient.put(`/shipments/vendors/${vendorId}`, data)
 }
 
 export function deleteShippingVendor(vendorId) {
-    return apiClient.delete(`/shipping-vendors/${vendorId}`)
+    return apiClient.delete(`/shipments/vendors/${vendorId}`)
 }
 
 // Compatibility exports

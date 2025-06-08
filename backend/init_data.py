@@ -678,6 +678,38 @@ def init_sample_data():
             print(f"Error creating scrap data: {e}")
             db.session.rollback()
 
+        # Create sample shipping vendors first
+        print("Creating sample shipping vendors...")
+        try:
+            from models import ShippingVendor
+
+            shipping_vendors_data = [
+                {'user_account': 'admin', 'name': '快遞通運輸', 'mode': '標準配送'},
+                {'user_account': 'warehouse', 'name': '台灣宅配通', 'mode': '快速配送'},
+                {'user_account': 'sales', 'name': '新竹物流', 'mode': '特殊配送'}
+            ]
+
+            for vendor_data in shipping_vendors_data:
+                user = User.query.filter_by(
+                    account=vendor_data['user_account']).first()
+                if user:
+                    existing_vendor = ShippingVendor.query.filter_by(
+                        user_id=user.user_id).first()
+                    if not existing_vendor:
+                        shipping_vendor = ShippingVendor(
+                            user_id=user.user_id,
+                            name=vendor_data['name'],
+                            mode=vendor_data['mode']
+                        )
+                        db.session.add(shipping_vendor)
+
+            db.session.commit()
+            print("Sample shipping vendors created!")
+
+        except Exception as e:
+            print(f"Error creating shipping vendors: {e}")
+            db.session.rollback()
+
         # Create sample orders
         print("Creating sample orders...")
         try:
@@ -841,6 +873,84 @@ def init_sample_data():
 
         except Exception as e:
             print(f"Error creating orders: {e}")
+            db.session.rollback()
+
+        # Create sample shipments
+        print("Creating sample shipments...")
+        try:
+            from models import Shipment, ShippingVendor
+            from datetime import date, timedelta
+
+            # Get orders and shipping vendors
+            orders = Order.query.limit(3).all()
+            shipping_vendors = ShippingVendor.query.all()
+
+            if orders and shipping_vendors:
+                shipments_data = [
+                    {
+                        'order': orders[0],
+                        'shipping_vendor': shipping_vendors[0],
+                        'tracking_no': 'TRK20240115001',
+                        'status': 'in_transit',
+                        'estimated_shipping_date': date.today() - timedelta(days=2),
+                        'estimated_delivery_date': date.today() + timedelta(days=1),
+                        'shipping_address': '台北市信義區信義路五段7號',
+                        'shipping_method': '標準配送',
+                        'notes': '請於上班時間送達'
+                    },
+                    {
+                        'order': orders[1],
+                        'shipping_vendor': shipping_vendors[1] if len(shipping_vendors) > 1 else shipping_vendors[0],
+                        'tracking_no': 'TRK20240114002',
+                        'status': 'delivered',
+                        'estimated_shipping_date': date.today() - timedelta(days=3),
+                        'estimated_delivery_date': date.today() - timedelta(days=1),
+                        'actual_delivery_date': date.today() - timedelta(days=1),
+                        'shipping_address': '新北市板橋區中山路一段152號',
+                        'shipping_method': '快速配送',
+                        'notes': '客戶要求下午送達'
+                    },
+                    {
+                        'order': orders[2],
+                        'shipping_vendor': shipping_vendors[2] if len(shipping_vendors) > 2 else shipping_vendors[0],
+                        'tracking_no': 'TRK20240116003',
+                        'status': 'pending',
+                        'estimated_shipping_date': date.today() + timedelta(days=1),
+                        'estimated_delivery_date': date.today() + timedelta(days=3),
+                        'shipping_address': '台中市西屯區台灣大道四段1727號',
+                        'shipping_method': '特殊配送',
+                        'notes': '大型物品需使用貨梯'
+                    }
+                ]
+
+                for shipment_data in shipments_data:
+                    existing_shipment = Shipment.query.filter_by(
+                        tracking_no=shipment_data['tracking_no']
+                    ).first()
+
+                    if not existing_shipment:
+                        shipment = Shipment(
+                            order_id=shipment_data['order'].order_id,
+                            shipping_vendor_id=shipment_data['shipping_vendor'].user_id,
+                            tracking_no=shipment_data['tracking_no'],
+                            status=shipment_data['status'],
+                            estimated_shipping_date=shipment_data.get(
+                                'estimated_shipping_date'),
+                            estimated_delivery_date=shipment_data.get(
+                                'estimated_delivery_date'),
+                            actual_delivery_date=shipment_data.get(
+                                'actual_delivery_date'),
+                            shipping_address=shipment_data['shipping_address'],
+                            shipping_method=shipment_data['shipping_method'],
+                            notes=shipment_data['notes']
+                        )
+                        db.session.add(shipment)
+
+                db.session.commit()
+                print("Sample shipments created!")
+
+        except Exception as e:
+            print(f"Error creating shipments: {e}")
             db.session.rollback()
 
         print("\n🎉 Enhanced sample data initialized successfully!")
