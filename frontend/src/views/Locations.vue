@@ -15,13 +15,13 @@
             <span class="mr-2">🔄</span>
             重新載入
           </button>
-          <button 
-            @click="openAddModal"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
-          >
-            <span class="mr-2">+</span>
-            新增倉位
-          </button>
+        <button 
+          @click="openAddModal"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
+        >
+          <span class="mr-2">+</span>
+          新增倉位
+        </button>
         </div>
       </div>
     </div>
@@ -272,7 +272,7 @@ export default {
               ...location,
               id: location.location_id,
               location_type_key: location.location_type,
-              location_type: this.getLocationTypeText(location.location_type),
+          location_type: this.getLocationTypeText(location.location_type),
               status_key: location.status,
               status: this.getStatusText(location.status),
               utilization: `${location.utilization_rate}%`

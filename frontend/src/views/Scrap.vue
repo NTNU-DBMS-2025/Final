@@ -171,14 +171,28 @@
           <form @submit.prevent="submitForm" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">產品名稱</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">產品ID</label>
                 <input
-                  v-model="form.product_name"
-                  type="text"
+                  v-model="form.product_id"
+                  type="number"
                   required
+                  placeholder="輸入產品ID"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
               </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">儲位ID</label>
+                <input
+                  v-model="form.location_id"
+                  type="number"
+                  required
+                  placeholder="輸入儲位ID"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">數量</label>
                 <input
@@ -186,6 +200,15 @@
                   type="number"
                   min="1"
                   required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">建立人</label>
+                <input
+                  v-model="form.created_by"
+                  type="text"
+                  placeholder="輸入建立人姓名"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
               </div>
@@ -251,6 +274,7 @@
 
 <script>
 import DataTable from '../components/DataTable.vue'
+import { fetchScrapRecords, fetchScrapStats, createScrapRecord, updateScrapRecord, processScrapRecord, deleteScrapRecord } from '@/api/scrap'
 
 export default {
   name: 'Scrap',
@@ -266,38 +290,22 @@ export default {
       statusFilter: '',
       reasonFilter: '',
       dateFilter: '',
-      scrapItems: [
-        {
-          scrap_id: 1,
-          product_name: '過期筆記型電腦',
-          quantity: 3,
-          reason: '過期',
-          status: '已處理',
-          estimated_value: 45000,
-          description: '保固期已過，無法銷售',
-          created_date: '2024-01-10',
-          processed_date: '2024-01-12',
-          created_by: '張倉管'
-        },
-        {
-          scrap_id: 2,
-          product_name: '損壞辦公椅',
-          quantity: 5,
-          reason: '損壞',
-          status: '待處理',
-          estimated_value: 8000,
-          description: '運送過程中損壞，無法修復',
-          created_date: '2024-01-15',
-          processed_date: null,
-          created_by: '王管理員'
-        }
-      ],
+      scrapItems: [],
+      stats: {
+        monthly_scrap: 0,
+        total_estimated_value: 0,
+        pending_count: 0,
+        processed_count: 0
+      },
       form: {
-        product_name: '',
+        product_id: '',
+        location_id: '',
         quantity: 1,
         reason: '',
         estimated_value: 0,
-        description: ''
+        description: '',
+        status: '待處理',
+        created_by: ''
       },
       columns: [
         { key: 'scrap_id', label: '報廢編號', sortable: true },
@@ -306,7 +314,7 @@ export default {
         { key: 'reason', label: '報廢原因', sortable: true },
         { key: 'status', label: '狀態', sortable: true },
         { key: 'estimated_value', label: '預估價值', sortable: true },
-        { key: 'created_date', label: '建立日期', sortable: true },
+        { key: 'scrap_date', label: '報廢日期', sortable: true },
         { key: 'created_by', label: '建立人', sortable: true },
         { key: 'actions', label: '操作', sortable: false }
       ]
@@ -339,24 +347,41 @@ export default {
       return filtered
     },
     monthlyScrap() {
-      return this.scrapItems.filter(item => {
-        const itemDate = new Date(item.created_date)
-        const currentDate = new Date()
-        return itemDate.getMonth() === currentDate.getMonth() && 
-               itemDate.getFullYear() === currentDate.getFullYear()
-      }).length
+      return this.stats.monthly_scrap
     },
     scrapValue() {
-      return this.scrapItems.reduce((total, item) => total + item.estimated_value, 0)
+      return this.stats.total_estimated_value
     },
     pendingScrap() {
-      return this.scrapItems.filter(item => item.status === '待處理').length
+      return this.stats.pending_count
     },
     processedScrap() {
-      return this.scrapItems.filter(item => item.status === '已處理').length
+      return this.stats.processed_count
     }
   },
   methods: {
+    async loadScrapData() {
+      try {
+        this.loading = true
+        const [scrapResponse, statsResponse] = await Promise.all([
+          fetchScrapRecords({ page: 1, per_page: 100 }),
+          fetchScrapStats()
+        ])
+        
+        if (scrapResponse.data.success) {
+          this.scrapItems = scrapResponse.data.data
+        }
+        
+        if (statsResponse.data.success) {
+          this.stats = statsResponse.data.data
+        }
+      } catch (error) {
+        console.error('Failed to load scrap data:', error)
+        alert('載入報廢資料失敗')
+      } finally {
+        this.loading = false
+      }
+    },
     handleSort(column) {
       console.log('Sorting by:', column)
     },
@@ -368,12 +393,17 @@ export default {
       this.form = { ...item }
       this.showModal = true
     },
-    processScrapItem(item) {
+    async processScrapItem(item) {
       if (confirm('確定要處理此報廢記錄嗎？')) {
-        const index = this.scrapItems.findIndex(s => s.scrap_id === item.scrap_id)
-        if (index !== -1) {
-          this.scrapItems[index].status = '已處理'
-          this.scrapItems[index].processed_date = new Date().toISOString().split('T')[0]
+        try {
+          const response = await processScrapRecord(item.scrap_id)
+          if (response.data.success) {
+            await this.loadScrapData() // Reload data
+            alert('報廢記錄已處理')
+          }
+        } catch (error) {
+          console.error('Failed to process scrap item:', error)
+          alert('處理報廢記錄失敗')
         }
       }
     },
@@ -384,32 +414,40 @@ export default {
     },
     resetForm() {
       this.form = {
-        product_name: '',
+        product_id: '',
+        location_id: '',
         quantity: 1,
         reason: '',
         estimated_value: 0,
-        description: ''
+        description: '',
+        status: '待處理',
+        created_by: ''
       }
     },
-    submitForm() {
-      if (this.isEditing) {
-        const index = this.scrapItems.findIndex(s => s.scrap_id === this.form.scrap_id)
-        if (index !== -1) {
-          this.scrapItems[index] = { ...this.form }
+    async submitForm() {
+      try {
+        if (this.isEditing) {
+          const response = await updateScrapRecord(this.form.scrap_id, this.form)
+          if (response.data.success) {
+            await this.loadScrapData()
+            alert('報廢記錄已更新')
+          }
+        } else {
+          const response = await createScrapRecord(this.form)
+          if (response.data.success) {
+            await this.loadScrapData()
+            alert('報廢記錄已新增')
+          }
         }
-      } else {
-        const newScrapItem = {
-          ...this.form,
-          scrap_id: this.scrapItems.length + 1,
-          status: '待處理',
-          created_date: new Date().toISOString().split('T')[0],
-          processed_date: null,
-          created_by: '當前用戶'
-        }
-        this.scrapItems.unshift(newScrapItem)
+        this.closeModal()
+      } catch (error) {
+        console.error('Failed to submit form:', error)
+        alert(this.isEditing ? '更新報廢記錄失敗' : '新增報廢記錄失敗')
       }
-      this.closeModal()
     }
+  },
+  mounted() {
+    this.loadScrapData()
   }
 }
 </script> 

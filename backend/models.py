@@ -242,7 +242,38 @@ class Scrap(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     scrap_date = db.Column(db.Date, nullable=False)
     reason = db.Column(db.String(255), nullable=False)
+    status = db.Column(db.String(50), nullable=False, default='待處理')
+    estimated_value = db.Column(db.Numeric(10, 2), default=0.00)
+    description = db.Column(db.Text)
+    created_by = db.Column(db.String(100))
+    processed_date = db.Column(db.Date)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
     product = db.relationship('Product', back_populates='scraps')
     location = db.relationship('Location', back_populates='scraps')
+
+    def to_dict(self):
+        """Convert Scrap object to dictionary"""
+        return {
+            'scrap_id': self.scrap_id,
+            'product_id': self.product_id,
+            'product_name': self.product.name if self.product else None,
+            'category': self.product.category if self.product else None,
+            'location_id': self.location_id,
+            'location_zone': self.location.zone if self.location else None,
+            'location_shelf': self.location.shelf if self.location else None,
+            'location_code': self.location.location_code if self.location else None,
+            'quantity': self.quantity,
+            'scrap_date': self.scrap_date.isoformat() if self.scrap_date else None,
+            'reason': self.reason,
+            'status': self.status,
+            'estimated_value': float(self.estimated_value) if self.estimated_value else 0.0,
+            'description': self.description,
+            'created_by': self.created_by,
+            'processed_date': self.processed_date.isoformat() if self.processed_date else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }

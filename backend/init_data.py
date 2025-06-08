@@ -510,6 +510,111 @@ def init_sample_data():
             print(f"Error creating inventory: {e}")
             db.session.rollback()
 
+        # Create some scrap data
+        print("Creating scrap data...")
+        try:
+            from models import Scrap
+            from datetime import date, timedelta
+
+            scrap_data = [
+                {
+                    'product_name': 'Laptop Dell XPS 13',
+                    'location_code': 'A1-01',
+                    'quantity': 3,
+                    'scrap_date': date.today() - timedelta(days=10),
+                    'reason': '過期',
+                    'status': '已處理',
+                    'estimated_value': 45000.00,
+                    'description': '保固期已過，無法銷售',
+                    'created_by': '張倉管',
+                    'processed_date': date.today() - timedelta(days=8)
+                },
+                {
+                    'product_name': 'Office Chair Ergonomic',
+                    'location_code': 'D4-01',
+                    'quantity': 5,
+                    'scrap_date': date.today() - timedelta(days=5),
+                    'reason': '損壞',
+                    'status': '待處理',
+                    'estimated_value': 8000.00,
+                    'description': '運送過程中損壞，無法修復',
+                    'created_by': '王管理員',
+                    'processed_date': None
+                },
+                {
+                    'product_name': 'Wireless Mouse Logitech',
+                    'location_code': 'B2-02',
+                    'quantity': 12,
+                    'scrap_date': date.today() - timedelta(days=15),
+                    'reason': '品質不良',
+                    'status': '處理中',
+                    'estimated_value': 3600.00,
+                    'description': '批次品質問題，滑鼠按鍵失靈',
+                    'created_by': '李品管',
+                    'processed_date': None
+                },
+                {
+                    'product_name': 'iPhone 15 Pro',
+                    'location_code': 'A1-02',
+                    'quantity': 2,
+                    'scrap_date': date.today() - timedelta(days=3),
+                    'reason': '損壞',
+                    'status': '已處理',
+                    'estimated_value': 60000.00,
+                    'description': '螢幕破裂，無法修復',
+                    'created_by': '陳技術員',
+                    'processed_date': date.today() - timedelta(days=1)
+                },
+                {
+                    'product_name': 'Monitor 24 inch LG',
+                    'location_code': 'C3-01',
+                    'quantity': 1,
+                    'scrap_date': date.today() - timedelta(days=7),
+                    'reason': '其他',
+                    'status': '待處理',
+                    'estimated_value': 8000.00,
+                    'description': '客戶退貨，包裝已拆封無法重新銷售',
+                    'created_by': '劉客服',
+                    'processed_date': None
+                }
+            ]
+
+            for scrap_info in scrap_data:
+                product = Product.query.filter_by(
+                    name=scrap_info['product_name']).first()
+                location = Location.query.filter_by(
+                    location_code=scrap_info['location_code']).first()
+
+                if product and location:
+                    # Check if scrap record already exists
+                    existing_scrap = Scrap.query.filter_by(
+                        product_id=product.product_id,
+                        location_id=location.location_id,
+                        scrap_date=scrap_info['scrap_date']
+                    ).first()
+
+                    if not existing_scrap:
+                        scrap_record = Scrap(
+                            product_id=product.product_id,
+                            location_id=location.location_id,
+                            quantity=scrap_info['quantity'],
+                            scrap_date=scrap_info['scrap_date'],
+                            reason=scrap_info['reason'],
+                            status=scrap_info['status'],
+                            estimated_value=scrap_info['estimated_value'],
+                            description=scrap_info['description'],
+                            created_by=scrap_info['created_by'],
+                            processed_date=scrap_info['processed_date']
+                        )
+                        db.session.add(scrap_record)
+
+            db.session.commit()
+            print("Scrap data created!")
+
+        except Exception as e:
+            print(f"Error creating scrap data: {e}")
+            db.session.rollback()
+
         print("\n🎉 Enhanced sample data initialized successfully!")
         print("\n📊 Database now contains:")
         print(f"- {User.query.count()} Users")
@@ -519,10 +624,12 @@ def init_sample_data():
         print(f"- {Customer.query.count()} Customers")
         print(f"- {Location.query.count()} Locations")
         try:
-            from models import InventoryLot
+            from models import InventoryLot, Scrap
             print(f"- {InventoryLot.query.count()} Inventory Lots")
+            print(f"- {Scrap.query.count()} Scrap Records")
         except:
             print("- Inventory lots: N/A")
+            print("- Scrap records: N/A")
 
         print("\n🔑 Demo accounts:")
         print("Admin: admin/admin")

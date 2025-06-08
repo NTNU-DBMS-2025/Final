@@ -186,9 +186,18 @@ CREATE TABLE Scrap (
   quantity INT NOT NULL,
   scrap_date DATE NOT NULL,
   reason VARCHAR(255) NOT NULL,
+  status VARCHAR(50) NOT NULL DEFAULT '待處理',
+  estimated_value DECIMAL(10,2) DEFAULT 0.00,
+  description TEXT,
+  created_by VARCHAR(100),
+  processed_date DATE,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (scrap_id),
   INDEX idx_scrap_product (product_id),
   INDEX idx_scrap_location (location_id),
+  INDEX idx_scrap_status (status),
+  INDEX idx_scrap_date (scrap_date),
   CONSTRAINT fk_scrap_product
     FOREIGN KEY (product_id) REFERENCES Product(product_id)
     ON DELETE RESTRICT ON UPDATE CASCADE,

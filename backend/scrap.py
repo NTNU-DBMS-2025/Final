@@ -63,18 +63,7 @@ def get_scrap_records():
 
         scrap_records = []
         for scrap in pagination.items:
-            scrap_records.append({
-                'scrap_id': scrap.scrap_id,
-                'product_id': scrap.product_id,
-                'product_name': scrap.product.name,
-                'category': scrap.product.category,
-                'location_id': scrap.location_id,
-                'location_zone': scrap.location.zone,
-                'location_shelf': scrap.location.shelf,
-                'quantity': scrap.quantity,
-                'scrap_date': scrap.scrap_date.isoformat(),
-                'reason': scrap.reason
-            })
+            scrap_records.append(scrap.to_dict())
 
         return jsonify({
             'success': True,
@@ -104,19 +93,7 @@ def get_scrap_record(scrap_id):
 
         return jsonify({
             'success': True,
-            'data': {
-                'scrap_id': scrap.scrap_id,
-                'product_id': scrap.product_id,
-                'product_name': scrap.product.name,
-                'category': scrap.product.category,
-                'warranty_years': scrap.product.warranty_years,
-                'location_id': scrap.location_id,
-                'location_zone': scrap.location.zone,
-                'location_shelf': scrap.location.shelf,
-                'quantity': scrap.quantity,
-                'scrap_date': scrap.scrap_date.isoformat(),
-                'reason': scrap.reason
-            }
+            'data': scrap.to_dict()
         })
 
     except Exception as e:
@@ -194,7 +171,11 @@ def create_scrap_record():
             location_id=data['location_id'],
             quantity=data['quantity'],
             scrap_date=scrap_date,
-            reason=data['reason'].strip()
+            reason=data['reason'].strip(),
+            status=data.get('status', '待處理'),
+            estimated_value=data.get('estimated_value', 0.0),
+            description=data.get('description', ''),
+            created_by=data.get('created_by', '')
         )
 
         db.session.add(scrap)
@@ -243,6 +224,23 @@ def update_scrap_record(scrap_id):
         # Update reason
         if 'reason' in data:
             scrap.reason = data['reason'].strip()
+
+        # Update status
+        if 'status' in data:
+            scrap.status = data['status']
+            # If status is being changed to '已處理', set processed_date
+            if data['status'] == '已處理' and not scrap.processed_date:
+                scrap.processed_date = date.today()
+
+        # Update other fields
+        if 'estimated_value' in data:
+            scrap.estimated_value = data['estimated_value']
+
+        if 'description' in data:
+            scrap.description = data['description']
+
+        if 'created_by' in data:
+            scrap.created_by = data['created_by']
 
         # Update scrap date
         if 'scrap_date' in data and data['scrap_date']:
@@ -355,6 +353,39 @@ def delete_scrap_record(scrap_id):
             'error': f'Failed to delete scrap record: {str(e)}'
         }), 500
 
+# Process scrap record (change status)
+
+
+@scrap_bp.route('/<int:scrap_id>/process', methods=['PUT'])
+def process_scrap_record(scrap_id):
+    """Process a scrap record (change status to 已處理)"""
+    try:
+        scrap = Scrap.query.get_or_404(scrap_id)
+
+        if scrap.status == '已處理':
+            return jsonify({
+                'success': False,
+                'error': 'Scrap record is already processed'
+            }), 400
+
+        scrap.status = '已處理'
+        scrap.processed_date = date.today()
+
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': 'Scrap record processed successfully',
+            'data': scrap.to_dict()
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': f'Failed to process scrap record: {str(e)}'
+        }), 500
+
 # Analytics and reports
 
 
@@ -391,6 +422,22 @@ def get_scrap_stats():
         recent_scrap = db.session.query(func.sum(Scrap.quantity)).filter(
             Scrap.scrap_date >= thirty_days_ago
         ).scalar() or 0
+
+        # This month's scrap count
+        today = date.today()
+        month_start = date(today.year, today.month, 1)
+        monthly_scrap = db.session.query(func.count(Scrap.scrap_id)).filter(
+            Scrap.scrap_date >= month_start
+        ).scalar() or 0
+
+        # Status-based counts
+        pending_count = Scrap.query.filter_by(status='待處理').count()
+        processing_count = Scrap.query.filter_by(status='處理中').count()
+        processed_count = Scrap.query.filter_by(status='已處理').count()
+
+        # Total estimated value
+        total_estimated_value = db.session.query(
+            func.sum(Scrap.estimated_value)).scalar() or 0
 
         # Top scrap reasons
         reason_stats = db.session.query(
@@ -430,6 +477,11 @@ def get_scrap_stats():
                 'total_scrapped': total_scrapped,
                 'total_records': total_records,
                 'recent_scrap_30days': recent_scrap,
+                'monthly_scrap': monthly_scrap,
+                'pending_count': pending_count,
+                'processing_count': processing_count,
+                'processed_count': processed_count,
+                'total_estimated_value': float(total_estimated_value),
                 'category_breakdown': category_breakdown,
                 'top_reasons': top_reasons,
                 'top_locations': top_locations

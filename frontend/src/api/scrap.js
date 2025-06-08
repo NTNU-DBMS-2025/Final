@@ -54,6 +54,10 @@ export function bulkCreateScrapRecords(records) {
     return apiClient.post('/scrap/bulk-create', { records })
 }
 
+export function processScrapRecord(scrapId) {
+    return apiClient.put(`/scrap/${scrapId}/process`)
+}
+
 // Scrap reasons API
 export function fetchScrapReasons() {
     return apiClient.get('/scrap/reasons')
@@ -69,6 +73,7 @@ export const scrapAPI = {
     updateScrapRecord,
     deleteScrapRecord,
     bulkCreateScrapRecords,
+    processScrapRecord,
     fetchScrapReasons
 }
 
