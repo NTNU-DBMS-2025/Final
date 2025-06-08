@@ -157,4 +157,18 @@ app.use(router)
 app.use(apiPlugin)
 app.use(messagePlugin)
 
-app.mount('#app')
+// Initialize authentication on app startup
+async function initializeApp() {
+  try {
+    // Initialize authentication state
+    await store.dispatch('initializeAuth')
+  } catch (error) {
+    console.error('Failed to initialize authentication:', error)
+  } finally {
+    // Mount the app regardless of authentication state
+    app.mount('#app')
+  }
+}
+
+// Start the application
+initializeApp()

@@ -107,14 +107,19 @@ const router = createRouter({
 })
 
 // Route guards
-router.beforeEach((to, from, next) => {
-    const token = store.state.token
+router.beforeEach(async (to, from, next) => {
+    const isAuthenticated = store.getters.isAuthenticated
     const userRoles = store.state.roles
+
+    // Check token expiration
+    if (store.state.token && !store.dispatch('checkTokenExpiration')) {
+        return next({ name: 'Login' })
+    }
 
     // If route doesn't require auth, allow access
     if (!to.meta.requiresAuth) {
         // If user is already logged in and trying to access login, redirect to appropriate dashboard
-        if (token && to.name === 'Login') {
+        if (isAuthenticated && to.name === 'Login') {
             if (userRoles.includes('Admin')) {
                 return next({ name: 'AdminDashboard' })
             } else if (userRoles.includes('Sales')) {
@@ -126,8 +131,10 @@ router.beforeEach((to, from, next) => {
         return next()
     }
 
-    // If route requires auth but user is not logged in
-    if (!token) {
+    // If route requires auth but user is not authenticated
+    if (!isAuthenticated) {
+        // Clear any invalid tokens
+        await store.dispatch('logout')
         return next({ name: 'Login' })
     }
 
@@ -135,6 +142,12 @@ router.beforeEach((to, from, next) => {
     if (to.meta.allowedRoles) {
         const hasPermission = to.meta.allowedRoles.some(role => userRoles.includes(role))
         if (!hasPermission) {
+            // Show notification about insufficient permissions
+            store.dispatch('showNotification', {
+                type: 'error',
+                message: '您沒有權限訪問此頁面'
+            })
+
             // Redirect to appropriate dashboard based on user role
             if (userRoles.includes('Admin')) {
                 return next({ name: 'AdminDashboard' })
