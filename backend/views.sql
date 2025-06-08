@@ -55,7 +55,7 @@ WHERE DATE_FORMAT(shi.ship_date,'%Y-%m') = DATE_FORMAT(CURDATE(),'%Y-%m')
 GROUP BY s.supplier_id
 ORDER BY shipped_qty DESC;
 
-/* ========== 1. 最近 7 天各訂單狀態統計 ========== */
+/* ========== 最近 7 天各訂單狀態統計 ========== */
 CREATE OR REPLACE VIEW v_orders_status_7d AS
 SELECT
   DATE(o.order_date)               AS stats_day,
@@ -66,7 +66,7 @@ FROM `Order` o
 WHERE o.order_date >= CURDATE() - INTERVAL 7 DAY
 GROUP BY DATE(o.order_date), o.status;
 
-/* ========== 2. 不同客戶類型平均訂單金額 ========== */
+/* ========== 不同客戶類型平均訂單金額 ========== */
 CREATE OR REPLACE VIEW v_avg_order_value_by_cust_type AS
 SELECT
   c.customer_type,
@@ -84,7 +84,7 @@ LEFT JOIN Inventory_Lot il ON il.product_id = p.product_id
 GROUP BY p.product_id
 HAVING COALESCE(SUM(il.quantity), 0) = 0;
 
-/* ========== 4. 已滿載或超載庫位 ========== */
+/* ========== 4. 已滿載或超載 ========== */
 CREATE OR REPLACE VIEW v_locations_over_capacity AS
 SELECT
   l.location_id,
@@ -147,17 +147,7 @@ FROM Product p
 LEFT JOIN shipped  s  ON s.product_id  = p.product_id
 LEFT JOIN scrapped sc ON sc.product_id = p.product_id;
 
-/* ========== 7. 物流商準時率 ========== */
-CREATE OR REPLACE VIEW v_vendor_on_time_rate AS
-SELECT
-  sv.name AS shipping_vendor,
-  COUNT(*) AS shipment_cnt,
-  SUM(CASE WHEN s.actual_delivery_date <= s.estimated_delivery_date THEN 1 ELSE 0 END) AS on_time_cnt,
-  ROUND( SUM(CASE WHEN s.actual_delivery_date <= s.estimated_delivery_date THEN 1 ELSE 0 END) / COUNT(*) * 100 , 2) AS on_time_pct
-FROM Shipment s
-JOIN Shipping_Vendor sv ON sv.user_id = s.shipping_vendor_id
-WHERE s.actual_delivery_date IS NOT NULL
-GROUP BY sv.name;
+
 
 /* ========== 8. 物流商延遲出貨件數 ========== */
 CREATE OR REPLACE VIEW v_vendor_delay_cnt AS
