@@ -145,20 +145,49 @@ class Order(db.Model):
     __tablename__ = 'Order'
 
     order_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    order_number = db.Column(db.String(50), nullable=False, unique=True)
     order_date = db.Column(db.DateTime, nullable=False,
                            default=datetime.utcnow)
-    status = db.Column(db.String(50), nullable=False)
+    expected_delivery_date = db.Column(db.Date)
+    status = db.Column(db.String(50), nullable=False, default='pending')
+    priority = db.Column(db.String(20), nullable=False, default='normal')
     ship_to = db.Column(db.String(255), nullable=False)
+    total_amount = db.Column(db.Numeric(12, 2), default=0.00)
+    notes = db.Column(db.Text)
     customer_id = db.Column(db.Integer, db.ForeignKey(
         'Customer.customer_id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey(
         'User.user_id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
     customer = db.relationship('Customer', back_populates='orders')
     user = db.relationship('User', back_populates='orders')
     order_items = db.relationship('OrderItem', back_populates='order')
     shipments = db.relationship('Shipment', back_populates='order')
+
+    def to_dict(self):
+        """Convert Order object to dictionary"""
+        return {
+            'order_id': self.order_id,
+            'order_number': self.order_number,
+            'order_date': self.order_date.isoformat() if self.order_date else None,
+            'expected_delivery_date': self.expected_delivery_date.isoformat() if self.expected_delivery_date else None,
+            'status': self.status,
+            'priority': self.priority,
+            'ship_to': self.ship_to,
+            'total_amount': float(self.total_amount) if self.total_amount else 0.0,
+            'notes': self.notes,
+            'customer_id': self.customer_id,
+            'customer_name': self.customer.name if self.customer else None,
+            'user_id': self.user_id,
+            'sales_rep': self.user.account if self.user else None,
+            'items_count': len(self.order_items) if self.order_items else 0,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
 
 
 class OrderItem(db.Model):
@@ -170,10 +199,24 @@ class OrderItem(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey(
         'Product.product_id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
+    unit_price = db.Column(db.Numeric(10, 2), nullable=False, default=0.00)
 
     # Relationships
     order = db.relationship('Order', back_populates='order_items')
     product = db.relationship('Product', back_populates='order_items')
+
+    def to_dict(self):
+        """Convert OrderItem object to dictionary"""
+        return {
+            'order_item_id': self.order_item_id,
+            'order_id': self.order_id,
+            'product_id': self.product_id,
+            'product_name': self.product.name if self.product else None,
+            'category': self.product.category if self.product else None,
+            'quantity': self.quantity,
+            'unit_price': float(self.unit_price) if self.unit_price else 0.0,
+            'subtotal': float(self.quantity * self.unit_price) if self.unit_price else 0.0
+        }
 
 
 class Shipment(db.Model):

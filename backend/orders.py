@@ -45,22 +45,44 @@ def get_orders():
                 OrderItem.order_id == order.order_id
             ).scalar() or 0
 
+            # Get order items for frontend
+            order_items = []
+            for item in order.order_items:
+                order_items.append({
+                    'order_item_id': item.order_item_id,
+                    'product_id': item.product_id,
+                    'product_name': item.product.name if item.product else None,
+                    'quantity': item.quantity,
+                    'unit_price': float(item.unit_price) if hasattr(item, 'unit_price') and item.unit_price else 0.0
+                })
+
             orders.append({
+                'id': order.order_id,  # Frontend expects 'id'
                 'order_id': order.order_id,
+                'order_number': getattr(order, 'order_number', f'ORD{order.order_id:06d}'),
                 'order_date': order.order_date.isoformat(),
+                'order_date_raw': order.order_date.strftime('%Y-%m-%d'),
+                'expected_delivery_date': getattr(order, 'expected_delivery_date', None),
                 'status': order.status,
+                'status_key': order.status.lower(),
+                'priority': getattr(order, 'priority', 'normal'),
+                'priority_key': getattr(order, 'priority', 'normal').lower(),
                 'ship_to': order.ship_to,
+                'total_amount': float(getattr(order, 'total_amount', 0.0)),
+                'notes': getattr(order, 'notes', ''),
                 'customer_id': order.customer_id,
                 'customer_name': order.customer.name,
                 'user_id': order.user_id,
                 'sales_rep': order.user.account,
                 'total_items': total_items,
+                'order_items': order_items,
                 'created_at': order.order_date.isoformat()
             })
 
         return jsonify({
             'success': True,
             'data': orders,
+            'total': pagination.total,
             'pagination': {
                 'page': pagination.page,
                 'pages': pagination.pages,
@@ -176,13 +198,31 @@ def create_order():
                     'error': f'Insufficient inventory for {product.name}. Available: {available_qty}, Required: {item_data["quantity"]}'
                 }), 400
 
-        # Create order
+        # Generate order number if not provided
+        order_number = data.get('order_number')
+        if not order_number:
+            from datetime import datetime
+            timestamp = datetime.now().strftime("%Y%m%d%H%M")
+            order_number = f"ORD{timestamp}"
+
+        # Calculate total amount from order items
+        total_amount = sum(
+            item_data['quantity'] * item_data.get('unit_price', 0)
+            for item_data in data['order_items']
+        )
+
+        # Create order with new fields
         order = Order(
+            order_number=order_number,
             customer_id=data['customer_id'],
             user_id=data['user_id'],
+            order_date=datetime.utcnow(),
+            expected_delivery_date=data.get('expected_delivery_date'),
+            status=data.get('status', 'pending'),
+            priority=data.get('priority', 'normal'),
             ship_to=data['ship_to'],
-            status=data.get('status', 'Pending'),
-            order_date=datetime.utcnow()
+            total_amount=total_amount,
+            notes=data.get('notes', '')
         )
 
         db.session.add(order)
@@ -193,7 +233,8 @@ def create_order():
             order_item = OrderItem(
                 order_id=order.order_id,
                 product_id=item_data['product_id'],
-                quantity=item_data['quantity']
+                quantity=item_data['quantity'],
+                unit_price=item_data.get('unit_price', 0.0)
             )
             db.session.add(order_item)
 

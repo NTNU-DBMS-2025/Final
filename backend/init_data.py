@@ -678,6 +678,171 @@ def init_sample_data():
             print(f"Error creating scrap data: {e}")
             db.session.rollback()
 
+        # Create sample orders
+        print("Creating sample orders...")
+        try:
+            from models import Order, OrderItem
+            from datetime import datetime, date, timedelta
+            import random
+
+            orders_data = [
+                {
+                    'order_number': 'ORD202412150001',
+                    'order_date': datetime.now() - timedelta(days=5),
+                    'expected_delivery_date': date.today() + timedelta(days=10),
+                    'status': 'confirmed',
+                    'priority': 'normal',
+                    'ship_to': '台北市信義區信義路五段7號',
+                    'total_amount': 129900.00,
+                    'notes': '緊急訂單，請優先處理',
+                    'customer_name': '台積電股份有限公司',
+                    'user_account': 'sales',
+                    'items': [
+                        {'product_name': 'Laptop Dell XPS 13',
+                            'quantity': 2, 'unit_price': 39950.00},
+                        {'product_name': 'MacBook Pro M3',
+                            'quantity': 1, 'unit_price': 50000.00}
+                    ]
+                },
+                {
+                    'order_number': 'ORD202412150002',
+                    'order_date': datetime.now() - timedelta(days=3),
+                    'expected_delivery_date': date.today() + timedelta(days=7),
+                    'status': 'processing',
+                    'priority': 'high',
+                    'ship_to': '新北市板橋區縣民大道二段7號',
+                    'total_amount': 95800.00,
+                    'notes': '客戶要求週五前交貨',
+                    'customer_name': '鴻海精密工業股份有限公司',
+                    'user_account': 'admin',
+                    'items': [
+                        {'product_name': 'iPhone 15 Pro',
+                            'quantity': 3, 'unit_price': 29900.00},
+                        {'product_name': 'Wireless Mouse Logitech',
+                            'quantity': 5, 'unit_price': 1200.00}
+                    ]
+                },
+                {
+                    'order_number': 'ORD202412150003',
+                    'order_date': datetime.now() - timedelta(days=2),
+                    'expected_delivery_date': date.today() + timedelta(days=14),
+                    'status': 'pending',
+                    'priority': 'normal',
+                    'ship_to': '新竹市科學園區力行路3號',
+                    'total_amount': 88000.00,
+                    'notes': '辦公室設備採購',
+                    'customer_name': '聯發科技股份有限公司',
+                    'user_account': 'sales',
+                    'items': [
+                        {'product_name': 'Monitor 24 inch LG',
+                            'quantity': 4, 'unit_price': 12000.00},
+                        {'product_name': 'Office Chair Ergonomic',
+                            'quantity': 2, 'unit_price': 20000.00}
+                    ]
+                },
+                {
+                    'order_number': 'ORD202412150004',
+                    'order_date': datetime.now() - timedelta(days=1),
+                    'expected_delivery_date': date.today() + timedelta(days=5),
+                    'status': 'shipped',
+                    'priority': 'urgent',
+                    'ship_to': '台北市大安區羅斯福路四段1號',
+                    'total_amount': 67600.00,
+                    'notes': '教育用途設備',
+                    'customer_name': '國立台灣大學',
+                    'user_account': 'admin',
+                    'items': [
+                        {'product_name': 'Tablet iPad Air',
+                            'quantity': 4, 'unit_price': 15900.00},
+                        {'product_name': 'Wireless Keyboard',
+                            'quantity': 4, 'unit_price': 1500.00}
+                    ]
+                },
+                {
+                    'order_number': 'ORD202412150005',
+                    'order_date': datetime.now(),
+                    'expected_delivery_date': date.today() + timedelta(days=12),
+                    'status': 'pending',
+                    'priority': 'low',
+                    'ship_to': '台中市南屯區市政路2號',
+                    'total_amount': 156000.00,
+                    'notes': '大宗採購，可議價',
+                    'customer_name': '友達光電股份有限公司',
+                    'user_account': 'sales',
+                    'items': [
+                        {'product_name': 'Standing Desk',
+                            'quantity': 3, 'unit_price': 25000.00},
+                        {'product_name': 'Gaming Chair',
+                            'quantity': 2, 'unit_price': 30000.00},
+                        {'product_name': 'Conference Table',
+                            'quantity': 1, 'unit_price': 51000.00}
+                    ]
+                },
+                {
+                    'order_number': 'ORD202412150006',
+                    'order_date': datetime.now() - timedelta(days=7),
+                    'expected_delivery_date': date.today() + timedelta(days=3),
+                    'status': 'delivered',
+                    'priority': 'normal',
+                    'ship_to': '台北市中正區忠孝東路一段150號',
+                    'total_amount': 45000.00,
+                    'notes': '訂單已完成交付',
+                    'customer_name': '台北市政府',
+                    'user_account': 'warehouse',
+                    'items': [
+                        {'product_name': 'Printer HP LaserJet',
+                            'quantity': 3, 'unit_price': 15000.00}
+                    ]
+                }
+            ]
+
+            for order_data in orders_data:
+                # Find customer and user
+                customer = Customer.query.filter_by(
+                    name=order_data['customer_name']).first()
+                user = User.query.filter_by(
+                    account=order_data['user_account']).first()
+
+                if customer and user:
+                    # Check if order already exists
+                    existing_order = Order.query.filter_by(
+                        order_number=order_data['order_number']).first()
+                    if not existing_order:
+                        order = Order(
+                            order_number=order_data['order_number'],
+                            order_date=order_data['order_date'],
+                            expected_delivery_date=order_data['expected_delivery_date'],
+                            status=order_data['status'],
+                            priority=order_data['priority'],
+                            ship_to=order_data['ship_to'],
+                            total_amount=order_data['total_amount'],
+                            notes=order_data['notes'],
+                            customer_id=customer.customer_id,
+                            user_id=user.user_id
+                        )
+                        db.session.add(order)
+                        db.session.flush()  # Get order_id
+
+                        # Create order items
+                        for item_data in order_data['items']:
+                            product = Product.query.filter_by(
+                                name=item_data['product_name']).first()
+                            if product:
+                                order_item = OrderItem(
+                                    order_id=order.order_id,
+                                    product_id=product.product_id,
+                                    quantity=item_data['quantity'],
+                                    unit_price=item_data['unit_price']
+                                )
+                                db.session.add(order_item)
+
+            db.session.commit()
+            print("Sample orders created!")
+
+        except Exception as e:
+            print(f"Error creating orders: {e}")
+            db.session.rollback()
+
         print("\n🎉 Enhanced sample data initialized successfully!")
         print("\n📊 Database now contains:")
         print(f"- {User.query.count()} Users")
@@ -687,12 +852,15 @@ def init_sample_data():
         print(f"- {Customer.query.count()} Customers")
         print(f"- {Location.query.count()} Locations")
         try:
-            from models import InventoryLot, Scrap
+            from models import InventoryLot, Scrap, Order, OrderItem
             print(f"- {InventoryLot.query.count()} Inventory Lots")
             print(f"- {Scrap.query.count()} Scrap Records")
+            print(f"- {Order.query.count()} Orders")
+            print(f"- {OrderItem.query.count()} Order Items")
         except:
             print("- Inventory lots: N/A")
             print("- Scrap records: N/A")
+            print("- Orders: N/A")
 
         print("\n🔑 Demo accounts:")
         print("Admin: admin/admin")

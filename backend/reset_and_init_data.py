@@ -11,17 +11,17 @@ import sys
 
 
 def reset_database():
-    """Drop and recreate all tables"""
+    """Drop and recreate all tables with updated schema"""
     app = create_app()
 
     with app.app_context():
         print("🗑️  Dropping all tables...")
         db.drop_all()
 
-        print("🏗️  Creating fresh tables...")
+        print("🏗️  Creating fresh tables with updated schema...")
         db.create_all()
 
-        print("✅ Database reset completed!")
+        print("✅ Database reset completed with updated Order schema!")
 
 
 def main():

@@ -77,9 +77,9 @@
                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">請選擇客戶</option>
-                  <option value="1">台積電股份有限公司</option>
-                  <option value="2">鴻海精密工業股份有限公司</option>
-                  <option value="3">聯發科技股份有限公司</option>
+                  <option v-for="customer in customers" :key="customer.customer_id" :value="customer.customer_id">
+                    {{ customer.name }}
+                  </option>
                 </select>
               </div>
 
@@ -140,6 +140,19 @@
 
               <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1">
+                  送貨地址 <span class="text-red-500">*</span>
+                </label>
+                <input
+                  v-model="form.ship_to"
+                  type="text"
+                  required
+                  placeholder="請輸入送貨地址"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
                   備註
                 </label>
                 <textarea
@@ -176,9 +189,9 @@
                       required
                     >
                       <option value="">選擇商品</option>
-                      <option value="1">iPhone 15 Pro</option>
-                      <option value="2">MacBook Air M2</option>
-                      <option value="3">iPad Pro 12.9</option>
+                      <option v-for="product in products" :key="product.product_id" :value="product.product_id">
+                        {{ product.name }}
+                      </option>
                     </select>
                   </div>
                   <div>
@@ -260,6 +273,8 @@ export default {
   data() {
     return {
       orders: [],
+      customers: [],
+      products: [],
       loading: false,
       total: 0,
       currentPage: 1,
@@ -278,6 +293,7 @@ export default {
         expected_delivery_date: '',
         status: 'pending',
         priority: 'normal',
+        ship_to: '',
         notes: '',
         order_items: []
       },
@@ -294,6 +310,8 @@ export default {
   },
   async created() {
     await this.loadOrders()
+    await this.loadCustomers()
+    await this.loadProducts()
   },
   methods: {
     async loadOrders() {
@@ -302,18 +320,21 @@ export default {
         
         const response = await ordersAPI.getOrders({
           page: this.currentPage,
-          limit: this.pageSize,
+          per_page: this.pageSize,
           search: this.searchQuery,
           sortBy: this.sortBy,
           sortOrder: this.sortOrder
         })
         
-        this.orders = response.data.map(order => ({
+        // Fix: Access the response data correctly
+        const ordersData = response.data.data || response.data || []
+        
+        this.orders = ordersData.map(order => ({
           ...order,
           order_date: this.formatDate(order.order_date),
           total_amount: `$${order.total_amount.toLocaleString()}`,
-          status: this.getStatusText(order.status),
-          priority: this.getPriorityText(order.priority),
+          status: this.getStatusText(order.status_key || order.status),
+          priority: this.getPriorityText(order.priority_key || order.priority),
           actions: [
             {
               label: '查看',
@@ -333,13 +354,13 @@ export default {
           ]
         }))
         
-        this.total = response.total
+        this.total = response.data.total || response.total || ordersData.length
         
       } catch (error) {
         console.error('Error loading orders:', error)
         this.$store.dispatch('setNotification', {
           type: 'error',
-          message: '載入訂單資料失敗'
+          message: '載入訂單資料失敗: ' + (error.response?.data?.error || error.message)
         })
       } finally {
         this.loading = false
@@ -381,6 +402,7 @@ export default {
         expected_delivery_date: order.expected_delivery_date || '',
         status: order.status_key || 'pending',
         priority: order.priority_key || 'normal',
+        ship_to: order.ship_to || '',
         notes: order.notes || '',
         order_items: order.order_items || []
       }
@@ -403,14 +425,26 @@ export default {
         this.submitting = true
 
         const orderData = {
-          ...this.form,
-          total_amount: this.calculateTotal()
+          order_number: this.form.order_number,
+          customer_id: parseInt(this.form.customer_id),
+          user_id: 1, // Default to first user, should be current logged in user
+          order_date: this.form.order_date,
+          expected_delivery_date: this.form.expected_delivery_date || null,
+          status: this.form.status,
+          priority: this.form.priority,
+          ship_to: this.form.ship_to || `Customer ${this.form.customer_id} Address`,
+          notes: this.form.notes,
+          order_items: this.form.order_items.map(item => ({
+            product_id: parseInt(item.product_id),
+            quantity: parseInt(item.quantity),
+            unit_price: parseFloat(item.unit_price)
+          }))
         }
 
         if (this.isEditMode) {
-          console.log('Updating order:', this.editingId, orderData)
+          await ordersAPI.updateOrder(this.editingId, orderData)
         } else {
-          console.log('Creating order:', orderData)
+          await ordersAPI.createOrder(orderData)
         }
 
         this.$store.dispatch('setNotification', {
@@ -425,10 +459,34 @@ export default {
         console.error('Error saving order:', error)
         this.$store.dispatch('setNotification', {
           type: 'error',
-          message: '訂單儲存失敗'
+          message: '訂單儲存失敗: ' + (error.response?.data?.error || error.message)
         })
       } finally {
         this.submitting = false
+      }
+    },
+
+    async loadCustomers() {
+      try {
+        const response = await fetch('http://localhost:5001/api/customers')
+        const data = await response.json()
+        if (data.success) {
+          this.customers = data.data
+        }
+      } catch (error) {
+        console.error('Error loading customers:', error)
+      }
+    },
+
+    async loadProducts() {
+      try {
+        const response = await fetch('http://localhost:5001/api/products')
+        const data = await response.json()
+        if (data.success) {
+          this.products = data.data
+        }
+      } catch (error) {
+        console.error('Error loading products:', error)
       }
     },
 
@@ -445,6 +503,7 @@ export default {
         expected_delivery_date: '',
         status: 'pending',
         priority: 'normal',
+        ship_to: '',
         notes: '',
         order_items: []
       }
