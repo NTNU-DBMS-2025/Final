@@ -86,10 +86,11 @@ const store = createStore({
 
                 if (response.data.success) {
                     const userData = response.data.data
-                    // Session-based auth - no token needed, server handles sessions
+                    const token = response.data.token || response.data.access_token // Handle different token field names
+
                     commit('setUser', userData)
                     commit('setRoles', [userData.role_name])
-                    commit('setToken', 'session-based') // Just to mark as authenticated
+                    commit('setToken', token) // Store the actual JWT token
 
                     return userData
                 } else {
@@ -112,6 +113,13 @@ const store = createStore({
         },
         async fetchCurrentUser({ commit }) {
             try {
+                // Only fetch if we have a token
+                const token = store.state.token
+                if (!token || token === 'session-based') {
+                    commit('clearUser')
+                    return null
+                }
+
                 // Real API call to backend
                 const { getCurrentUser } = await import('../api/auth')
                 const response = await getCurrentUser()
@@ -120,7 +128,6 @@ const store = createStore({
                     const userData = response.data.data
                     commit('setUser', userData)
                     commit('setRoles', [userData.role_name])
-                    commit('setToken', 'session-based')
                     return userData
                 } else {
                     commit('clearUser')

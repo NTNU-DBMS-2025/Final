@@ -6,16 +6,20 @@ import router from '../router'
 const apiClient = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api',
     timeout: 10000,
-    withCredentials: true, // Include cookies for session-based auth
+    withCredentials: false, // Switch to token-based auth instead of session cookies
     headers: {
         'Content-Type': 'application/json'
     }
 })
 
-// Request interceptor (session-based auth doesn't need Authorization header)
+// Request interceptor to add Authorization header
 apiClient.interceptors.request.use(
     config => {
-        // Session-based authentication uses cookies, no Authorization header needed
+        // Add Authorization header if token exists
+        const token = store.state.token
+        if (token && token !== 'session-based') {
+            config.headers.Authorization = `Bearer ${token}`
+        }
         return config
     },
     error => {
