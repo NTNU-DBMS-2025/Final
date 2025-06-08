@@ -21,7 +21,9 @@ def create_app():
 
     # Initialize extensions
     db.init_app(app)
-    CORS(app, supports_credentials=True, origins=['http://localhost:5173'])
+    CORS(app, supports_credentials=True, origins=[
+         os.getenv('FRONTEND_URL', 'http://localhost:5173')
+         ])
 
     # Register blueprints
     from auth import auth_bp
