@@ -1,5 +1,5 @@
 from models import db
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
@@ -57,6 +57,49 @@ def create_app():
             return {'status': 'success', 'message': 'Database tables created successfully'}
         except Exception as e:
             return {'status': 'error', 'message': str(e)}, 500
+
+    @app.route('/api/dashboard/stats')
+    def get_dashboard_stats():
+        """Get aggregated dashboard statistics"""
+        try:
+            from models import InventoryLot, Order, Scrap, Product, Location
+            from sqlalchemy import func, and_
+            from datetime import date, timedelta
+
+            # Inventory stats
+            total_inventory = db.session.query(
+                func.sum(InventoryLot.quantity)).scalar() or 0
+
+            low_stock_count = db.session.query(func.count(InventoryLot.product_id)).filter(
+                InventoryLot.quantity <= 10
+            ).scalar() or 0
+
+            # Order stats
+            pending_orders = Order.query.filter(
+                Order.status == 'Pending').count()
+
+            # Scrap stats (this month)
+            today = date.today()
+            month_start = date(today.year, today.month, 1)
+            monthly_scrap = db.session.query(func.count(Scrap.scrap_id)).filter(
+                Scrap.scrap_date >= month_start
+            ).scalar() or 0
+
+            return jsonify({
+                'success': True,
+                'data': {
+                    'total_inventory': total_inventory,
+                    'low_stock_count': low_stock_count,
+                    'pending_orders': pending_orders,
+                    'monthly_scrap': monthly_scrap
+                }
+            })
+
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': f'Failed to fetch dashboard statistics: {str(e)}'
+            }), 500
 
     return app
 

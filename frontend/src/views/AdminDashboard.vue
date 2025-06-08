@@ -17,7 +17,7 @@
         link="/inventory"
         linkText="查看庫存"
       >
-        <p class="text-3xl font-bold text-gray-900">{{ totalInventory }}</p>
+        <p class="text-3xl font-bold text-gray-900">{{ loading ? '...' : totalInventory }}</p>
         <p class="text-sm text-gray-500">件商品</p>
       </Card>
 
@@ -28,7 +28,7 @@
         link="/inventory?lowStock=true"
         linkText="查看詳情"
       >
-        <p class="text-3xl font-bold text-red-600">{{ lowStockCount }}</p>
+        <p class="text-3xl font-bold text-red-600">{{ loading ? '...' : lowStockCount }}</p>
         <p class="text-sm text-gray-500">項商品</p>
       </Card>
 
@@ -39,7 +39,7 @@
         link="/orders"
         linkText="查看訂單"
       >
-        <p class="text-3xl font-bold text-blue-600">{{ pendingOrders }}</p>
+        <p class="text-3xl font-bold text-blue-600">{{ loading ? '...' : pendingOrders }}</p>
         <p class="text-sm text-gray-500">筆訂單</p>
       </Card>
 
@@ -50,7 +50,7 @@
         link="/scrap"
         linkText="查看報廢"
       >
-        <p class="text-3xl font-bold text-orange-600">{{ monthlyScrap }}</p>
+        <p class="text-3xl font-bold text-orange-600">{{ loading ? '...' : monthlyScrap }}</p>
         <p class="text-sm text-gray-500">件商品</p>
       </Card>
     </div>
@@ -116,7 +116,14 @@
             最近訂單
           </h3>
           <div class="space-y-3">
+            <div v-if="loading" class="text-center py-4">
+              <p class="text-gray-500">載入中...</p>
+            </div>
+            <div v-else-if="recentOrders.length === 0" class="text-center py-4">
+              <p class="text-gray-500">暫無訂單資料</p>
+            </div>
             <div 
+              v-else
               v-for="order in recentOrders" 
               :key="order.order_id"
               class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0"
@@ -127,7 +134,7 @@
               </div>
               <div class="text-right">
                 <span :class="getStatusClass(order.status)">
-                  {{ order.status }}
+                  {{ translateStatus(order.status) }}
                 </span>
                 <p class="text-sm text-gray-500">{{ formatDate(order.order_date) }}</p>
               </div>
@@ -151,14 +158,21 @@
             低庫存商品
           </h3>
           <div class="space-y-3">
+            <div v-if="loading" class="text-center py-4">
+              <p class="text-gray-500">載入中...</p>
+            </div>
+            <div v-else-if="lowStockItems.length === 0" class="text-center py-4">
+              <p class="text-gray-500">暫無低庫存商品</p>
+            </div>
             <div 
+              v-else
               v-for="item in lowStockItems" 
-              :key="item.product_id"
+              :key="`${item.product_id}-${item.location_id}`"
               class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0"
             >
               <div>
                 <p class="font-medium text-gray-900">{{ item.product_name }}</p>
-                <p class="text-sm text-gray-500">{{ item.location_name }}</p>
+                <p class="text-sm text-gray-500">{{ item.location_zone }}-{{ item.location_shelf }}</p>
               </div>
               <div class="text-right">
                 <span class="text-red-600 font-semibold">{{ item.quantity }}</span>
@@ -183,8 +197,7 @@
 <script>
 import { mapState } from 'vuex'
 import Card from '../components/Card.vue'
-import { fetchOrders } from '../api/orders'
-import { fetchInventory } from '../api/inventory'
+import { fetchDashboardStats, fetchRecentOrders, fetchLowStockItems } from '../api/dashboard'
 
 export default {
   name: 'AdminDashboard',
@@ -193,13 +206,14 @@ export default {
   },
   data() {
     return {
-      totalInventory: 173,
-      lowStockCount: 3,
-      pendingOrders: 8,
-      monthlyScrap: 12,
+      totalInventory: 0,
+      lowStockCount: 0,
+      pendingOrders: 0,
+      monthlyScrap: 0,
       recentOrders: [],
       lowStockItems: [],
-      loading: false
+      loading: true,
+      error: null
     }
   },
   computed: {
@@ -211,16 +225,49 @@ export default {
   methods: {
     async loadDashboardData() {
       this.loading = true
+      this.error = null
+      
       try {
+        // Load dashboard stats
+        const statsResponse = await fetchDashboardStats()
+        if (statsResponse.data.success) {
+          const stats = statsResponse.data.data
+          this.totalInventory = stats.total_inventory
+          this.lowStockCount = stats.low_stock_count
+          this.pendingOrders = stats.pending_orders
+          this.monthlyScrap = stats.monthly_scrap
+        }
+
         // Load recent orders
-        const ordersResponse = await fetchOrders({ page: 1, pageSize: 5 })
-        this.recentOrders = ordersResponse.data.data.orders
+        try {
+          const ordersResponse = await fetchRecentOrders({ page: 1, per_page: 5 })
+          if (ordersResponse.data.success) {
+            this.recentOrders = ordersResponse.data.data || []
+          }
+        } catch (error) {
+          console.warn('Failed to load recent orders:', error)
+          this.recentOrders = []
+        }
 
         // Load low stock items
-        const inventoryResponse = await fetchInventory({ lowStock: true, pageSize: 5 })
-        this.lowStockItems = inventoryResponse.data.data.inventory
+        try {
+          const lowStockResponse = await fetchLowStockItems({ threshold: 10, limit: 5 })
+          if (lowStockResponse.data.success) {
+            this.lowStockItems = lowStockResponse.data.data.slice(0, 5) || []
+          }
+        } catch (error) {
+          console.warn('Failed to load low stock items:', error)
+          this.lowStockItems = []
+        }
+
       } catch (error) {
         console.error('Failed to load dashboard data:', error)
+        this.error = error.message
+        // Set fallback values if main stats fail
+        this.totalInventory = 0
+        this.lowStockCount = 0
+        this.pendingOrders = 0
+        this.monthlyScrap = 0
       } finally {
         this.loading = false
       }
@@ -230,15 +277,34 @@ export default {
       switch (status) {
         case '已完成':
         case '已出貨':
+        case 'shipped':
+        case 'completed':
+        case 'delivered':
           return `${baseClass} bg-green-100 text-green-800`
         case '處理中':
         case '待出貨':
+        case 'pending':
+        case 'processing':
+        case 'confirmed':
           return `${baseClass} bg-yellow-100 text-yellow-800`
         case '已取消':
+        case 'cancelled':
           return `${baseClass} bg-red-100 text-red-800`
         default:
           return `${baseClass} bg-gray-100 text-gray-800`
       }
+    },
+    translateStatus(status) {
+      const statusMap = {
+        'pending': '待處理',
+        'processing': '處理中', 
+        'confirmed': '已確認',
+        'shipped': '已出貨',
+        'delivered': '已送達',
+        'cancelled': '已取消',
+        'completed': '已完成'
+      }
+      return statusMap[status] || status
     },
     formatDate(dateString) {
       if (!dateString) return ''

@@ -1,10 +1,33 @@
 import { createStore } from 'vuex'
 
+console.log('Store: Starting store creation')
+
+// Safely access localStorage
+function getFromLocalStorage(key, defaultValue) {
+    try {
+        const value = localStorage.getItem(key)
+        return value || defaultValue
+    } catch (error) {
+        console.warn('localStorage access failed:', error)
+        return defaultValue
+    }
+}
+
+function parseFromLocalStorage(key, defaultValue) {
+    try {
+        const value = localStorage.getItem(key)
+        return value ? JSON.parse(value) : defaultValue
+    } catch (error) {
+        console.warn('localStorage parse failed:', error)
+        return defaultValue
+    }
+}
+
 const store = createStore({
     state: {
         user: null,
-        token: localStorage.getItem('token') || null,
-        roles: JSON.parse(localStorage.getItem('roles') || '[]'),
+        token: getFromLocalStorage('token', null),
+        roles: parseFromLocalStorage('roles', []),
         notifications: []
     },
     mutations: {
@@ -13,22 +36,34 @@ const store = createStore({
         },
         setToken(state, token) {
             state.token = token
-            if (token) {
-                localStorage.setItem('token', token)
-            } else {
-                localStorage.removeItem('token')
+            try {
+                if (token) {
+                    localStorage.setItem('token', token)
+                } else {
+                    localStorage.removeItem('token')
+                }
+            } catch (error) {
+                console.warn('localStorage setToken failed:', error)
             }
         },
         setRoles(state, roles) {
             state.roles = roles
-            localStorage.setItem('roles', JSON.stringify(roles))
+            try {
+                localStorage.setItem('roles', JSON.stringify(roles))
+            } catch (error) {
+                console.warn('localStorage setRoles failed:', error)
+            }
         },
         clearUser(state) {
             state.user = null
             state.token = null
             state.roles = []
-            localStorage.removeItem('token')
-            localStorage.removeItem('roles')
+            try {
+                localStorage.removeItem('token')
+                localStorage.removeItem('roles')
+            } catch (error) {
+                console.warn('localStorage clearUser failed:', error)
+            }
         },
         addNotification(state, notification) {
             state.notifications.push({
@@ -109,5 +144,7 @@ const store = createStore({
         hasAnyRole: state => roles => roles.some(role => state.roles.includes(role))
     }
 })
+
+console.log('Store: Store created successfully')
 
 export default store 

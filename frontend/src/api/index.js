@@ -9,6 +9,7 @@ import * as shipments from './shipments'
 import * as locations from './locations'
 import * as inventory from './inventory'
 import * as scrap from './scrap'
+import * as dashboard from './dashboard'
 
 // Create unified API object
 const api = {
@@ -21,7 +22,8 @@ const api = {
     shipments,
     locations,
     inventory,
-    scrap
+    scrap,
+    dashboard
 }
 
 // Vue plugin to install API globally
@@ -43,7 +45,8 @@ export {
     shipments,
     locations,
     inventory,
-    scrap
+    scrap,
+    dashboard
 }
 
 // Export unified API object
