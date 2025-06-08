@@ -21,10 +21,7 @@ def create_app():
 
     # Initialize extensions
     db.init_app(app)
-    # Temporary: allow all origins for development
-    CORS(app, supports_credentials=False, origins="*")
-
-    CORS(app, supports_credentials=False, origins=[
+    CORS(app, supports_credentials=True, origins=[
          os.getenv('FRONTEND_URL', 'http://localhost:5173'),
          'https://final-ibglzoiuk-ethanlams-projects.vercel.app'
          ])
