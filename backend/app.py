@@ -28,7 +28,7 @@ def create_app():
          origins=[
              'http://localhost:5173',  # Local frontend
              'http://localhost:3000',  # Alternative local port
-             'https://final-ibglzoiuk-ethanlams-projects.vercel.app'  # Production frontend
+             os.getenv('FRONTEND_URL', 'http://localhost:5173')
          ],
          allow_headers=['Content-Type', 'Authorization'],
          methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
