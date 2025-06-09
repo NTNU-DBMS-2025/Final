@@ -35,7 +35,7 @@
               @click="column.sortable ? handleSort(column.key) : null"
               :class="[
                 'px-3 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap',
-                column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''
+                column.sortable ? 'cursor-pointer hover:bg-gray-100 transition-colors duration-200' : ''
               ]"
             >
               <div class="flex justify-center items-center">
@@ -62,7 +62,7 @@
               <div class="text-gray-500">沒有資料</div>
             </td>
           </tr>
-          <tr v-else v-for="(row, index) in paginatedData" :key="index" class="hover:bg-gray-50">
+          <tr v-else v-for="(row, index) in paginatedData" :key="index" class="hover:bg-gray-50 transition-colors duration-200">
             <td v-for="column in columns" :key="column.key" class="px-3 sm:px-6 py-3 sm:py-4 text-sm">
               <div v-if="column.key === 'status'" :class="getStatusClass(row[column.key])">
                 {{ row[column.key] }}
@@ -73,7 +73,7 @@
               <div v-else-if="column.type === 'date'">
                 {{ formatDate(row[column.key]) }}
               </div>
-              <div v-else-if="column.type === 'currency'">
+              <div v-else-if="column.type === 'currency'" class="font-semibold text-green-600">
                 NT$ {{ Number(row[column.key]).toLocaleString() }}
               </div>
               <div v-else-if="column.key === 'actions'">
@@ -304,13 +304,13 @@ export default {
     getActionClass(type) {
       switch (type) {
         case 'edit':
-          return 'bg-blue-500 hover:bg-blue-600 text-white'
+          return 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200'
         case 'delete':
-          return 'bg-red-500 hover:bg-red-600 text-white'
+          return 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200'
         case 'view':
-          return 'bg-gray-500 hover:bg-gray-600 text-white'
+          return 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200'
         default:
-          return 'bg-gray-500 hover:bg-gray-600 text-white'
+          return 'bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200'
       }
     },
     formatDate(dateString) {

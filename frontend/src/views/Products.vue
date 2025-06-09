@@ -9,7 +9,7 @@
         </div>
         <button 
           @click="openAddModal"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
+          class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded-lg flex items-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
         >
           <span class="mr-2">+</span>
           新增產品
@@ -80,6 +80,19 @@
             </div>
             
             <div>
+              <label class="block text-sm font-medium text-gray-700">單價 (NT$)</label>
+              <input
+                v-model.number="form.price"
+                type="number"
+                min="0"
+                step="0.01"
+                required
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                placeholder="0.00"
+              />
+            </div>
+            
+            <div>
               <label class="block text-sm font-medium text-gray-700">圖片網址</label>
               <input
                 v-model="form.image_url"
@@ -100,7 +113,7 @@
               <button
                 type="submit"
                 :disabled="submitting"
-                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-400"
+                class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-400"
               >
                 {{ submitting ? '處理中...' : (isEditing ? '更新' : '新增') }}
               </button>
@@ -168,6 +181,7 @@ export default {
         name: '',
         category: '',
         warranty_years: 0,
+        price: 0,
         image_url: ''
       },
       columns: [
@@ -175,6 +189,7 @@ export default {
         { key: 'name', label: '產品名稱', sortable: true },
         { key: 'category', label: '分類', sortable: true },
         { key: 'warranty_years', label: '保固年限', sortable: true },
+        { key: 'price', label: '單價 (NT$)', sortable: true, type: 'currency' },
         { key: 'image_url', label: '圖片', sortable: false }
       ],
       actions: [
@@ -226,6 +241,7 @@ export default {
         name: '',
         category: '',
         warranty_years: 0,
+        price: 0,
         image_url: ''
       }
       this.showModal = true
@@ -243,6 +259,7 @@ export default {
         name: '',
         category: '',
         warranty_years: 0,
+        price: 0,
         image_url: ''
       }
     },
