@@ -90,8 +90,8 @@
             >
               <option value="">全部狀態</option>
               <option value="待處理">待處理</option>
-              <option value="處理中">處理中</option>
               <option value="已處理">已處理</option>
+              <option value="已取消">已取消</option>
             </select>
           </div>
           <div>
@@ -122,35 +122,13 @@
       <div class="bg-white rounded-lg shadow-sm overflow-hidden">
         <DataTable
           :columns="columns"
-          :data="filteredScrapItems"
+          :data="scrapItemsWithActions"
           :loading="loading"
           @sort="handleSort"
-        >
-          <template #actions="{ row }">
-            <div class="flex space-x-2">
-              <button
-                @click="viewScrapItem(row)"
-                class="text-blue-600 hover:text-blue-800 text-sm font-medium"
-              >
-                查看
-              </button>
-              <button
-                v-if="row.status === '待處理'"
-                @click="editScrapItem(row)"
-                class="text-green-600 hover:text-green-800 text-sm font-medium"
-              >
-                編輯
-              </button>
-              <button
-                v-if="row.status === '待處理'"
-                @click="processScrapItem(row)"
-                class="text-orange-600 hover:text-orange-800 text-sm font-medium"
-              >
-                處理
-              </button>
-            </div>
-          </template>
-        </DataTable>
+          @viewScrapItem="viewScrapItem"
+          @editScrapItem="editScrapItem"
+          @processScrapItem="processScrapItem"
+        />
       </div>
     </div>
 
@@ -231,6 +209,20 @@
                 </select>
               </div>
               <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">狀態</label>
+                <select
+                  v-model="form.status"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="待處理">待處理</option>
+                  <option value="已處理">已處理</option>
+                  <option value="已取消">已取消</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">預估價值</label>
                 <input
                   v-model="form.estimated_value"
@@ -238,6 +230,15 @@
                   min="0"
                   step="0.01"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">處理日期</label>
+                <input
+                  v-model="form.processed_date"
+                  type="date"
+                  :disabled="form.status !== '已處理'"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
                 >
               </div>
             </div>
@@ -270,6 +271,108 @@
         </div>
       </div>
     </div>
+
+    <!-- View Modal -->
+    <div
+      v-if="showViewModal"
+      class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
+      @click="closeViewModal"
+    >
+      <div
+        class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white"
+        @click.stop
+      >
+        <div class="mt-3">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-gray-900">報廢記錄詳情</h3>
+            <button 
+              @click="closeViewModal"
+              class="text-gray-400 hover:text-gray-600"
+            >
+              <span class="sr-only">關閉</span>
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <div v-if="viewingItem" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <label class="block text-sm font-medium text-gray-700 mb-1">報廢編號</label>
+                <p class="text-gray-900">{{ viewingItem.scrap_id }}</p>
+              </div>
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <label class="block text-sm font-medium text-gray-700 mb-1">產品名稱</label>
+                <p class="text-gray-900">{{ viewingItem.product_name }}</p>
+              </div>
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <label class="block text-sm font-medium text-gray-700 mb-1">產品ID</label>
+                <p class="text-gray-900">{{ viewingItem.product_id }}</p>
+              </div>
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <label class="block text-sm font-medium text-gray-700 mb-1">儲位ID</label>
+                <p class="text-gray-900">{{ viewingItem.location_id }}</p>
+              </div>
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <label class="block text-sm font-medium text-gray-700 mb-1">報廢數量</label>
+                <p class="text-gray-900 font-semibold">{{ viewingItem.quantity }}</p>
+              </div>
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <label class="block text-sm font-medium text-gray-700 mb-1">報廢原因</label>
+                <p class="text-gray-900">{{ viewingItem.reason }}</p>
+              </div>
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <label class="block text-sm font-medium text-gray-700 mb-1">預估價值</label>
+                <p class="text-gray-900 font-semibold text-green-600">NT$ {{ Number(viewingItem.estimated_value || 0).toLocaleString() }}</p>
+              </div>
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <label class="block text-sm font-medium text-gray-700 mb-1">狀態</label>
+                <span :class="getStatusClass(viewingItem.status)">
+                  {{ viewingItem.status }}
+                </span>
+              </div>
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <label class="block text-sm font-medium text-gray-700 mb-1">報廢日期</label>
+                <p class="text-gray-900">{{ formatDate(viewingItem.scrap_date) }}</p>
+              </div>
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <label class="block text-sm font-medium text-gray-700 mb-1">建立人</label>
+                <p class="text-gray-900">{{ viewingItem.created_by }}</p>
+              </div>
+            </div>
+            
+            <div v-if="viewingItem.description" class="bg-gray-50 p-4 rounded-lg">
+              <label class="block text-sm font-medium text-gray-700 mb-1">詳細描述</label>
+              <p class="text-gray-900">{{ viewingItem.description }}</p>
+            </div>
+            
+            <div class="flex justify-end space-x-3 pt-4">
+              <button
+                v-if="viewingItem.status === '待處理'"
+                @click="editScrapItem(viewingItem); closeViewModal()"
+                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                編輯此記錄
+              </button>
+              <button
+                v-if="viewingItem.status === '待處理'"
+                @click="processScrapItem(viewingItem); closeViewModal()"
+                class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              >
+                處理此記錄
+              </button>
+              <button
+                @click="closeViewModal"
+                class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              >
+                關閉
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -286,7 +389,9 @@ export default {
     return {
       loading: false,
       showModal: false,
+      showViewModal: false,
       isEditing: false,
+      viewingItem: null,
       searchTerm: '',
       statusFilter: '',
       reasonFilter: '',
@@ -347,6 +452,12 @@ export default {
 
       return filtered
     },
+    scrapItemsWithActions() {
+      return this.filteredScrapItems.map(item => ({
+        ...item,
+        actions: this.getActionsForItem(item)
+      }))
+    },
     monthlyScrap() {
       return this.stats.monthly_scrap
     },
@@ -361,6 +472,31 @@ export default {
     }
   },
   methods: {
+    getActionsForItem(item) {
+      const actions = [
+        {
+          label: '查看',
+          action: () => this.viewScrapItem(item),
+          class: 'text-gray-600 hover:text-gray-900'
+        }
+      ]
+
+      // Only show edit and process buttons for pending items
+      if (item.status === '待處理') {
+        actions.push({
+          label: '編輯',
+          action: () => this.editScrapItem(item),
+          class: 'text-blue-600 hover:text-blue-900'
+        })
+        actions.push({
+          label: '處理',
+          action: () => this.processScrapItem(item),
+          class: 'text-red-600 hover:text-red-900'
+        })
+      }
+
+      return actions
+    },
     async loadScrapData() {
       try {
         this.loading = true
@@ -389,6 +525,12 @@ export default {
     },
     viewScrapItem(item) {
       console.log('Viewing scrap item:', item)
+      this.viewingItem = item
+      this.showViewModal = true
+    },
+    closeViewModal() {
+      this.showViewModal = false
+      this.viewingItem = null
     },
     editScrapItem(item) {
       this.isEditing = true
@@ -396,16 +538,62 @@ export default {
       this.showModal = true
     },
     async processScrapItem(item) {
-      if (confirm('確定要處理此報廢記錄嗎？')) {
+      // Check if already processed
+      if (item.status === '已處理') {
+        this.$store.dispatch('setNotification', {
+          type: 'warning',
+          message: '此報廢記錄已經處理過了'
+        })
+        return
+      }
+
+      if (confirm('確定要處理此報廢記錄嗎？處理後將無法再修改。')) {
         try {
+          console.log('Processing scrap item:', item)
           const response = await processScrapRecord(item.scrap_id)
+          console.log('Process response:', response)
+          
           if (response.data.success) {
             await this.loadScrapData() // Reload data
-            alert('報廢記錄已處理')
+            this.$store.dispatch('setNotification', {
+              type: 'success',
+              message: '報廢記錄已處理完成'
+            })
+          } else {
+            throw new Error(response.data.error || '處理失敗')
           }
         } catch (error) {
           console.error('Failed to process scrap item:', error)
-          alert('處理報廢記錄失敗')
+          
+          // Get more specific error message
+          let errorMessage = '處理報廢記錄失敗'
+          if (error.response?.data?.error) {
+            errorMessage = error.response.data.error
+            
+            // Handle specific error cases
+            if (errorMessage.includes('already processed')) {
+              errorMessage = '此報廢記錄已經處理過了'
+              // Reload data to sync status
+              await this.loadScrapData()
+            }
+          } else if (error.response?.data?.message) {
+            errorMessage = error.response.data.message
+          } else if (error.message) {
+            errorMessage = error.message
+          }
+          
+          this.$store.dispatch('setNotification', {
+            type: 'error',
+            message: errorMessage
+          })
+          
+          // Log full error details for debugging
+          console.error('Full error details:', {
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            data: error.response?.data,
+            config: error.config
+          })
         }
       }
     },
@@ -446,6 +634,24 @@ export default {
         console.error('Failed to submit form:', error)
         alert(this.isEditing ? '更新報廢記錄失敗' : '新增報廢記錄失敗')
       }
+    },
+    getStatusClass(status) {
+      const baseClass = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full'
+      switch (status) {
+        case '待處理':
+          return `${baseClass} bg-yellow-100 text-yellow-800`
+        case '已處理':
+          return `${baseClass} bg-green-100 text-green-800`
+        case '已取消':
+          return `${baseClass} bg-red-100 text-red-800`
+        default:
+          return `${baseClass} bg-gray-100 text-gray-800`
+      }
+    },
+    formatDate(dateString) {
+      if (!dateString) return ''
+      const date = new Date(dateString)
+      return date.toLocaleDateString('zh-TW')
     }
   },
   mounted() {
