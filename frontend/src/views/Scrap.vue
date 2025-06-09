@@ -78,14 +78,14 @@
               v-model="searchTerm"
               type="text"
               placeholder="搜尋產品名稱或報廢原因..."
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">狀態</label>
             <select
               v-model="statusFilter"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">全部狀態</option>
               <option value="待處理">待處理</option>
@@ -97,7 +97,7 @@
             <label class="block text-sm font-medium text-gray-700 mb-2">報廢原因</label>
             <select
               v-model="reasonFilter"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">全部原因</option>
               <option value="過期">過期</option>
@@ -111,7 +111,7 @@
             <input
               v-model="dateFilter"
               type="date"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
           </div>
         </div>
@@ -177,7 +177,7 @@
                   type="number"
                   required
                   placeholder="輸入產品ID"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
               </div>
               <div>
@@ -187,7 +187,7 @@
                   type="number"
                   required
                   placeholder="輸入儲位ID"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
               </div>
             </div>
@@ -200,7 +200,7 @@
                   type="number"
                   min="1"
                   required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
               </div>
               <div>
@@ -209,7 +209,7 @@
                   v-model="form.created_by"
                   type="text"
                   placeholder="輸入建立人姓名"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
               </div>
             </div>
@@ -220,7 +220,7 @@
                 <select
                   v-model="form.reason"
                   required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">選擇報廢原因</option>
                   <option value="過期">過期</option>
@@ -236,7 +236,7 @@
                   type="number"
                   min="0"
                   step="0.01"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
               </div>
             </div>
@@ -246,7 +246,7 @@
               <textarea
                 v-model="form.description"
                 rows="3"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               ></textarea>
             </div>
 

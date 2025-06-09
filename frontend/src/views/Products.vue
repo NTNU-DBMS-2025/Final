@@ -60,10 +60,10 @@
                 class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">請選擇分類</option>
-                <option value="電子產品">電子產品</option>
-                <option value="家具">家具</option>
-                <option value="辦公用品">辦公用品</option>
-                <option value="其他">其他</option>
+                <option value="Electronics">電子產品</option>
+                <option value="Furniture">家具</option>
+                <option value="Office Supplies">辦公用品</option>
+                <option value="Others">其他</option>
               </select>
             </div>
             
