@@ -260,3 +260,18 @@ FROM Supplier s
 JOIN Supplier_Product sp ON sp.supplier_id = s.supplier_id
 GROUP BY s.supplier_id
 ORDER BY product_variants DESC;
+
+
+/* ==========17. 未出貨訂單超過三天 ========== */
+CREATE OR REPLACE VIEW v_orders_delayed_shipping AS
+SELECT o.
+FROM Order o
+LEFT JOIN Shipment s ON s.order_id = o.order_id
+WHERE o.status = 'pending'
+  AND DATEDIFF(CURDATE(), o.order_date) > 3;
+
+/* ==========18. 本週即將出貨訂單預覽 ========== */
+CREATE OR REPLACE VIEW v_orders_to_ship_this_week AS
+SELECT
+FROM Order
+WHERE scheduled_ship_date BETWEEN CURDATE() AND CURDATE() + INTERVAL 7 DAY;
