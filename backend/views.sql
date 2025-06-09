@@ -24,7 +24,7 @@ WHERE il.quantity < p.reorder_point;
 /* ========== 尚未處理的 ========== */
 CREATE OR REPLACE VIEW v_orders_pending AS
 SELECT   order_id, order_number, expected_delivery_date, priority, ship_to, total_amount, customer_id, status
-FROM `order`
+FROM `Order`
 WHERE status = 'pending';
 
 /* ========== 今天應到貨但尚未到 ========== */

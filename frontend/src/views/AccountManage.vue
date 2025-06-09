@@ -178,7 +178,7 @@ export default {
     await this.loadUsers()
   },
   methods: {
-    ...mapActions(['showNotification']),
+    // ...mapActions(['showNotification']),
 
     async loadUsers() {
       this.loading = true
