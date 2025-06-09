@@ -27,12 +27,12 @@ SELECT   order_id, order_number, expected_delivery_date, priority, ship_to, tota
 FROM `order`
 WHERE status = 'pending';
 
-/* ========== 今天應出貨但尚未出貨 ========== */
-CREATE OR REPLACE VIEW v_orders_unshipped_today AS
-SELECT o.*
-FROM `Order` o
-WHERE DATE(o.expected_delivery_date) = CURDATE()
-  AND o.status = 'pending';
+/* ========== 今天應到貨但尚未到 ========== */
+CREATE OR REPLACE VIEW v_orders_arrived_today AS
+SELECT *
+FROM `Order`
+WHERE expected_delivery_date = CURDATE()
+  AND status != 'delivered';
 
 /* ========== 近 30 天銷售彙總（每日） ========== */
 CREATE OR REPLACE VIEW v_sales_30d AS

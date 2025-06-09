@@ -132,7 +132,7 @@ def get_pending_orders():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-
+# ========= 沒有要用到的
 @reports_bp.route('/orders/unshipped-today')
 def get_unshipped_today():
     """Get orders scheduled to ship today but not yet shipped"""
@@ -141,6 +141,17 @@ def get_unshipped_today():
         return jsonify({'success': True, 'data': data})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@reports_bp.route('/orders/arrived-today')
+def get_orders_arrived_today():
+    """Get orders that should arrived today"""
+    try:
+        data = execute_view_query('v_orders_arrived_today')
+        return jsonify({'success': True, 'data': data})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 
 
 @reports_bp.route('/orders/status-7d')

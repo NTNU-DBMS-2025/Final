@@ -47,8 +47,14 @@ export function fetchPendingOrders() {
   return apiClient.get('/reports/orders/pending')
 }
 
+// 沒有要用到的
 export function fetchUnshippedToday() {
   return apiClient.get('/reports/orders/unshipped-today')
+}
+
+// 新增的
+export function fetchOrdersArrivedToday() {
+  return apiClient.get('/reports/orders/arrived-today')
 }
 
 export function fetchOrdersStatus7d() {
