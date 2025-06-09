@@ -55,7 +55,7 @@ export function bulkCreateScrapRecords(records) {
 }
 
 export function processScrapRecord(scrapId) {
-    return apiClient.put(`/scrap/${scrapId}/process`)
+    return apiClient.put(`/scrap/${scrapId}/process`, {})
 }
 
 // Scrap reasons API

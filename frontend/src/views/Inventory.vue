@@ -98,9 +98,15 @@
       <DataTable
         :columns="columns"
         :data="inventory"
+        :actions="[
+          { name: 'move', label: '異動', type: 'edit', event: 'moveStock' },
+          { name: 'history', label: '記錄', type: 'view', event: 'viewHistory' }
+        ]"
         :loading="loading"
         @sort="handleSort"
         @search="handleSearch"
+        @moveStock="moveStock"
+        @viewHistory="viewHistory"
         search-placeholder="搜尋商品名稱、SKU或位置..."
       />
     </div>
@@ -511,8 +517,7 @@ export default {
         { key: 'unit_cost', label: '成本', sortable: true },
         { key: 'total_value', label: '總值', sortable: true },
         { key: 'status', label: '狀態', sortable: true },
-        { key: 'last_updated', label: '最後更新', sortable: true },
-        { key: 'actions', label: '操作', sortable: false }
+        { key: 'last_updated', label: '最後更新', sortable: true }
       ]
     }
   },
@@ -545,19 +550,7 @@ export default {
           unit_cost: 50, // Default unit cost
           total_value: `$${(item.quantity * 50).toFixed(2)}`,
           status: this.getStockStatusFromAPI(item.stock_status),
-          last_updated: this.formatDate(new Date()),
-          actions: [
-            {
-              label: '異動',
-              action: () => this.moveStock(item),
-              class: 'text-blue-600 hover:text-blue-900'
-            },
-            {
-              label: '記錄',
-              action: () => this.viewHistory(item),
-              class: 'text-purple-600 hover:text-purple-900'
-            }
-          ]
+          last_updated: this.formatDate(new Date())
         }))
         
       } catch (error) {

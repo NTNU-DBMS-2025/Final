@@ -1009,6 +1009,11 @@ def init_sample_data():
             from models import Scrap
             from datetime import date, timedelta
 
+            # Status color coding for frontend:
+            # '待處理' (Pending) - Yellow badge (bg-yellow-100 text-yellow-800)
+            # '已處理' (Processed) - Green badge (bg-green-100 text-green-800)
+            # '已取消' (Cancelled) - Red badge (bg-red-100 text-red-800)
+
             scrap_data = [
                 {
                     'product_name': 'Laptop Dell XPS 13',
@@ -1040,9 +1045,9 @@ def init_sample_data():
                     'quantity': 12,
                     'scrap_date': date.today() - timedelta(days=15),
                     'reason': '品質不良',
-                    'status': '處理中',
+                    'status': '已取消',
                     'estimated_value': 3600.00,
-                    'description': '批次品質問題，滑鼠按鍵失靈',
+                    'description': '批次品質問題，滑鼠按鍵失靈，決定退回供應商',
                     'created_by': '李品管',
                     'processed_date': None
                 },
@@ -1088,9 +1093,9 @@ def init_sample_data():
                     'quantity': 8,
                     'scrap_date': date.today() - timedelta(days=6),
                     'reason': '品質不良',
-                    'status': '處理中',
+                    'status': '待處理',
                     'estimated_value': 12000.00,
-                    'description': '批次品質問題，左右聲道不平衡',
+                    'description': '批次品質問題，左右聲道不平衡，等待品管部門決定',
                     'created_by': '李品管',
                     'processed_date': None
                 },
@@ -1117,6 +1122,42 @@ def init_sample_data():
                     'description': '天線斷裂，訊號接收不良',
                     'created_by': '陳技術員',
                     'processed_date': date.today() - timedelta(days=1)
+                },
+                {
+                    'product_name': 'Bluetooth Speaker',
+                    'location_code': 'E5-01',
+                    'quantity': 6,
+                    'scrap_date': date.today() - timedelta(days=1),
+                    'reason': '其他',
+                    'status': '已取消',
+                    'estimated_value': 16800.00,
+                    'description': '客戶取消訂單，產品包裝已拆封，決定取消報廢改為促銷',
+                    'created_by': '王管理員',
+                    'processed_date': None
+                },
+                {
+                    'product_name': 'Smart Watch Apple',
+                    'location_code': 'F6-03',
+                    'quantity': 3,
+                    'scrap_date': date.today() - timedelta(days=8),
+                    'reason': '損壞',
+                    'status': '待處理',
+                    'estimated_value': 38700.00,
+                    'description': '螢幕觸控失靈，等待技術部門評估修復可能性',
+                    'created_by': '劉技術員',
+                    'processed_date': None
+                },
+                {
+                    'product_name': 'External Hard Drive 2TB',
+                    'location_code': 'D4-01',
+                    'quantity': 4,
+                    'scrap_date': date.today() - timedelta(days=11),
+                    'reason': '過期',
+                    'status': '已處理',
+                    'estimated_value': 14000.00,
+                    'description': '保固期滿且外殼老化，已完成報廢處理',
+                    'created_by': '張倉管',
+                    'processed_date': date.today() - timedelta(days=9)
                 }
             ]
 
