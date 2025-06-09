@@ -301,6 +301,7 @@ export default {
         { key: 'order_number', label: '訂單編號', sortable: true },
         { key: 'customer_name', label: '客戶', sortable: true },
         { key: 'order_date', label: '訂單日期', sortable: true },
+        { key: 'expected_delivery_date', label: '預計交貨日期', sortable: true },
         { key: 'total_amount', label: '總金額', sortable: true },
         { key: 'status', label: '狀態', sortable: true },
         { key: 'priority', label: '優先級', sortable: true },
@@ -332,6 +333,7 @@ export default {
         this.orders = ordersData.map(order => ({
           ...order,
           order_date: this.formatDate(order.order_date),
+          expected_delivery_date: order.expected_delivery_date ? this.formatDate(order.expected_delivery_date) : '未設定',
           total_amount: `$${order.total_amount.toLocaleString()}`,
           status: this.getStatusText(order.status_key || order.status),
           priority: this.getPriorityText(order.priority_key || order.priority),

@@ -34,6 +34,15 @@ FROM `Order`
 WHERE expected_delivery_date = CURDATE()
   AND status != 'delivered';
 
+/* ========== 今天預計出貨但尚未出貨 ========== */
+CREATE OR REPLACE VIEW v_orders_unshipped_today AS
+SELECT o.*
+FROM `Order` o
+LEFT JOIN Shipment s ON s.order_id = o.order_id
+WHERE DATE(o.expected_delivery_date) = CURDATE()
+  AND o.status = 'pending'
+  AND s.shipment_id IS NULL;
+
 /* ========== 近 30 天銷售彙總（每日） ========== */
 CREATE OR REPLACE VIEW v_sales_30d AS
 SELECT
