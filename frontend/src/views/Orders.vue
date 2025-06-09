@@ -468,10 +468,13 @@ export default {
 
     async loadCustomers() {
       try {
-        const { getCustomers } = await import('../api/customers')
-        const response = await getCustomers()
+        const { fetchCustomers } = await import('../api/customers')
+        const response = await fetchCustomers()
         if (response.data.success) {
           this.customers = response.data.data
+        } else {
+          // Handle cases where response doesn't have success flag
+          this.customers = response.data || []
         }
       } catch (error) {
         console.error('Error loading customers:', error)
@@ -480,10 +483,13 @@ export default {
 
     async loadProducts() {
       try {
-        const { getProducts } = await import('../api/products')
-        const response = await getProducts()
+        const { fetchProducts } = await import('../api/products')
+        const response = await fetchProducts()
         if (response.data.success) {
           this.products = response.data.data
+        } else {
+          // Handle cases where response doesn't have success flag
+          this.products = response.data || []
         }
       } catch (error) {
         console.error('Error loading products:', error)
