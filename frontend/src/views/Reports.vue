@@ -454,6 +454,9 @@ export default {
         this.summaryData.sales = salesRes.data.success ? salesRes.data.data.summary : null
         this.summaryData.orders = ordersRes.data.success ? ordersRes.data.data.summary : null
         this.summaryData.financial = financialRes.data.success ? financialRes.data.data.summary : null
+
+        // Force reactivity update
+        this.$forceUpdate()
       } catch (error) {
         console.error('Error loading summary data:', error)
       }

@@ -181,7 +181,7 @@ export default {
       default: 1
     }
   },
-  emits: ['edit', 'delete', 'view', 'add', 'search', 'page-change', 'sort'],
+  emits: ['edit', 'delete', 'view', 'add', 'search', 'page-change', 'sort', 'editInventory', 'moveStock', 'viewHistory'],
   data() {
     return {
       searchQuery: '',

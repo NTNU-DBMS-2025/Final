@@ -99,12 +99,14 @@
         :columns="columns"
         :data="inventory"
         :actions="[
+          { name: 'edit', label: '編輯', type: 'edit', event: 'editInventory' },
           { name: 'move', label: '異動', type: 'edit', event: 'moveStock' },
           { name: 'history', label: '記錄', type: 'view', event: 'viewHistory' }
         ]"
         :loading="loading"
         @sort="handleSort"
         @search="handleSearch"
+        @editInventory="editInventory"
         @moveStock="moveStock"
         @viewHistory="viewHistory"
         search-placeholder="搜尋商品名稱、SKU或位置..."
@@ -196,6 +198,19 @@
                   <option value="E5-01">E5-01 - E區第5排第1位</option>
                   <option value="E5-02">E5-02 - E區第5排第2位</option>
                 </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  有效期限
+                </label>
+                <input
+                  v-model="adjustmentForm.expiry_date"
+                  type="date"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="選擇有效期限"
+                />
+                <p class="text-xs text-gray-500 mt-1">選填，設定商品的有效期限</p>
               </div>
 
               <div class="md:col-span-2">
@@ -313,6 +328,19 @@
                 </select>
               </div>
 
+              <div v-if="movementForm.movement_type === 'in'">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  有效期限
+                </label>
+                <input
+                  v-model="movementForm.expiry_date"
+                  type="date"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="選擇有效期限"
+                />
+                <p class="text-xs text-gray-500 mt-1">選填，僅在入庫時設定有效期限</p>
+              </div>
+
               <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   備註
@@ -340,6 +368,102 @@
                 class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:opacity-50"
               >
                 {{ submitting ? '處理中...' : '確認異動' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Inventory Modal -->
+    <div v-if="showEditModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-gray-900">編輯庫存</h3>
+            <button 
+              @click="closeEditModal"
+              class="text-gray-400 hover:text-gray-600"
+            >
+              <span class="sr-only">關閉</span>
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <form @submit.prevent="handleEdit" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  商品名稱
+                </label>
+                <div class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-50 text-gray-900">
+                  {{ selectedItem?.product_name }}
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  位置
+                </label>
+                <div class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-50 text-gray-900">
+                  {{ selectedItem?.location }}
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  現有庫存 <span class="text-red-500">*</span>
+                </label>
+                <input
+                  v-model.number="editForm.quantity"
+                  type="number"
+                  min="0"
+                  required
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  有效期限
+                </label>
+                <input
+                  v-model="editForm.expiry_date"
+                  type="date"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <p class="text-xs text-gray-500 mt-1">留空表示無期限</p>
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  編輯原因
+                </label>
+                <textarea
+                  v-model="editForm.notes"
+                  rows="3"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="請說明編輯原因..."
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-4">
+              <button
+                type="button"
+                @click="closeEditModal"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+              >
+                取消
+              </button>
+              <button
+                type="submit"
+                :disabled="submitting"
+                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:opacity-50"
+              >
+                {{ submitting ? '處理中...' : '更新庫存' }}
               </button>
             </div>
           </form>
@@ -485,6 +609,7 @@ export default {
       showAdjustmentModal: false,
       showMovementModal: false,
       showHistoryModal: false,
+      showEditModal: false,
       submitting: false,
       loadingHistory: false,
       selectedItem: null,
@@ -498,13 +623,20 @@ export default {
         adjustment_type: 'increase',
         quantity: 1,
         location: '',
-        reason: ''
+        reason: '',
+        expiry_date: ''
       },
       movementForm: {
         product_id: '',
         movement_type: 'in',
         quantity: 1,
         location: '',
+        notes: '',
+        expiry_date: ''
+      },
+      editForm: {
+        quantity: 0,
+        expiry_date: '',
         notes: ''
       },
       columns: [
@@ -514,6 +646,8 @@ export default {
         { key: 'reorder_level', label: '再訂購點', sortable: true },
         { key: 'location', label: '位置', sortable: true },
         { key: 'location_utilization', label: '位置使用率', sortable: true },
+        { key: 'expiry_date', label: '有效期限', sortable: true },
+        { key: 'expiry_status', label: '到期狀態', sortable: true },
         { key: 'unit_cost', label: '成本', sortable: true },
         { key: 'total_value', label: '總值', sortable: true },
         { key: 'status', label: '狀態', sortable: true },
@@ -547,6 +681,8 @@ export default {
           reorder_level: 10, // Default reorder level
           location: item.location_code,
           location_utilization: `${item.location_utilization_rate}%`,
+          expiry_date: item.expiry_date ? this.formatDate(item.expiry_date) : '無期限',
+          expiry_status: this.getExpiryStatusDisplay(item.expiry_status),
           unit_cost: 50, // Default unit cost
           total_value: `$${(item.quantity * 50).toFixed(2)}`,
           status: this.getStockStatusFromAPI(item.stock_status),
@@ -991,7 +1127,8 @@ export default {
         adjustment_type: 'increase',
         quantity: 1,
         location: '',
-        reason: ''
+        reason: '',
+        expiry_date: ''
       }
     },
 
@@ -1001,7 +1138,8 @@ export default {
         movement_type: 'in',
         quantity: 1,
         location: '',
-        notes: ''
+        notes: '',
+        expiry_date: ''
       }
     },
 
@@ -1028,6 +1166,110 @@ export default {
         hour: '2-digit',
         minute: '2-digit'
       })
+    },
+
+    getExpiryStatusDisplay(status) {
+      const statusMap = {
+        'Expired': '已過期',
+        'Expiring Soon': '即將過期',
+        'Expiring': '接近過期',
+        'Good': '正常',
+        // Handle empty/null status
+        '': '正常',
+        null: '正常',
+        undefined: '正常'
+      }
+      return statusMap[status] || '正常'
+    },
+
+    editInventory(item) {
+      this.selectedItem = item
+      this.editForm.quantity = item.quantity_on_hand
+      this.editForm.expiry_date = item.expiry_date && item.expiry_date !== '無期限' ? 
+        this.formatDateForInput(item.expiry_date) : ''
+      this.showEditModal = true
+    },
+
+    formatDateForInput(dateStr) {
+      // Convert display date back to YYYY-MM-DD format for input
+      if (!dateStr || dateStr === '無期限') return ''
+      
+      // Handle different date formats
+      try {
+        const date = new Date(dateStr)
+        return date.toISOString().split('T')[0]
+      } catch (error) {
+        return ''
+      }
+    },
+
+    async handleEdit() {
+      try {
+        this.submitting = true
+        
+        console.log('Processing stock edit:', this.editForm)
+        
+        // Validate selectedItem exists
+        if (!this.selectedItem) {
+          throw new Error('No item selected for editing')
+        }
+        
+        // Prepare update data for API
+        const updateData = {
+          quantity: parseInt(this.editForm.quantity)
+        }
+        
+        // Add expiry date if provided
+        if (this.editForm.expiry_date) {
+          updateData.expiry_date = this.editForm.expiry_date
+        }
+        
+        console.log('Sending update data to API:', updateData)
+        
+        // Call backend API to update inventory lot
+        const URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api'
+        const response = await fetch(`${URL}/inventory/${this.selectedItem.product_id}/${this.selectedItem.location_id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(updateData)
+        })
+        
+        const result = await response.json()
+        
+        if (result.success) {
+          console.log('✅ Inventory updated successfully:', result)
+          
+          // Show success notification
+          alert('庫存編輯成功！')
+          
+          this.closeEditModal()
+          await this.loadInventory()
+          await this.loadStatistics()
+        } else {
+          throw new Error(result.error || '庫存編輯失敗')
+        }
+        
+      } catch (error) {
+        console.error('Error editing stock:', error)
+        alert(`庫存編輯失敗: ${error.message}`)
+      } finally {
+        this.submitting = false
+      }
+    },
+
+    closeEditModal() {
+      this.showEditModal = false
+      this.resetEditForm()
+    },
+
+    resetEditForm() {
+      this.editForm = {
+        quantity: 0,
+        expiry_date: '',
+        notes: ''
+      }
     }
   }
 }

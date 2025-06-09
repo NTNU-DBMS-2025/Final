@@ -47,7 +47,6 @@ def create_app():
     from users import users_bp
     from reports import reports_bp
 
-
     app.register_blueprint(auth_bp)
     app.register_blueprint(products_bp)
     app.register_blueprint(suppliers_bp)
@@ -59,7 +58,6 @@ def create_app():
     app.register_blueprint(scrap_bp)
     app.register_blueprint(users_bp)
     app.register_blueprint(reports_bp)
-
 
     @app.route('/api/health')
     def health_check():
@@ -77,36 +75,36 @@ def create_app():
     def get_dashboard_stats():
         """Get aggregated dashboard statistics"""
         try:
-            from models import InventoryLot, Order, Scrap, Product, Location
-            from sqlalchemy import func, and_
-            from datetime import date, timedelta
+            from sqlalchemy import text
 
-            # Inventory stats
-            total_inventory = db.session.query(
-                func.sum(InventoryLot.quantity)).scalar() or 0
+            # Use the same views as reports for consistency
+            # Low stock items using the view
+            low_stock_result = db.session.execute(
+                text("SELECT COUNT(*) FROM v_low_stock"))
+            low_stock_count = low_stock_result.scalar() or 0
 
-            low_stock_count = db.session.query(func.count(InventoryLot.product_id)).filter(
-                InventoryLot.quantity <= 10
-            ).scalar() or 0
+            # Total inventory using a simple aggregate
+            total_inventory_result = db.session.execute(
+                text("SELECT COALESCE(SUM(quantity), 0) FROM Inventory_Lot"))
+            total_inventory = total_inventory_result.scalar() or 0
 
-            # Order stats
-            pending_orders = Order.query.filter(
-                Order.status == 'Pending').count()
+            # Pending orders using the view
+            pending_orders_result = db.session.execute(
+                text("SELECT COUNT(*) FROM v_orders_pending"))
+            pending_orders = pending_orders_result.scalar() or 0
 
-            # Scrap stats (this month)
-            today = date.today()
-            month_start = date(today.year, today.month, 1)
-            monthly_scrap = db.session.query(func.count(Scrap.scrap_id)).filter(
-                Scrap.scrap_date >= month_start
-            ).scalar() or 0
+            # Monthly scrap using the view
+            scrap_result = db.session.execute(
+                text("SELECT COALESCE(SUM(scrap_records), 0) FROM v_scrap_cost_month"))
+            monthly_scrap = scrap_result.scalar() or 0
 
             return jsonify({
                 'success': True,
                 'data': {
-                    'total_inventory': total_inventory,
-                    'low_stock_count': low_stock_count,
-                    'pending_orders': pending_orders,
-                    'monthly_scrap': monthly_scrap
+                    'total_inventory': int(total_inventory),
+                    'low_stock_count': int(low_stock_count),
+                    'pending_orders': int(pending_orders),
+                    'monthly_scrap': int(monthly_scrap)
                 }
             })
 
