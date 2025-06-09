@@ -284,13 +284,32 @@ export default {
     getStatusClass(status) {
       const baseClass = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full'
       switch (status) {
+        // Order statuses
         case '已完成':
         case '已出貨':
+        case 'delivered':
           return `${baseClass} bg-green-100 text-green-800`
         case '處理中':
         case '待出貨':
+        case 'processing':
+          return `${baseClass} bg-yellow-100 text-yellow-800`
+        // Scrap management statuses
+        case '已處理':
+          return `${baseClass} bg-green-100 text-green-800`
+        case '待處理':
           return `${baseClass} bg-yellow-100 text-yellow-800`
         case '已取消':
+          return `${baseClass} bg-red-100 text-red-800`
+        // General statuses
+        case 'active':
+        case '啟用':
+          return `${baseClass} bg-green-100 text-green-800`
+        case 'pending':
+        case '待確認':
+          return `${baseClass} bg-yellow-100 text-yellow-800`
+        case 'cancelled':
+        case 'inactive':
+        case '停用':
           return `${baseClass} bg-red-100 text-red-800`
         default:
           return `${baseClass} bg-gray-100 text-gray-800`
