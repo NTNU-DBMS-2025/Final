@@ -127,7 +127,8 @@
                   <option value="pending">待處理</option>
                   <option value="confirmed">已確認</option>
                   <option value="processing">處理中</option>
-                  <option value="shipped">已出貨</option>
+                  <!-- Prevent manual status change to shipped - must be done through shipment creation -->
+                  <option value="shipped" disabled>已出貨 (須通過出貨管理建立)</option>
                   <option value="delivered">已送達</option>
                   <option value="cancelled">已取消</option>
                 </select>
@@ -330,6 +331,35 @@
             </div>
           </div>
 
+          <!-- Shipment Information -->
+          <div v-if="selectedOrder && (selectedOrder.has_shipments || selectedOrder.status === '已出貨')" class="bg-blue-50 rounded-lg p-4 mb-4">
+            <h4 class="text-md font-medium text-gray-900 mb-3">出貨資訊</h4>
+            <div v-if="selectedOrder.has_shipments && selectedOrder.shipment_info" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <p class="text-sm text-gray-500">追蹤號碼</p>
+                <p class="text-lg font-semibold text-gray-900">{{ selectedOrder.shipment_info.tracking_no }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">出貨狀態</p>
+                <p class="text-lg font-semibold text-blue-600">{{ getShipmentStatusText(selectedOrder.shipment_info.shipment_status) }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">運送方式</p>
+                <p class="text-lg font-semibold text-gray-900">{{ selectedOrder.shipment_info.shipping_method || '未設定' }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">運送廠商</p>
+                <p class="text-lg font-semibold text-gray-900">{{ selectedOrder.shipment_info.vendor_name || '未設定' }}</p>
+              </div>
+            </div>
+            <div v-else class="flex items-center text-orange-600">
+              <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+              <span class="font-medium">⚠️ 此訂單狀態為「已出貨」但尚無出貨記錄，請檢查資料一致性</span>
+            </div>
+          </div>
+
           <!-- Order Items Table -->
           <div class="overflow-x-auto">
             <div v-if="loadingOrderDetails" class="text-center py-8">
@@ -440,6 +470,7 @@ export default {
         { key: 'expected_delivery_date', label: '預計交貨日期', sortable: true },
         { key: 'total_amount', label: '總金額', sortable: true },
         { key: 'status', label: '狀態', sortable: true },
+        { key: 'shipment_status', label: '出貨狀態', sortable: false },
         { key: 'priority', label: '優先級', sortable: true },
       ],
       actions: [
@@ -519,7 +550,8 @@ export default {
           expected_delivery_date: order.expected_delivery_date ? this.formatDate(order.expected_delivery_date) : '未設定',
           total_amount: `$${order.total_amount.toLocaleString()}`,
           status: this.getStatusText(order.status_key || order.status),
-          priority: this.getPriorityText(order.priority_key || order.priority)
+          priority: this.getPriorityText(order.priority_key || order.priority),
+          shipment_status: this.getShipmentStatus(order)
         }))
         
         // Remove total for client-side mode
@@ -832,6 +864,25 @@ export default {
 
     formatDate(date) {
       return new Date(date).toLocaleDateString('zh-TW')
+    },
+
+    getShipmentStatus(order) {
+      if (!order.has_shipments || !order.shipment_info) {
+        return order.status === '已出貨' ? '⚠️ 無出貨記錄' : '未出貨'
+      }
+      
+      const shipment = order.shipment_info
+      return `${this.getShipmentStatusText(shipment.shipment_status)} (${shipment.tracking_no})`
+    },
+
+    getShipmentStatusText(status) {
+      const statusMap = {
+        'pending': '待出貨',
+        'in_transit': '運送中',
+        'delivered': '已送達',
+        'cancelled': '已取消'
+      }
+      return statusMap[status?.toLowerCase()] || status || '未知'
     }
   }
 }

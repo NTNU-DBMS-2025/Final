@@ -326,9 +326,9 @@ export default {
       return 'text-gray-900'
     },
     isActionDisabled(action, row) {
-      // Check if edit/cancel actions should be disabled for shipped/delivered orders
+      // Check if edit/cancel actions should be disabled for shipped/delivered orders or shipments
       if ((action.name === 'edit' || action.name === 'cancel') && 
-          (row.status === '已送達' || row.status === '已出貨')) {
+          (row.status === '已送達' || row.status === '已出貨' || row.status === '已取消')) {
         return true
       }
       return false

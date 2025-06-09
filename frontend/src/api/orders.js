@@ -54,6 +54,10 @@ export function deleteOrderItem(orderId, itemId) {
     return apiClient.delete(`/orders/${orderId}/items/${itemId}`)
 }
 
+export function getOrderShipments(orderId) {
+    return apiClient.get(`/orders/${orderId}/shipments`)
+}
+
 export function updateOrderStatus(orderId, status) {
     return apiClient.patch(`/orders/${orderId}/status`, { status })
 }
@@ -75,6 +79,7 @@ export const ordersAPI = {
     addOrderItem,
     updateOrderItem,
     deleteOrderItem,
+    getOrderShipments,
     updateOrderStatus,
     bulkUpdateOrders
 }

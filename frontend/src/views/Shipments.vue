@@ -72,34 +72,13 @@
         <DataTable
           :columns="columns"
           :data="filteredShipments"
+          :actions="actions"
           :loading="loading"
           @sort="handleSort"
-        >
-          <template #actions="{ row }">
-            <div class="flex space-x-2">
-              <button
-                @click="viewShipment(row)"
-                class="text-blue-600 hover:text-blue-800 text-sm font-medium"
-              >
-                查看
-              </button>
-              <button
-                v-if="row.status === '待出貨'"
-                @click="editShipment(row)"
-                class="text-green-600 hover:text-green-800 text-sm font-medium"
-              >
-                編輯
-              </button>
-              <button
-                v-if="row.status !== '已取消' && row.status !== '已送達'"
-                @click="cancelShipment(row)"
-                class="text-red-600 hover:text-red-800 text-sm font-medium"
-              >
-                取消
-              </button>
-            </div>
-          </template>
-        </DataTable>
+          @view="viewShipment"
+          @edit="handleEditShipment"
+          @cancel="handleCancelShipment"
+        />
       </div>
     </div>
 
@@ -215,6 +194,70 @@
         </div>
       </div>
     </div>
+
+    <!-- 出貨詳細資訊彈窗 -->
+    <div v-if="showShipmentDetailModal" class="modal-overlay" @click="closeShipmentDetailModal">
+      <div class="modal-container" @click.stop>
+        <div class="modal-header">
+          <h3>出貨詳細資訊</h3>
+          <button @click="closeShipmentDetailModal" class="close-btn">×</button>
+        </div>
+        
+        <div class="modal-body" v-if="selectedShipment">
+          <div v-if="loadingShipmentDetails" class="loading-spinner">
+            載入中...
+          </div>
+          
+          <div v-else>
+            <!-- 出貨摘要資訊 -->
+            <div class="shipment-summary">
+              <div class="summary-row">
+                <span class="summary-label">出貨編號：</span>
+                <span class="summary-value">{{ selectedShipment.shipment_id }}</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">訂單編號：</span>
+                <span class="summary-value">{{ selectedShipment.order_id }}</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">客戶名稱：</span>
+                <span class="summary-value">{{ selectedShipment.customer_name }}</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">運送方式：</span>
+                <span class="summary-value">{{ selectedShipment.shipping_method }}</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">出貨狀態：</span>
+                <span class="summary-value status" :class="getStatusClass(selectedShipment.status)">
+                  {{ selectedShipment.status }}
+                </span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">追蹤號碼：</span>
+                <span class="summary-value">{{ selectedShipment.tracking_number || '無' }}</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">預計出貨日期：</span>
+                <span class="summary-value">{{ selectedShipment.estimated_shipping_date || '未設定' }}</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">實際出貨日期：</span>
+                <span class="summary-value">{{ selectedShipment.actual_shipping_date || '未出貨' }}</span>
+              </div>
+              <div class="summary-row" v-if="selectedShipment.notes">
+                <span class="summary-label">備註：</span>
+                <span class="summary-value">{{ selectedShipment.notes }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button @click="closeShipmentDetailModal" class="btn btn-secondary">關閉</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -231,7 +274,10 @@ export default {
     return {
       loading: false,
       showModal: false,
+      showShipmentDetailModal: false,
       isEditing: false,
+      selectedShipment: null,
+      loadingShipmentDetails: false,
       searchTerm: '',
       statusFilter: '',
       dateFilter: '',
@@ -258,8 +304,27 @@ export default {
         { key: 'shipping_method', label: '運送方式', sortable: true },
         { key: 'status', label: '狀態', sortable: true },
         { key: 'estimated_shipping_date', label: '預計出貨日期', sortable: true },
-        { key: 'tracking_number', label: '追蹤號碼', sortable: false },
-        { key: 'actions', label: '操作', sortable: false }
+        { key: 'tracking_number', label: '追蹤號碼', sortable: false }
+      ],
+      actions: [
+        {
+          name: 'view',
+          label: '查看',
+          event: 'view',
+          type: 'view'
+        },
+        {
+          name: 'edit',
+          label: '編輯',
+          event: 'edit',
+          type: 'edit'
+        },
+        {
+          name: 'cancel',
+          label: '取消',
+          event: 'cancel',
+          type: 'delete'
+        }
       ]
     }
   },
@@ -310,7 +375,8 @@ export default {
 
     async loadOrders() {
       try {
-        const response = await fetch('http://localhost:5001/api/orders')
+        const URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api'
+        const response = await fetch(`${URL}/orders`)
         const data = await response.json()
         if (data.success) {
           this.orders = data.data
@@ -339,20 +405,69 @@ export default {
       }
       return statusMap[status?.toLowerCase()] || status || '未知狀態'
     },
+    
+    getStatusClass(status) {
+      const statusClassMap = {
+        '待出貨': 'pending',
+        '運送中': 'in_transit', 
+        '已送達': 'delivered',
+        '已取消': 'cancelled'
+      }
+      return statusClassMap[status] || 'pending'
+    },
 
     handleSort({ sortBy, sortOrder }) {
       // Handle sorting logic
       console.log('Sorting by:', sortBy, sortOrder)
       this.loadShipments()
     },
-    viewShipment(shipment) {
-      console.log('Viewing shipment:', shipment)
+    async viewShipment(shipment) {
+      this.selectedShipment = shipment
+      this.showShipmentDetailModal = true
+      
+      // Load additional shipment details if needed
+      await this.loadShipmentDetails(shipment.shipment_id)
     },
+    async loadShipmentDetails(shipmentId) {
+      this.loadingShipmentDetails = true
+      try {
+        // If you have an API endpoint for detailed shipment info, call it here
+        // For now, we'll use the existing data
+        console.log('Loading details for shipment:', shipmentId)
+      } catch (error) {
+        console.error('Error loading shipment details:', error)
+        this.$message.error('載入出貨詳細資訊失敗')
+      } finally {
+        this.loadingShipmentDetails = false
+      }
+    },
+    closeShipmentDetailModal() {
+      this.showShipmentDetailModal = false
+      this.selectedShipment = null
+    },
+    handleEditShipment(shipment) {
+      // Check if shipment can be edited
+      if (shipment.status === '已送達' || shipment.status === '已取消') {
+        alert(`出貨狀態為「${shipment.status}」，無法編輯`)
+        return
+      }
+      this.editShipment(shipment)
+    },
+
     editShipment(shipment) {
       this.isEditing = true
       this.form = { ...shipment }
       this.showModal = true
     },
+    handleCancelShipment(shipment) {
+      // Check if shipment can be canceled
+      if (shipment.status === '已送達' || shipment.status === '已取消') {
+        alert(`出貨狀態為「${shipment.status}」，無法取消`)
+        return
+      }
+      this.cancelShipment(shipment)
+    },
+
     async cancelShipment(shipment) {
       if (confirm('確定要取消此出貨嗎？')) {
         try {
@@ -417,4 +532,156 @@ export default {
     }
   }
 }
-</script> 
+</script>
+
+<style scoped>
+.disabled-button {
+  cursor: not-allowed !important;
+}
+
+/* 出貨詳細資訊彈窗樣式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-container {
+  background-color: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f8f9fa;
+  border-radius: 8px 8px 0 0;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.close-btn:hover {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 16px;
+}
+
+.shipment-summary {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.summary-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.summary-row:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.summary-label {
+  font-weight: 600;
+  color: #495057;
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.summary-value {
+  color: #333;
+  flex: 1;
+}
+
+.summary-value.status {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.modal-footer {
+  padding: 20px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: flex-end;
+  background-color: #f8f9fa;
+  border-radius: 0 0 8px 8px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #545b62;
+}
+
+/* Status color classes to match the existing theme */
+.status.pending { background-color: #fff3cd; color: #856404; }
+.status.in_transit { background-color: #cce5ff; color: #004085; }
+.status.delivered { background-color: #d4edda; color: #155724; }
+.status.cancelled { background-color: #f8d7da; color: #721c24; }
+</style> 

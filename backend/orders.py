@@ -56,6 +56,19 @@ def get_orders():
                     'unit_price': float(item.unit_price) if hasattr(item, 'unit_price') and item.unit_price else 0.0
                 })
 
+            # Get shipment information
+            shipment_info = None
+            if order.shipments:
+                # Get the first/latest shipment
+                latest_shipment = order.shipments[0]
+                shipment_info = {
+                    'shipment_id': latest_shipment.shipment_id,
+                    'tracking_no': latest_shipment.tracking_no,
+                    'shipment_status': latest_shipment.status,
+                    'shipping_method': latest_shipment.shipping_method,
+                    'vendor_name': latest_shipment.shipping_vendor.name if latest_shipment.shipping_vendor else None
+                }
+
             orders.append({
                 'id': order.order_id,  # Frontend expects 'id'
                 'order_id': order.order_id,
@@ -76,6 +89,8 @@ def get_orders():
                 'sales_rep': order.user.account,
                 'total_items': total_items,
                 'order_items': order_items,
+                'has_shipments': len(order.shipments) > 0,
+                'shipment_info': shipment_info,
                 'created_at': order.order_date.isoformat()
             })
 
@@ -304,7 +319,20 @@ def update_order(order_id):
 
         # Update basic order information
         if 'status' in data:
-            order.status = data['status']
+            new_status = data['status']
+
+            # Prevent setting status to 'shipped' without a shipment
+            if new_status.lower() in ['shipped', '已出貨']:
+                from models import Shipment
+                existing_shipment = Shipment.query.filter_by(
+                    order_id=order_id).first()
+                if not existing_shipment:
+                    return jsonify({
+                        'success': False,
+                        'error': 'Cannot set order status to shipped without creating a shipment first. Please create a shipment record.'
+                    }), 400
+
+            order.status = new_status
         if 'ship_to' in data:
             order.ship_to = data['ship_to']
         if 'customer_id' in data:
@@ -530,6 +558,42 @@ def delete_order_item(item_id):
         }), 500
 
 # Statistics endpoints
+
+
+@orders_bp.route('/<int:order_id>/shipments', methods=['GET'])
+def get_order_shipments(order_id):
+    """Get all shipments for a specific order"""
+    try:
+        order = Order.query.get_or_404(order_id)
+
+        shipments = []
+        for shipment in order.shipments:
+            shipments.append({
+                'shipment_id': shipment.shipment_id,
+                'tracking_no': shipment.tracking_no,
+                'status': shipment.status,
+                'ship_date': shipment.ship_date.isoformat() if shipment.ship_date else None,
+                'estimated_delivery_date': shipment.estimated_delivery_date.isoformat() if shipment.estimated_delivery_date else None,
+                'shipping_method': shipment.shipping_method,
+                'shipping_vendor_name': shipment.shipping_vendor.name if shipment.shipping_vendor else None,
+                'notes': shipment.notes
+            })
+
+        return jsonify({
+            'success': True,
+            'data': {
+                'order_id': order.order_id,
+                'order_status': order.status,
+                'has_shipments': len(shipments) > 0,
+                'shipments': shipments
+            }
+        })
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Failed to fetch order shipments: {str(e)}'
+        }), 500
 
 
 @orders_bp.route('/stats', methods=['GET'])
