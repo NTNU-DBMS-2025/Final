@@ -201,13 +201,13 @@ export default {
     
     async handleSearch(query) {
       this.searchQuery = query
-      // For client-side search, no need to reload data
-      // The DataTable component will handle filtering
+      this.currentPage = 1 // Reset to first page when searching
+      await this.loadProducts()
     },
     
-    async handleSort({ sortBy, sortOrder }) {
-      // For client-side sorting, the DataTable component handles it automatically
-      console.log('Sorting by:', sortBy, sortOrder)
+    async handlePageChange(page) {
+      this.currentPage = page
+      await this.loadProducts()
     },
     
     openAddModal() {
@@ -292,7 +292,18 @@ export default {
       } finally {
         this.submitting = false
       }
-    }
+    },
+    
+    async handleSearch(query) {
+      this.searchQuery = query
+      this.currentPage = 1 // Reset to first page when searching
+      await this.loadProducts()
+    },
+    
+    async handlePageChange(page) {
+      this.currentPage = page
+      await this.loadProducts()
+    },
   }
 }
 </script> 
