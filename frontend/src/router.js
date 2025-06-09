@@ -15,6 +15,7 @@ import Inventory from './views/Inventory.vue'
 import Locations from './views/Locations.vue'
 import Scrap from './views/Scrap.vue'
 import Reports from './views/Reports.vue'
+import AccountManage from './views/AccountManage.vue'
 
 const routes = [
     {
@@ -98,6 +99,12 @@ const routes = [
         name: 'Reports',
         component: Reports,
         meta: { requiresAuth: true, allowedRoles: ['Admin', 'Sales', 'Warehouse'], title: '報表' }
+    },
+    {
+        path: '/AccountManage',
+        name: 'AccountManage',
+        component: AccountManage,
+        meta: { requiresAuth: true, allowedRoles: ['Admin'], title: '帳號管理' }
     }
 ]
 

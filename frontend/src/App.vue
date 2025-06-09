@@ -46,6 +46,10 @@ export default {
       if (this.isAuthenticated) {
         items.push({ name: 'reports', label: '報表', to: '/reports' })
       }
+
+      if (this.isAuthenticated) {
+        items.push({ name: 'AccountManage', label: '帳號管理', to: '/AccountMange' })
+      }
       
       return items
     }
