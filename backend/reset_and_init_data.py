@@ -10,6 +10,10 @@ import subprocess
 import sys
 import os
 from sqlalchemy import text
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 
 def reset_database():
