@@ -73,7 +73,7 @@
           <select
             v-model="statusFilter"
             @change="loadInventory"
-            class="border border-gray-300 rounded-md px-3 py-2 text-sm"
+            class="border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 text-sm"
           >
             <option value="">全部狀態</option>
             <option value="in_stock">有庫存</option>
@@ -83,7 +83,7 @@
           <select
             v-model="locationFilter"
             @change="loadInventory"
-            class="border border-gray-300 rounded-md px-3 py-2 text-sm"
+            class="border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 text-sm"
           >
             <option value="">全部位置</option>
             <option value="A">A區</option>
@@ -131,7 +131,7 @@
                 <select
                   v-model="adjustmentForm.product_id"
                   required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">請選擇商品</option>
                   <option value="1">iPhone 15 Pro</option>
@@ -147,7 +147,7 @@
                 <select
                   v-model="adjustmentForm.adjustment_type"
                   required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="increase">增加</option>
                   <option value="decrease">減少</option>
@@ -164,7 +164,7 @@
                   type="number"
                   min="1"
                   required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -174,7 +174,7 @@
                 </label>
                 <select
                   v-model="adjustmentForm.location"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">請選擇位置</option>
                   <option value="A1-01">A1-01 - A區第1排第1位</option>
@@ -200,7 +200,7 @@
                   v-model="adjustmentForm.reason"
                   rows="3"
                   required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="請說明調整原因..."
                 ></textarea>
               </div>
@@ -253,7 +253,7 @@
                 <select
                   v-model="movementForm.product_id"
                   required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">請選擇商品</option>
                   <option value="1">iPhone 15 Pro</option>
@@ -269,7 +269,7 @@
                 <select
                   v-model="movementForm.movement_type"
                   required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="in">入庫</option>
                   <option value="out">出庫</option>
@@ -286,7 +286,7 @@
                   type="number"
                   min="1"
                   required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -296,7 +296,7 @@
                 </label>
                 <select
                   v-model="movementForm.location"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">請選擇位置</option>
                   <option value="A1-01">A1-01 - A區第1排第1位</option>
@@ -321,7 +321,7 @@
                 <textarea
                   v-model="movementForm.notes"
                   rows="3"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="輸入異動備註..."
                 ></textarea>
               </div>

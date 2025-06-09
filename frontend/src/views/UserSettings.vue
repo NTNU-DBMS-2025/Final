@@ -44,7 +44,7 @@
               v-model="passwordForm.currentPassword"
               type="password"
               required
-              class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               placeholder="請輸入目前密碼"
             />
           </div>
@@ -55,7 +55,7 @@
               v-model="passwordForm.newPassword"
               type="password"
               required
-              class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               placeholder="請輸入新密碼 (至少6位)"
             />
           </div>
@@ -66,7 +66,7 @@
               v-model="passwordForm.confirmPassword"
               type="password"
               required
-              class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               placeholder="請再次輸入新密碼"
             />
           </div>

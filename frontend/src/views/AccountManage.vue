@@ -40,7 +40,7 @@
                 type="text"
                 required
                 :disabled="isEditing"
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                 placeholder="請輸入帳號名稱"
               />
               <p v-if="isEditing" class="mt-1 text-xs text-gray-500">
@@ -54,7 +54,7 @@
               v-model="form.password"
               type="password"
               required
-              class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               placeholder="請輸入密碼 (至少6位)"
             />
           </div>
@@ -81,7 +81,7 @@
                 v-model="form.role_id"
                 required
                 :disabled="isOwnerRoleUser"
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
               >
                 <option value="">請選擇角色</option>
                 <option v-for="role in filteredRoles" :key="role.role_id" :value="role.role_id">

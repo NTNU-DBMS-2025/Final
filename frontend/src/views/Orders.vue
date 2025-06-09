@@ -59,7 +59,7 @@
                   type="text"
                   required
                   :disabled="isEditMode"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
                 />
               </div>
 
@@ -70,7 +70,7 @@
                 <select
                   v-model="form.customer_id"
                   required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">請選擇客戶</option>
                   <option v-for="customer in customers" :key="customer.customer_id" :value="customer.customer_id">
@@ -87,7 +87,7 @@
                   v-model="form.order_date"
                   type="date"
                   required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -98,7 +98,7 @@
                 <input
                   v-model="form.expected_delivery_date"
                   type="date"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -108,7 +108,7 @@
                 </label>
                 <select
                   v-model="form.status"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="pending">待處理</option>
                   <option value="confirmed">已確認</option>
@@ -125,7 +125,7 @@
                 </label>
                 <select
                   v-model="form.priority"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="low">低</option>
                   <option value="normal">普通</option>
@@ -143,7 +143,7 @@
                   type="text"
                   required
                   placeholder="請輸入送貨地址"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -154,7 +154,7 @@
                 <textarea
                   v-model="form.notes"
                   rows="3"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 ></textarea>
               </div>
             </div>
@@ -181,7 +181,7 @@
                   <div>
                     <select
                       v-model="item.product_id"
-                      class="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                      class="w-full border border-gray-300 rounded px-2 py-1 text-gray-900 placeholder-gray-500 text-sm"
                       required
                     >
                       <option value="">選擇商品</option>
@@ -196,7 +196,7 @@
                       type="number"
                       min="1"
                       placeholder="數量"
-                      class="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                      class="w-full border border-gray-300 rounded px-2 py-1 text-gray-900 placeholder-gray-500 text-sm"
                       required
                     />
                   </div>
@@ -206,7 +206,7 @@
                       type="number"
                       step="0.01"
                       placeholder="單價"
-                      class="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                      class="w-full border border-gray-300 rounded px-2 py-1 text-gray-900 placeholder-gray-500 text-sm"
                       required
                     />
                   </div>
