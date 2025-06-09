@@ -33,7 +33,7 @@ export default {
         items.push({ name: 'products', label: '產品管理', to: '/products' })
         items.push({ name: 'suppliers', label: '供應商管理', to: '/suppliers' })
         items.push({ name: 'inventory', label: '庫存管理', to: '/inventory' })
-        items.push({ name: 'locations', label: '儲位管理', to: '/locations' })
+        items.push({ name: 'locations', label: '倉位管理', to: '/locations' })
         items.push({ name: 'scrap', label: '報廢管理', to: '/scrap' })
       }
       

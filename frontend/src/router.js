@@ -87,7 +87,7 @@ const routes = [
         path: '/locations',
         name: 'Locations',
         component: Locations,
-        meta: { requiresAuth: true, allowedRoles: ['Owner', 'Admin', 'Warehouse'], title: '儲位管理' }
+        meta: { requiresAuth: true, allowedRoles: ['Owner', 'Admin', 'Warehouse'], title: '倉位管理' }
     },
     {
         path: '/scrap',
