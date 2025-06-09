@@ -3,7 +3,7 @@
     <!-- Dashboard Header -->
     <div class="bg-white shadow rounded-lg p-6">
       <h1 class="text-2xl font-bold text-gray-900 mb-2">倉庫管理儀表板</h1>
-      <p class="text-gray-600">歡迎回來，{{ $store.state.user?.username || 'Warehouse User' }}</p>
+      <p class="text-gray-600">歡迎回來，{{ $store.state.user?.account || 'Warehouse User' }}</p>
     </div>
 
     <!-- Warehouse Statistics Cards -->
@@ -231,8 +231,8 @@ export default {
         this.loading = true
         
         // Load inventory data
-        const inventoryResponse = await inventoryAPI.getInventory({ limit: 10 })
-        const inventory = inventoryResponse.data
+        const inventoryResponse = await inventoryAPI.fetchInventory({ per_page: 10 })
+        const inventory = inventoryResponse.data.data || []
         
         // Calculate statistics
         this.calculateStats(inventory)
@@ -242,7 +242,7 @@ export default {
         
       } catch (error) {
         console.error('Error loading dashboard data:', error)
-        this.$store.dispatch('setNotification', {
+        this.$store.dispatch('showNotification', {
           type: 'error',
           message: '載入儀表板資料失敗'
         })

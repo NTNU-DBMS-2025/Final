@@ -3,7 +3,7 @@
     <!-- Dashboard Header -->
     <div class="bg-white shadow rounded-lg p-6">
       <h1 class="text-2xl font-bold text-gray-900 mb-2">銷售管理儀表板</h1>
-      <p class="text-gray-600">歡迎回來，{{ $store.state.user?.name || 'Sales User' }}</p>
+      <p class="text-gray-600">歡迎回來，{{ $store.state.user?.account || 'Sales User' }}</p>
     </div>
 
     <!-- Sales Statistics Cards -->

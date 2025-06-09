@@ -170,7 +170,7 @@ export default {
           <div class="hidden lg:flex items-center flex-shrink-0 ml-4">
             <div class="flex items-center space-x-4">
               <span class="text-gray-300 text-sm">
-                歡迎，{{ user?.name || 'User' }}
+                歡迎，{{ user?.account || 'User' }}
               </span>
               <button
                 @click="handleLogout"
@@ -205,7 +205,7 @@ export default {
           <div class="border-t border-gray-700 pt-4 mt-4">
             <div class="px-3 py-2">
               <span class="text-gray-300 text-sm">
-                歡迎，{{ user?.name || 'User' }}
+                歡迎，{{ user?.account || 'User' }}
               </span>
             </div>
             <button
@@ -225,8 +225,8 @@ export default {
         <!-- Debug info - remove later -->
         <div v-if="isAuthenticated" class="mb-4 p-4 bg-blue-100 rounded-lg text-sm">
           <p><strong>當前路由:</strong> {{ $route.path }}</p>
-          <p><strong>用戶角色:</strong> {{ user?.roles?.join(', ') || '未知' }}</p>
-          <p><strong>用戶名稱:</strong> {{ user?.name || '未設定' }}</p>
+          <p><strong>用戶角色:</strong> {{ user?.role_name || '未知' }}</p>
+          <p><strong>用戶名稱:</strong> {{ user?.account || '未設定' }}</p>
         </div>
         
         <router-view />
