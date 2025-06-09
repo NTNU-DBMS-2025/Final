@@ -36,7 +36,20 @@ def init_sample_data():
         users_data = [
             {'account': 'admin', 'password': 'admin', 'role_name': 'Admin'},
             {'account': 'sales', 'password': 'sales', 'role_name': 'Sales'},
-            {'account': 'warehouse', 'password': 'warehouse', 'role_name': 'Warehouse'}
+            {'account': 'warehouse', 'password': 'warehouse',
+                'role_name': 'Warehouse'},
+            {'account': 'admin2', 'password': 'admin123', 'role_name': 'Admin'},
+            {'account': 'sales_manager', 'password': 'sales123', 'role_name': 'Sales'},
+            {'account': 'sales_rep1', 'password': 'sales123', 'role_name': 'Sales'},
+            {'account': 'sales_rep2', 'password': 'sales123', 'role_name': 'Sales'},
+            {'account': 'warehouse_super',
+                'password': 'warehouse123', 'role_name': 'Warehouse'},
+            {'account': 'warehouse_staff1',
+                'password': 'warehouse123', 'role_name': 'Warehouse'},
+            {'account': 'warehouse_staff2',
+                'password': 'warehouse123', 'role_name': 'Warehouse'},
+            {'account': 'warehouse_staff3',
+                'password': 'warehouse123', 'role_name': 'Warehouse'}
         ]
 
         for user_data in users_data:
@@ -114,6 +127,56 @@ def init_sample_data():
                 'supplier_type': 'service',
                 'status': 'active',
                 'notes': 'Digital solutions and software services'
+            },
+            {
+                'supplier_name': 'Mobile Tech Solutions',
+                'contact_name': 'Alex Chen',
+                'phone': '02-8765-4321',
+                'email': 'sales@mobiletech.com',
+                'address': '456 Mobile Street, Taipei, Taiwan',
+                'supplier_type': 'manufacturer',
+                'status': 'active',
+                'notes': 'Mobile devices and accessories manufacturer'
+            },
+            {
+                'supplier_name': 'Smart Home Electronics',
+                'contact_name': 'Jenny Wu',
+                'phone': '07-123-9876',
+                'email': 'contact@smarthome.com',
+                'address': '789 Smart Ave, Kaohsiung, Taiwan',
+                'supplier_type': 'distributor',
+                'status': 'active',
+                'notes': 'Smart home and IoT devices distributor'
+            },
+            {
+                'supplier_name': 'Gaming Hardware Co.',
+                'contact_name': 'Tom Lin',
+                'phone': '04-567-8901',
+                'email': 'orders@gaminghw.com',
+                'address': '123 Gaming Road, Taichung, Taiwan',
+                'supplier_type': 'wholesaler',
+                'status': 'active',
+                'notes': 'Gaming hardware and peripherals wholesaler'
+            },
+            {
+                'supplier_name': 'Enterprise Systems Ltd.',
+                'contact_name': 'Grace Wang',
+                'phone': '03-456-7890',
+                'email': 'enterprise@systems.com',
+                'address': '678 Enterprise Blvd, Taoyuan, Taiwan',
+                'supplier_type': 'manufacturer',
+                'status': 'active',
+                'notes': 'Enterprise hardware and server solutions'
+            },
+            {
+                'supplier_name': 'Budget Electronics Store',
+                'contact_name': 'Kevin Zhang',
+                'phone': '06-789-0123',
+                'email': 'budget@electronics.com',
+                'address': '234 Budget St, Tainan, Taiwan',
+                'supplier_type': 'wholesaler',
+                'status': 'inactive',
+                'notes': 'Budget electronics supplier - currently inactive'
             }
         ]
 
@@ -199,6 +262,96 @@ def init_sample_data():
                 'category': 'Electronics',
                 'warranty_years': 1,
                 'image_url': 'https://example.com/ipad.jpg'
+            },
+            {
+                'name': 'Samsung Galaxy S24',
+                'category': 'Electronics',
+                'warranty_years': 2,
+                'image_url': 'https://example.com/galaxy-s24.jpg'
+            },
+            {
+                'name': 'Dell OptiPlex Desktop',
+                'category': 'Electronics',
+                'warranty_years': 3,
+                'image_url': 'https://example.com/dell-desktop.jpg'
+            },
+            {
+                'name': 'ASUS Gaming Monitor 27"',
+                'category': 'Electronics',
+                'warranty_years': 3,
+                'image_url': 'https://example.com/asus-monitor.jpg'
+            },
+            {
+                'name': 'Logitech Webcam HD',
+                'category': 'Electronics',
+                'warranty_years': 2,
+                'image_url': 'https://example.com/webcam.jpg'
+            },
+            {
+                'name': 'Microsoft Surface Pro',
+                'category': 'Electronics',
+                'warranty_years': 2,
+                'image_url': 'https://example.com/surface-pro.jpg'
+            },
+            {
+                'name': 'Executive Desk',
+                'category': 'Furniture',
+                'warranty_years': 7,
+                'image_url': 'https://example.com/executive-desk.jpg'
+            },
+            {
+                'name': 'Bookshelf Unit',
+                'category': 'Furniture',
+                'warranty_years': 5,
+                'image_url': 'https://example.com/bookshelf.jpg'
+            },
+            {
+                'name': 'Storage Cabinet',
+                'category': 'Furniture',
+                'warranty_years': 8,
+                'image_url': 'https://example.com/storage-cabinet.jpg'
+            },
+            {
+                'name': 'Wireless Headphones',
+                'category': 'Electronics',
+                'warranty_years': 2,
+                'image_url': 'https://example.com/headphones.jpg'
+            },
+            {
+                'name': 'Smart Watch Apple',
+                'category': 'Electronics',
+                'warranty_years': 1,
+                'image_url': 'https://example.com/apple-watch.jpg'
+            },
+            {
+                'name': 'Bluetooth Speaker',
+                'category': 'Electronics',
+                'warranty_years': 2,
+                'image_url': 'https://example.com/speaker.jpg'
+            },
+            {
+                'name': 'Desk Lamp LED',
+                'category': 'Office Supplies',
+                'warranty_years': 3,
+                'image_url': 'https://example.com/desk-lamp.jpg'
+            },
+            {
+                'name': 'Ergonomic Footrest',
+                'category': 'Office Supplies',
+                'warranty_years': 2,
+                'image_url': 'https://example.com/footrest.jpg'
+            },
+            {
+                'name': 'Router Wi-Fi 6',
+                'category': 'Electronics',
+                'warranty_years': 3,
+                'image_url': 'https://example.com/router.jpg'
+            },
+            {
+                'name': 'External Hard Drive 2TB',
+                'category': 'Electronics',
+                'warranty_years': 3,
+                'image_url': 'https://example.com/hard-drive.jpg'
             }
         ]
 
@@ -308,6 +461,114 @@ def init_sample_data():
                 'tax_id': '99999999',
                 'status': 'inactive',
                 'notes': '測試用停用客戶'
+            },
+            {
+                'name': '宏碁股份有限公司',
+                'contact': '劉總監',
+                'phone': '02-8691-3000',
+                'email': 'procurement@acer.com',
+                'address': '新北市汐止區新台五路一段88號',
+                'customer_type': 'business',
+                'customer_level': 'platinum',
+                'tax_id': '20266989',
+                'status': 'active',
+                'notes': '電腦製造商，大量IT設備需求'
+            },
+            {
+                'name': '華碩電腦股份有限公司',
+                'contact': '張協理',
+                'phone': '02-2894-3447',
+                'email': 'orders@asus.com',
+                'address': '台北市北投區立德路150號',
+                'customer_type': 'business',
+                'customer_level': 'gold',
+                'tax_id': '23638777',
+                'status': 'active',
+                'notes': '3C產品製造商，定期採購辦公設備'
+            },
+            {
+                'name': '李大華',
+                'contact': '李大華',
+                'phone': '0955-123-456',
+                'email': 'dahua.li@email.com',
+                'address': '台中市西屯區台灣大道三段99號',
+                'customer_type': 'individual',
+                'customer_level': 'silver',
+                'tax_id': '',
+                'status': 'active',
+                'notes': '個人客戶，經常購買電子產品'
+            },
+            {
+                'name': '成功大學',
+                'contact': '陳主任',
+                'phone': '06-275-7575',
+                'email': 'purchasing@ncku.edu.tw',
+                'address': '台南市東區大學路1號',
+                'customer_type': 'educational',
+                'customer_level': 'gold',
+                'tax_id': '69219131',
+                'status': 'active',
+                'notes': '國立大學，研究設備採購'
+            },
+            {
+                'name': '台中市政府',
+                'contact': '楊科長',
+                'phone': '04-2228-9111',
+                'email': 'procurement@taichung.gov.tw',
+                'address': '台中市西屯區台灣大道三段99號',
+                'customer_type': 'government',
+                'customer_level': 'gold',
+                'tax_id': '52282203',
+                'status': 'active',
+                'notes': '地方政府採購'
+            },
+            {
+                'name': '中小企業發展中心',
+                'contact': '林副理',
+                'phone': '07-331-0668',
+                'email': 'info@sme.org.tw',
+                'address': '高雄市苓雅區四維三路6號',
+                'customer_type': 'business',
+                'customer_level': 'silver',
+                'tax_id': '91763982',
+                'status': 'active',
+                'notes': '中小企業服務機構'
+            },
+            {
+                'name': '陳小芳',
+                'contact': '陳小芳',
+                'phone': '0933-555-777',
+                'email': 'xiaofang.chen@gmail.com',
+                'address': '新竹市東區光復路二段101號',
+                'customer_type': 'individual',
+                'customer_level': 'bronze',
+                'tax_id': '',
+                'status': 'active',
+                'notes': '新客戶，首次購買'
+            },
+            {
+                'name': '遠傳電信股份有限公司',
+                'contact': '黃經理',
+                'phone': '02-6632-6888',
+                'email': 'b2b@fetnet.net',
+                'address': '台北市內湖區瑞光路188號',
+                'customer_type': 'business',
+                'customer_level': 'platinum',
+                'tax_id': '97176270',
+                'status': 'active',
+                'notes': '電信業者，通訊設備採購'
+            },
+            {
+                'name': '誠品書店股份有限公司',
+                'contact': '吳店長',
+                'phone': '02-6636-5888',
+                'email': 'procurement@eslite.com',
+                'address': '台北市信義區菸廠路88號',
+                'customer_type': 'business',
+                'customer_level': 'silver',
+                'tax_id': '12346789',
+                'status': 'active',
+                'notes': '零售業，門市設備需求'
             }
         ]
 
@@ -441,6 +702,116 @@ def init_sample_data():
                 'capacity': 85,
                 'status': 'active',
                 'notes': '高價值物品儲存'
+            },
+            {
+                'location_code': 'F6-01',
+                'location_name': 'F區第6排第1位',
+                'zone': 'F',
+                'shelf': '01',
+                'location_type': 'storage',
+                'capacity': 120,
+                'status': 'active',
+                'notes': '大型設備儲存區'
+            },
+            {
+                'location_code': 'F6-02',
+                'location_name': 'F區第6排第2位',
+                'zone': 'F',
+                'shelf': '02',
+                'location_type': 'storage',
+                'capacity': 100,
+                'status': 'active',
+                'notes': '標準儲存位置'
+            },
+            {
+                'location_code': 'F6-03',
+                'location_name': 'F區第6排第3位',
+                'zone': 'F',
+                'shelf': '03',
+                'location_type': 'picking',
+                'capacity': 80,
+                'status': 'occupied',
+                'notes': '快速揀貨區域'
+            },
+            {
+                'location_code': 'G7-01',
+                'location_name': 'G區第7排第1位',
+                'zone': 'G',
+                'shelf': '01',
+                'location_type': 'receiving',
+                'capacity': 150,
+                'status': 'active',
+                'notes': '新貨收貨區'
+            },
+            {
+                'location_code': 'G7-02',
+                'location_name': 'G區第7排第2位',
+                'zone': 'G',
+                'shelf': '02',
+                'location_type': 'storage',
+                'capacity': 90,
+                'status': 'active',
+                'notes': '電子產品專用區'
+            },
+            {
+                'location_code': 'H8-01',
+                'location_name': 'H區第8排第1位',
+                'zone': 'H',
+                'shelf': '01',
+                'location_type': 'shipping',
+                'capacity': 130,
+                'status': 'active',
+                'notes': '急件出貨區'
+            },
+            {
+                'location_code': 'H8-02',
+                'location_name': 'H區第8排第2位',
+                'zone': 'H',
+                'shelf': '02',
+                'location_type': 'storage',
+                'capacity': 110,
+                'status': 'maintenance',
+                'notes': '設備維修中'
+            },
+            {
+                'location_code': 'I9-01',
+                'location_name': 'I區第9排第1位',
+                'zone': 'I',
+                'shelf': '01',
+                'location_type': 'storage',
+                'capacity': 95,
+                'status': 'active',
+                'notes': '辦公家具專區'
+            },
+            {
+                'location_code': 'I9-02',
+                'location_name': 'I區第9排第2位',
+                'zone': 'I',
+                'shelf': '02',
+                'location_type': 'staging',
+                'capacity': 70,
+                'status': 'active',
+                'notes': '品質檢驗暫存區'
+            },
+            {
+                'location_code': 'J10-01',
+                'location_name': 'J區第10排第1位',
+                'zone': 'J',
+                'shelf': '01',
+                'location_type': 'storage',
+                'capacity': 85,
+                'status': 'active',
+                'notes': '小件物品儲存'
+            },
+            {
+                'location_code': 'J10-02',
+                'location_name': 'J區第10排第2位',
+                'zone': 'J',
+                'shelf': '02',
+                'location_type': 'storage',
+                'capacity': 105,
+                'status': 'active',
+                'notes': '配件專用儲存區'
             }
         ]
 
@@ -536,7 +907,37 @@ def init_sample_data():
                 {'product_name': 'Gaming Chair', 'location_code': 'E5-02',
                     'quantity': 6, 'days_to_expiry': None},
                 {'product_name': 'Conference Table', 'location_code': 'C3-02',
-                    'quantity': 2, 'days_to_expiry': None}
+                    'quantity': 2, 'days_to_expiry': None},
+                {'product_name': 'Samsung Galaxy S24', 'location_code': 'F6-01',
+                    'quantity': 45, 'days_to_expiry': 120},
+                {'product_name': 'Dell OptiPlex Desktop', 'location_code': 'F6-02',
+                    'quantity': 18, 'days_to_expiry': 365},
+                {'product_name': 'ASUS Gaming Monitor 27"', 'location_code': 'G7-01',
+                    'quantity': 22, 'days_to_expiry': 180},
+                {'product_name': 'Logitech Webcam HD', 'location_code': 'G7-02',
+                    'quantity': 35, 'days_to_expiry': 90},
+                {'product_name': 'Microsoft Surface Pro', 'location_code': 'H8-01',
+                    'quantity': 12, 'days_to_expiry': 180},
+                {'product_name': 'Executive Desk', 'location_code': 'I9-01',
+                    'quantity': 4, 'days_to_expiry': None},
+                {'product_name': 'Bookshelf Unit', 'location_code': 'I9-02',
+                    'quantity': 8, 'days_to_expiry': None},
+                {'product_name': 'Storage Cabinet', 'location_code': 'J10-01',
+                    'quantity': 6, 'days_to_expiry': None},
+                {'product_name': 'Wireless Headphones', 'location_code': 'J10-02',
+                    'quantity': 75, 'days_to_expiry': 60},
+                {'product_name': 'Smart Watch Apple', 'location_code': 'F6-03',
+                    'quantity': 28, 'days_to_expiry': 90},
+                {'product_name': 'Bluetooth Speaker', 'location_code': 'E5-01',
+                    'quantity': 40, 'days_to_expiry': 120},
+                {'product_name': 'Desk Lamp LED', 'location_code': 'A1-01',
+                    'quantity': 55, 'days_to_expiry': 365},
+                {'product_name': 'Ergonomic Footrest', 'location_code': 'B2-01',
+                    'quantity': 25, 'days_to_expiry': 180},
+                {'product_name': 'Router Wi-Fi 6', 'location_code': 'C3-01',
+                    'quantity': 30, 'days_to_expiry': 365},
+                {'product_name': 'External Hard Drive 2TB', 'location_code': 'D4-01',
+                    'quantity': 65, 'days_to_expiry': 180}
             ]
 
             for inv_data in inventory_data:
@@ -639,6 +1040,54 @@ def init_sample_data():
                     'description': '客戶退貨，包裝已拆封無法重新銷售',
                     'created_by': '劉客服',
                     'processed_date': None
+                },
+                {
+                    'product_name': 'Samsung Galaxy S24',
+                    'location_code': 'F6-01',
+                    'quantity': 5,
+                    'scrap_date': date.today() - timedelta(days=12),
+                    'reason': '損壞',
+                    'status': '已處理',
+                    'estimated_value': 120000.00,
+                    'description': '運送途中受潮，螢幕出現水漬',
+                    'created_by': '張倉管',
+                    'processed_date': date.today() - timedelta(days=9)
+                },
+                {
+                    'product_name': 'Wireless Headphones',
+                    'location_code': 'J10-02',
+                    'quantity': 8,
+                    'scrap_date': date.today() - timedelta(days=6),
+                    'reason': '品質不良',
+                    'status': '處理中',
+                    'estimated_value': 12000.00,
+                    'description': '批次品質問題，左右聲道不平衡',
+                    'created_by': '李品管',
+                    'processed_date': None
+                },
+                {
+                    'product_name': 'Desk Lamp LED',
+                    'location_code': 'A1-01',
+                    'quantity': 3,
+                    'scrap_date': date.today() - timedelta(days=4),
+                    'reason': '過期',
+                    'status': '待處理',
+                    'estimated_value': 2700.00,
+                    'description': 'LED燈珠老化，亮度不足',
+                    'created_by': '王管理員',
+                    'processed_date': None
+                },
+                {
+                    'product_name': 'Router Wi-Fi 6',
+                    'location_code': 'C3-01',
+                    'quantity': 2,
+                    'scrap_date': date.today() - timedelta(days=2),
+                    'reason': '損壞',
+                    'status': '已處理',
+                    'estimated_value': 8000.00,
+                    'description': '天線斷裂，訊號接收不良',
+                    'created_by': '陳技術員',
+                    'processed_date': date.today() - timedelta(days=1)
                 }
             ]
 
@@ -686,7 +1135,14 @@ def init_sample_data():
             shipping_vendors_data = [
                 {'user_account': 'admin', 'name': '快遞通運輸', 'mode': '標準配送'},
                 {'user_account': 'warehouse', 'name': '台灣宅配通', 'mode': '快速配送'},
-                {'user_account': 'sales', 'name': '新竹物流', 'mode': '特殊配送'}
+                {'user_account': 'sales', 'name': '新竹物流', 'mode': '特殊配送'},
+                {'user_account': 'warehouse_super',
+                    'name': '黑貓宅急便', 'mode': '快速配送'},
+                {'user_account': 'sales_manager', 'name': '統一速達', 'mode': '標準配送'},
+                {'user_account': 'warehouse_staff1',
+                    'name': '7-ELEVEN交貨便', 'mode': '便利商店取貨'},
+                {'user_account': 'sales_rep1', 'name': '嘉里大榮物流', 'mode': '大宗貨運'},
+                {'user_account': 'admin2', 'name': '中華郵政', 'mode': '郵政宅配'}
             ]
 
             for vendor_data in shipping_vendors_data:
@@ -825,6 +1281,86 @@ def init_sample_data():
                         {'product_name': 'Printer HP LaserJet',
                             'quantity': 3, 'unit_price': 15000.00}
                     ]
+                },
+                {
+                    'order_number': 'ORD202412150007',
+                    'order_date': datetime.now() - timedelta(days=4),
+                    'expected_delivery_date': date.today() + timedelta(days=8),
+                    'status': 'processing',
+                    'priority': 'normal',
+                    'ship_to': '新北市汐止區新台五路一段88號',
+                    'total_amount': 285000.00,
+                    'notes': 'Acer公司大量採購',
+                    'customer_name': '宏碁股份有限公司',
+                    'user_account': 'sales_manager',
+                    'items': [
+                        {'product_name': 'Samsung Galaxy S24',
+                            'quantity': 10, 'unit_price': 24000.00},
+                        {'product_name': 'Wireless Headphones',
+                            'quantity': 5, 'unit_price': 1500.00},
+                        {'product_name': 'Smart Watch Apple',
+                            'quantity': 3, 'unit_price': 12000.00}
+                    ]
+                },
+                {
+                    'order_number': 'ORD202412150008',
+                    'order_date': datetime.now() - timedelta(days=6),
+                    'expected_delivery_date': date.today() + timedelta(days=4),
+                    'status': 'shipped',
+                    'priority': 'high',
+                    'ship_to': '台北市北投區立德路150號',
+                    'total_amount': 195000.00,
+                    'notes': 'ASUS辦公設備更新',
+                    'customer_name': '華碩電腦股份有限公司',
+                    'user_account': 'sales_rep1',
+                    'items': [
+                        {'product_name': 'Dell OptiPlex Desktop',
+                            'quantity': 3, 'unit_price': 35000.00},
+                        {'product_name': 'ASUS Gaming Monitor 27"',
+                            'quantity': 2, 'unit_price': 18000.00},
+                        {'product_name': 'Router Wi-Fi 6',
+                            'quantity': 4, 'unit_price': 8000.00}
+                    ]
+                },
+                {
+                    'order_number': 'ORD202412150009',
+                    'order_date': datetime.now() - timedelta(days=1),
+                    'expected_delivery_date': date.today() + timedelta(days=15),
+                    'status': 'pending',
+                    'priority': 'low',
+                    'ship_to': '台南市東區大學路1號',
+                    'total_amount': 176500.00,
+                    'notes': '成功大學研究室設備採購',
+                    'customer_name': '成功大學',
+                    'user_account': 'sales_rep2',
+                    'items': [
+                        {'product_name': 'Microsoft Surface Pro',
+                            'quantity': 5, 'unit_price': 25000.00},
+                        {'product_name': 'Logitech Webcam HD',
+                            'quantity': 8, 'unit_price': 3500.00},
+                        {'product_name': 'Executive Desk',
+                            'quantity': 2, 'unit_price': 30000.00}
+                    ]
+                },
+                {
+                    'order_number': 'ORD202412150010',
+                    'order_date': datetime.now(),
+                    'expected_delivery_date': date.today() + timedelta(days=6),
+                    'status': 'confirmed',
+                    'priority': 'urgent',
+                    'ship_to': '台北市內湖區瑞光路188號',
+                    'total_amount': 142000.00,
+                    'notes': '遠傳電信緊急設備採購',
+                    'customer_name': '遠傳電信股份有限公司',
+                    'user_account': 'admin2',
+                    'items': [
+                        {'product_name': 'Router Wi-Fi 6',
+                            'quantity': 10, 'unit_price': 8000.00},
+                        {'product_name': 'External Hard Drive 2TB',
+                            'quantity': 6, 'unit_price': 3500.00},
+                        {'product_name': 'Bluetooth Speaker',
+                            'quantity': 8, 'unit_price': 2500.00}
+                    ]
                 }
             ]
 
@@ -962,20 +1498,33 @@ def init_sample_data():
         print(f"- {Customer.query.count()} Customers")
         print(f"- {Location.query.count()} Locations")
         try:
-            from models import InventoryLot, Scrap, Order, OrderItem
+            from models import InventoryLot, Scrap, Order, OrderItem, ShippingVendor
             print(f"- {InventoryLot.query.count()} Inventory Lots")
             print(f"- {Scrap.query.count()} Scrap Records")
             print(f"- {Order.query.count()} Orders")
             print(f"- {OrderItem.query.count()} Order Items")
+            print(f"- {ShippingVendor.query.count()} Shipping Vendors")
         except:
             print("- Inventory lots: N/A")
             print("- Scrap records: N/A")
             print("- Orders: N/A")
+            print("- Shipping vendors: N/A")
 
         print("\n🔑 Demo accounts:")
-        print("Admin: admin/admin")
-        print("Sales: sales/sales")
-        print("Warehouse: warehouse/warehouse")
+        print("Admin: admin/admin, admin2/admin123")
+        print("Sales: sales/sales, sales_manager/sales123, sales_rep1/sales123, sales_rep2/sales123")
+        print("Warehouse: warehouse/warehouse, warehouse_super/warehouse123, warehouse_staff1/warehouse123, etc.")
+
+        print("\n📈 Enhanced features added:")
+        print("- 11 total users across different roles")
+        print("- 28 products in Electronics, Furniture, and Office Supplies")
+        print("- 12 suppliers with various types and statuses")
+        print("- 18 customers including major Taiwan companies")
+        print("- 24 warehouse locations across zones A-J")
+        print("- Comprehensive inventory data with expiry dates")
+        print("- 10 scrap records with different statuses")
+        print("- 10 sample orders with realistic scenarios")
+        print("- 8 shipping vendors with different delivery modes")
 
 
 if __name__ == "__main__":

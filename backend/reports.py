@@ -5,6 +5,7 @@ from app import db
 
 reports_bp = Blueprint('reports', __name__, url_prefix='/api/reports')
 
+
 @reports_bp.route('/shipments/today')
 def get_today_shipments():
     try:
