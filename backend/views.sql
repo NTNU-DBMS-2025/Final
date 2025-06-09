@@ -21,13 +21,11 @@ JOIN Product  p ON p.product_id  = il.product_id
 JOIN Location l ON l.location_id = il.location_id
 WHERE il.quantity < p.reorder_point;
 
-
+/* ========== 尚未處理的 ========== */
 CREATE OR REPLACE VIEW v_orders_pending AS
 SELECT   order_id, order_number, expected_delivery_date, priority, ship_to, total_amount, customer_id, status
 FROM `order`
 WHERE status = 'pending';
-
-
 
 /* ========== 今天應出貨但尚未出貨 ========== */
 CREATE OR REPLACE VIEW v_orders_unshipped_today AS
@@ -49,19 +47,6 @@ WHERE o.order_date >= CURDATE() - INTERVAL 30 DAY
 GROUP BY DATE(o.order_date)
 ORDER BY sales_day DESC;
 
-/* ========== 本月供應商交貨量排行 ========== */
-CREATE OR REPLACE VIEW v_supplier_rank_month AS
-SELECT
-  s.supplier_id,
-  sup.name          AS supplier_name,
-  SUM(shi.quantity) AS shipped_qty
-FROM Shipment        shi
-JOIN Supplier_Product sp  USING(product_id)
-JOIN Supplier         sup ON sup.supplier_id = sp.supplier_id
-JOIN Supplier         s   ON s.supplier_id   = sup.supplier_id
-WHERE DATE_FORMAT(shi.ship_date,'%Y-%m') = DATE_FORMAT(CURDATE(),'%Y-%m')
-GROUP BY s.supplier_id
-ORDER BY shipped_qty DESC;
 
 /* ========== 最近 7 天各訂單狀態統計 ========== */
 CREATE OR REPLACE VIEW v_orders_status_7d AS
@@ -84,7 +69,7 @@ FROM `Order` o
 JOIN Customer c ON c.customer_id = o.customer_id
 GROUP BY c.customer_type;
 
-/* ========== 3. 零庫存產品清單 ========== */
+/* ========== 零庫存產品清單 ========== */
 CREATE OR REPLACE VIEW v_products_out_of_stock AS
 SELECT p.*
 FROM Product p
@@ -92,7 +77,7 @@ LEFT JOIN Inventory_Lot il ON il.product_id = p.product_id
 GROUP BY p.product_id
 HAVING COALESCE(SUM(il.quantity), 0) = 0;
 
-/* ========== 4. 已滿載或超載 ========== */
+/* ========== 已滿載或超載 ========== */
 CREATE OR REPLACE VIEW v_locations_over_capacity AS
 SELECT
   l.location_id,
@@ -104,7 +89,7 @@ LEFT JOIN Inventory_Lot il ON il.location_id = l.location_id
 GROUP BY l.location_id, l.capacity
 HAVING occupied >= l.capacity;
 
-/* ========== 5. 產品「天數供應量」(Days of Supply) ========== */
+/* ========== 產品「天數供應量」(Days of Supply) ========== */
 CREATE OR REPLACE VIEW v_product_days_of_supply AS
 WITH shipped_30d AS (
   SELECT
@@ -129,7 +114,7 @@ LEFT JOIN Inventory_Lot il ON il.product_id = p.product_id
 LEFT JOIN shipped_30d s     ON s.product_id = p.product_id
 GROUP BY p.product_id;
 
-/* ========== 6. 產品報廢率 (%) ========== */
+/* ========== 產品報廢率 (%) ========== */
 CREATE OR REPLACE VIEW v_product_scrap_rate AS
 WITH shipped AS (
   SELECT
@@ -157,7 +142,7 @@ LEFT JOIN scrapped sc ON sc.product_id = p.product_id;
 
 
 
-/* ========== 8. 物流商延遲出貨件數 ========== */
+/* ========== 物流商延遲出貨件數 ========== */
 CREATE OR REPLACE VIEW v_vendor_delay_cnt AS
 SELECT
   sv.name AS shipping_vendor,
@@ -168,7 +153,7 @@ WHERE s.status IN ('pending','in_transit')
   AND s.estimated_delivery_date < CURDATE()
 GROUP BY sv.name;
 
-/* ========== 9. 本月報廢成本彙總 ========== */
+/* ========== 本月報廢成本彙總 ========== */
 CREATE OR REPLACE VIEW v_scrap_cost_month AS
 SELECT
   DATE_FORMAT(scrap_date,'%Y-%m') AS month,
@@ -178,7 +163,7 @@ FROM Scrap
 WHERE DATE_FORMAT(scrap_date,'%Y-%m') = DATE_FORMAT(CURDATE(),'%Y-%m')
 GROUP BY DATE_FORMAT(scrap_date,'%Y-%m');
 
-/* ==========10. 30 天內銷售最快前 10 名產品 ========== */
+/* ==========30 天內銷售最快前 10 名產品 ========== */
 CREATE OR REPLACE VIEW v_fast_moving_top10 AS
 SELECT
   p.product_id,
@@ -192,7 +177,7 @@ GROUP BY p.product_id
 ORDER BY sold_qty_30d DESC
 LIMIT 10;
 
-/* ==========11. 60 天未動撥庫存 (Idle Inventory) ========== */
+/* ==========60 天未動撥庫存 (Idle Inventory) ========== */
 CREATE OR REPLACE VIEW v_idle_inventory_60d AS
 SELECT
   il.product_id,
@@ -208,7 +193,7 @@ LEFT JOIN `Order`    o  ON o.order_id = oi.order_id
 GROUP BY il.product_id, il.location_id
 HAVING COALESCE(MAX(o.order_date), '1900-01-01') < CURDATE() - INTERVAL 60 DAY;
 
-/* ==========12. 產品分類庫存結構 ========== */
+/* ==========產品分類庫存結構 ========== */
 CREATE OR REPLACE VIEW v_inventory_by_category AS
 SELECT
   p.category,
@@ -217,7 +202,7 @@ FROM Product p
 LEFT JOIN Inventory_Lot il ON il.product_id = p.product_id
 GROUP BY p.category;
 
-/* ==========13. 每日平均訂單處理時間 ========== */
+/* ==========每日平均訂單處理時間 ========== */
 CREATE OR REPLACE VIEW v_avg_order_processing_time AS
 SELECT
   DATE(o.order_date) AS process_day,
@@ -226,7 +211,7 @@ FROM `Order` o
 JOIN Shipment s ON s.order_id = o.order_id
 GROUP BY DATE(o.order_date);
 
-/* ==========14. 客戶最後一次下單日期 ========== */
+/* ==========客戶最後一次下單日期 ========== */
 CREATE OR REPLACE VIEW v_customer_last_order AS
 SELECT
   c.customer_id,
@@ -236,7 +221,7 @@ FROM Customer c
 LEFT JOIN `Order` o ON o.customer_id = c.customer_id
 GROUP BY c.customer_id;
 
-/* ==========15. 庫存批號即將到期 (30 天內) ========== */
+/* ==========庫存批號即將到期 (30 天內) ========== */
 CREATE OR REPLACE VIEW v_lot_expiry_alert AS
 SELECT
   il.product_id,
@@ -250,7 +235,7 @@ JOIN Product p ON p.product_id = il.product_id
 WHERE il.expiry_date BETWEEN CURDATE() AND CURDATE() + INTERVAL 30 DAY
 ORDER BY il.expiry_date;
 
-/* ==========16. 供應商產品種類數量排行榜 ========== */
+/* ==========供應商產品種類數量排行榜 ========== */
 CREATE OR REPLACE VIEW v_supplier_product_variants AS
 SELECT
   s.supplier_id,
@@ -262,16 +247,17 @@ GROUP BY s.supplier_id
 ORDER BY product_variants DESC;
 
 
-/* ==========17. 未出貨訂單超過三天 ========== */
+/* ==========未出貨訂單超過三天 ========== */
 CREATE OR REPLACE VIEW v_orders_delayed_shipping AS
-SELECT o.
-FROM Order o
+SELECT o.*
+FROM `Order` o
 LEFT JOIN Shipment s ON s.order_id = o.order_id
 WHERE o.status = 'pending'
   AND DATEDIFF(CURDATE(), o.order_date) > 3;
 
-/* ==========18. 本週即將出貨訂單預覽 ========== */
+
+/* ==========本週即將出貨訂單預覽 ========== */
 CREATE OR REPLACE VIEW v_orders_to_ship_this_week AS
-SELECT
-FROM Order
+SELECT *
+FROM `Order`
 WHERE scheduled_ship_date BETWEEN CURDATE() AND CURDATE() + INTERVAL 7 DAY;
