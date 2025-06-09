@@ -5,6 +5,7 @@ CREATE TABLE Product (
   category VARCHAR(50) NOT NULL,
   warranty_years INT NOT NULL,
   image_url VARCHAR(255),
+  reorder_point NOT NULL DEFAULT 10, --安全庫存點
   PRIMARY KEY (product_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

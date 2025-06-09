@@ -6,11 +6,11 @@ WHERE DATE(s.ship_date) = CURDATE();
 
 /* ========== 已過期仍有庫存 ========== */
 CREATE OR REPLACE VIEW v_inventory_expired AS
-SELECT il.*, p.name AS product_name, l.name AS location_name
+SELECT il.*, p.name AS product_name, l.location_name AS location_name
 FROM Inventory_Lot il
 JOIN Product  p ON p.product_id  = il.product_id
 JOIN Location l ON l.location_id = il.location_id
-WHERE il.expiration_date < CURDATE()
+WHERE il.expiry_date < CURDATE()
   AND il.quantity > 0;
 
 /* ========== 低庫存（低於 reorder_point）========== */
@@ -19,7 +19,15 @@ SELECT il.*, p.name AS product_name, l.zone
 FROM Inventory_Lot il
 JOIN Product  p ON p.product_id  = il.product_id
 JOIN Location l ON l.location_id = il.location_id
-WHERE il.quantity < il.reorder_point;
+WHERE il.quantity < p.reorder_point;
+
+
+CREATE OR REPLACE VIEW v_orders_pending AS
+SELECT   order_id, order_number, expected_delivery_date, priority, ship_to, total_amount, customer_id, status
+FROM `order`
+WHERE status = 'pending';
+
+
 
 /* ========== 今天應出貨但尚未出貨 ========== */
 CREATE OR REPLACE VIEW v_orders_unshipped_today AS

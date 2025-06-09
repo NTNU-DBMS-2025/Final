@@ -45,6 +45,8 @@ def create_app():
     from shipments import shipments_bp
     from scrap import scrap_bp
     from users import users_bp
+    from reports import reports_bp
+
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(products_bp)
@@ -56,6 +58,8 @@ def create_app():
     app.register_blueprint(shipments_bp)
     app.register_blueprint(scrap_bp)
     app.register_blueprint(users_bp)
+    app.register_blueprint(reports_bp)
+
 
     @app.route('/api/health')
     def health_check():
