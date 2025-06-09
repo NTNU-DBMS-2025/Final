@@ -16,6 +16,7 @@ import Locations from './views/Locations.vue'
 import Scrap from './views/Scrap.vue'
 import Reports from './views/Reports.vue'
 import AccountManage from './views/AccountManage.vue'
+import UserSettings from './views/UserSettings.vue'
 
 const routes = [
     {
@@ -105,6 +106,12 @@ const routes = [
         name: 'AccountManage',
         component: AccountManage,
         meta: { requiresAuth: true, allowedRoles: ['Owner', 'Admin'], title: '帳號管理' }
+    },
+    {
+        path: '/settings',
+        name: 'UserSettings',
+        component: UserSettings,
+        meta: { requiresAuth: true, allowedRoles: ['Owner', 'Admin', 'Sales', 'Warehouse'], title: '用戶設定' }
     }
 ]
 

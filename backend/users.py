@@ -740,6 +740,21 @@ def reset_password(user_id):
 def change_password(user_id):
     """Change user password"""
     try:
+        # Get current user from token
+        current_user = get_current_user()
+        if not current_user:
+            return jsonify({
+                'success': False,
+                'error': 'Authentication required'
+            }), 401
+
+        # Users can only change their own password
+        if current_user.user_id != user_id:
+            return jsonify({
+                'success': False,
+                'error': 'Access denied - can only change your own password'
+            }), 403
+
         user = User.query.get_or_404(user_id)
         data = request.get_json()
 

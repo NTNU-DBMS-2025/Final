@@ -36,7 +36,7 @@ export function deleteUser(userId) {
 }
 
 export function changePassword(userId, passwordData) {
-    return apiClient.patch(`/users/${userId}/password`, passwordData)
+    return apiClient.put(`/users/${userId}/change-password`, passwordData)
 }
 
 export function resetPassword(userId) {
