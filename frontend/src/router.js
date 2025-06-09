@@ -32,7 +32,7 @@ const routes = [
         path: '/admin',
         name: 'AdminDashboard',
         component: AdminDashboard,
-        meta: { requiresAuth: true, allowedRoles: ['Admin'], title: '管理者總覽' }
+        meta: { requiresAuth: true, allowedRoles: ['Owner', 'Admin'], title: '管理者總覽' }
     },
     {
         path: '/sales',
@@ -50,25 +50,25 @@ const routes = [
         path: '/products',
         name: 'Products',
         component: Products,
-        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Warehouse'], title: '產品管理' }
+        meta: { requiresAuth: true, allowedRoles: ['Owner', 'Admin', 'Warehouse'], title: '產品管理' }
     },
     {
         path: '/suppliers',
         name: 'Suppliers',
         component: Suppliers,
-        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Warehouse'], title: '供應商管理' }
+        meta: { requiresAuth: true, allowedRoles: ['Owner', 'Admin', 'Warehouse'], title: '供應商管理' }
     },
     {
         path: '/customers',
         name: 'Customers',
         component: Customers,
-        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Sales'], title: '客戶管理' }
+        meta: { requiresAuth: true, allowedRoles: ['Owner', 'Admin', 'Sales'], title: '客戶管理' }
     },
     {
         path: '/orders',
         name: 'Orders',
         component: Orders,
-        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Sales'], title: '訂單管理' }
+        meta: { requiresAuth: true, allowedRoles: ['Owner', 'Admin', 'Sales'], title: '訂單管理' }
     },
     {
         path: '/shipments',
@@ -80,31 +80,31 @@ const routes = [
         path: '/inventory',
         name: 'Inventory',
         component: Inventory,
-        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Warehouse'], title: '庫存管理' }
+        meta: { requiresAuth: true, allowedRoles: ['Owner', 'Admin', 'Warehouse'], title: '庫存管理' }
     },
     {
         path: '/locations',
         name: 'Locations',
         component: Locations,
-        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Warehouse'], title: '儲位管理' }
+        meta: { requiresAuth: true, allowedRoles: ['Owner', 'Admin', 'Warehouse'], title: '儲位管理' }
     },
     {
         path: '/scrap',
         name: 'Scrap',
         component: Scrap,
-        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Warehouse'], title: '報廢管理' }
+        meta: { requiresAuth: true, allowedRoles: ['Owner', 'Admin', 'Warehouse'], title: '報廢管理' }
     },
     {
         path: '/reports',
         name: 'Reports',
         component: Reports,
-        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Sales', 'Warehouse'], title: '報表' }
+        meta: { requiresAuth: true, allowedRoles: ['Owner', 'Admin', 'Sales', 'Warehouse'], title: '報表' }
     },
     {
         path: '/AccountManage',
         name: 'AccountManage',
         component: AccountManage,
-        meta: { requiresAuth: true, allowedRoles: ['Admin'], title: '帳號管理' }
+        meta: { requiresAuth: true, allowedRoles: ['Owner', 'Admin'], title: '帳號管理' }
     }
 ]
 

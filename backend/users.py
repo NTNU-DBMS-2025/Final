@@ -3,8 +3,25 @@ from models import db, User, Role, user_role
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
+from auth import decode_jwt_token
 
 users_bp = Blueprint('users', __name__, url_prefix='/api/users')
+
+
+def get_current_user():
+    """Get current user from JWT token"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return None
+
+    token = auth_header.split(' ')[1]
+    payload = decode_jwt_token(token)
+
+    if not payload:
+        return None
+
+    user = User.query.get(payload['user_id'])
+    return user
 
 
 @users_bp.route('', methods=['GET'])
@@ -125,6 +142,38 @@ def create_user():
                 'error': 'Role not found'
             }), 404
 
+        # Check if trying to create Owner role - only Owner can create Owner accounts
+        if role.role_name == 'Owner':
+            current_user = get_current_user()
+            if not current_user:
+                return jsonify({
+                    'success': False,
+                    'error': 'Authentication required'
+                }), 401
+
+            current_user_primary_role = Role.query.get(current_user.role_id)
+            if not current_user_primary_role or current_user_primary_role.role_name != 'Owner':
+                return jsonify({
+                    'success': False,
+                    'error': 'Only Owner can create Owner accounts'
+                }), 403
+
+        # Check if trying to create Admin role - only Owner can create Admin accounts
+        if role.role_name == 'Admin':
+            current_user = get_current_user()
+            if not current_user:
+                return jsonify({
+                    'success': False,
+                    'error': 'Authentication required'
+                }), 401
+
+            current_user_primary_role = Role.query.get(current_user.role_id)
+            if current_user_primary_role and current_user_primary_role.role_name == 'Admin':
+                return jsonify({
+                    'success': False,
+                    'error': 'Admin cannot create other Admin accounts'
+                }), 403
+
         # Check if account already exists
         existing_user = User.query.filter(
             User.account == data['account']).first()
@@ -192,8 +241,36 @@ def create_user():
 def update_user(user_id):
     """Update an existing user"""
     try:
+        # Get current user from token
+        current_user = get_current_user()
+        if not current_user:
+            return jsonify({
+                'success': False,
+                'error': 'Authentication required'
+            }), 401
+
         user = User.query.get_or_404(user_id)
         data = request.get_json()
+
+        # Check if trying to modify an Owner user
+        user_primary_role = Role.query.get(user.role_id)
+        current_user_primary_role = Role.query.get(current_user.role_id)
+
+        # Only Owner can modify Owner accounts
+        if user_primary_role and user_primary_role.role_name == 'Owner':
+            if not current_user_primary_role or current_user_primary_role.role_name != 'Owner':
+                return jsonify({
+                    'success': False,
+                    'error': 'Only Owner can modify Owner accounts'
+                }), 403
+
+        # Admin cannot modify other Admin accounts
+        if user_primary_role and user_primary_role.role_name == 'Admin':
+            if current_user_primary_role and current_user_primary_role.role_name == 'Admin' and user.user_id != current_user.user_id:
+                return jsonify({
+                    'success': False,
+                    'error': 'Admin cannot modify other Admin accounts'
+                }), 403
 
         # Update account name
         if 'account' in data:
@@ -230,6 +307,22 @@ def update_user(user_id):
                     'success': False,
                     'error': 'Role not found'
                 }), 404
+
+            # Check if trying to assign Owner role - only Owner can assign Owner role
+            if role.role_name == 'Owner':
+                if not current_user_primary_role or current_user_primary_role.role_name != 'Owner':
+                    return jsonify({
+                        'success': False,
+                        'error': 'Only Owner can assign Owner role'
+                    }), 403
+
+            # Check if Admin trying to assign Admin role - only Owner can assign Admin role
+            if role.role_name == 'Admin':
+                if current_user_primary_role and current_user_primary_role.role_name == 'Admin':
+                    return jsonify({
+                        'success': False,
+                        'error': 'Admin cannot assign Admin role'
+                    }), 403
 
             user.role_id = data['role_id']
 
@@ -272,7 +365,35 @@ def update_user(user_id):
 def delete_user(user_id):
     """Delete a user"""
     try:
+        # Get current user from token
+        current_user = get_current_user()
+        if not current_user:
+            return jsonify({
+                'success': False,
+                'error': 'Authentication required'
+            }), 401
+
         user = User.query.get_or_404(user_id)
+
+        # Check if trying to delete an Owner user
+        user_primary_role = Role.query.get(user.role_id)
+        current_user_primary_role = Role.query.get(current_user.role_id)
+
+        # Only Owner can delete Owner accounts
+        if user_primary_role and user_primary_role.role_name == 'Owner':
+            if not current_user_primary_role or current_user_primary_role.role_name != 'Owner':
+                return jsonify({
+                    'success': False,
+                    'error': 'Only Owner can delete Owner accounts'
+                }), 403
+
+        # Admin cannot delete other Admin accounts
+        if user_primary_role and user_primary_role.role_name == 'Admin':
+            if current_user_primary_role and current_user_primary_role.role_name == 'Admin' and user.user_id != current_user.user_id:
+                return jsonify({
+                    'success': False,
+                    'error': 'Admin cannot delete other Admin accounts'
+                }), 403
 
         # Check if user has associated orders (prevent deletion if they do)
         if user.orders:

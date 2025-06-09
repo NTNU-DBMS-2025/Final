@@ -56,6 +56,7 @@
         <div class="mt-6 bg-blue-50 border border-blue-200 rounded-md p-4">
           <h3 class="text-sm font-medium text-blue-900 mb-2">測試帳號</h3>
           <div class="text-xs text-blue-800 space-y-1">
+            <p><strong>擁有者:</strong> 帳號/密碼: owner</p>
             <p><strong>管理者:</strong> 帳號/密碼: admin</p>
             <p><strong>銷售員:</strong> 帳號/密碼: sales</p>
             <p><strong>倉庫員:</strong> 帳號/密碼: warehouse</p>
@@ -115,7 +116,7 @@ export default {
     redirectToDashboard() {
       const roles = this.$store.state.roles
       
-      if (roles.includes('Admin')) {
+      if (roles.includes('Owner') || roles.includes('Admin')) {
         this.$router.push('/admin')
       } else if (roles.includes('Sales')) {
         this.$router.push('/sales')

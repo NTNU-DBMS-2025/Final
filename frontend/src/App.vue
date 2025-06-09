@@ -19,7 +19,7 @@ export default {
       const items = []
       
       // Dashboard routes based on role
-      if (this.hasRole('Admin')) {
+      if (this.hasRole('Owner') || this.hasRole('Admin')) {
         items.push({ name: 'dashboard', label: '管理者總覽', to: '/admin' })
       } else if (this.hasRole('Sales')) {
         items.push({ name: 'dashboard', label: '銷售總覽', to: '/sales' })
@@ -28,7 +28,7 @@ export default {
       }
       
       // Feature routes based on role
-      if (this.hasRole('Admin') || this.hasRole('Warehouse')) {
+      if (this.hasRole('Owner') || this.hasRole('Admin') || this.hasRole('Warehouse')) {
         items.push({ name: 'products', label: '產品管理', to: '/products' })
         items.push({ name: 'suppliers', label: '供應商管理', to: '/suppliers' })
         items.push({ name: 'inventory', label: '庫存管理', to: '/inventory' })
@@ -36,7 +36,7 @@ export default {
         items.push({ name: 'scrap', label: '報廢管理', to: '/scrap' })
       }
       
-      if (this.hasRole('Admin') || this.hasRole('Sales')) {
+      if (this.hasRole('Owner') || this.hasRole('Admin') || this.hasRole('Sales')) {
         items.push({ name: 'customers', label: '客戶管理', to: '/customers' })
         items.push({ name: 'orders', label: '訂單管理', to: '/orders' })
         items.push({ name: 'shipments', label: '出貨管理', to: '/shipments' })
@@ -47,8 +47,8 @@ export default {
         items.push({ name: 'reports', label: '報表', to: '/reports' })
       }
 
-      // Account management for admin users
-      if (this.isAuthenticated) {
+      // Account management for admin and owner users only
+      if (this.hasRole('Owner') || this.hasRole('Admin')) {
         items.push({ name: 'AccountManage', label: '帳號管理', to: '/AccountManage' })
       }
       
@@ -62,7 +62,7 @@ export default {
         await this.fetchCurrentUser()
         // Redirect to appropriate dashboard if on root or login page
         if (this.$route.path === '/' || this.$route.path === '/login') {
-          if (this.hasRole('Admin')) {
+          if (this.hasRole('Owner') || this.hasRole('Admin')) {
             this.$router.push('/admin')
           } else if (this.hasRole('Sales')) {
             this.$router.push('/sales')

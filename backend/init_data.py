@@ -18,6 +18,7 @@ def init_sample_data():
 
         print("Creating roles...")
         roles_data = [
+            {'role_name': 'Owner'},
             {'role_name': 'Admin'},
             {'role_name': 'Sales'},
             {'role_name': 'Warehouse'}
@@ -34,6 +35,7 @@ def init_sample_data():
 
         print("Creating users...")
         users_data = [
+            {'account': 'owner', 'password': 'owner', 'role_name': 'Owner'},
             {'account': 'admin', 'password': 'admin', 'role_name': 'Admin'},
             {'account': 'sales', 'password': 'sales', 'role_name': 'Sales'},
             {'account': 'warehouse', 'password': 'warehouse',
