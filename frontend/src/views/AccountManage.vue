@@ -45,19 +45,18 @@
               />
             </div>
             
-            <!--
-             <form @submit.prevent="handleSubmit" class="space-y-4">
-            <div>
+            
+             <div>
               <label class="block text-sm font-medium text-gray-700">帳號密碼</label>
               <input
-                v-model="form.pwd_hash"
+                v-model.number="form.pwd_hash"
                 type="password"
                 required
                 class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="請輸入帳號名稱"
+                placeholder="0000"
               />
             </div>
-            -->
+            
             <div>
               <label class="block text-sm font-medium text-gray-700">權限</label>
               <select
