@@ -30,58 +30,48 @@
       <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <h3 class="text-lg font-medium text-gray-900 mb-4">
-            {{ isEditing ? '編輯產品' : '新增產品' }}
+            {{ isEditing ? '編輯帳號' : '新增帳號' }}
           </h3>
           
           <form @submit.prevent="handleSubmit" class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700">產品名稱</label>
+              <label class="block text-sm font-medium text-gray-700">帳號名稱</label>
               <input
                 v-model="form.name"
                 type="text"
                 required
                 class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="請輸入產品名稱"
+                placeholder="請輸入帳號名稱"
               />
             </div>
             
+            <!--
+             <form @submit.prevent="handleSubmit" class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700">分類</label>
+              <label class="block text-sm font-medium text-gray-700">帳號密碼</label>
+              <input
+                v-model="form.pwd_hash"
+                type="password"
+                required
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                placeholder="請輸入帳號名稱"
+              />
+            </div>
+            -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700">權限</label>
               <select
                 v-model="form.category"
                 required
                 class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               >
-                <option value="">請選擇分類</option>
-                <option value="電子產品">電子產品</option>
-                <option value="家具">家具</option>
-                <option value="辦公用品">辦公用品</option>
-                <option value="其他">其他</option>
+                <option value="">請選擇權限</option>
+                <option value="Admin">Admin</option>
+                <option value="Sales">Sales</option>
+                <option value="Warehouse">Warehouse</option>
               </select>
             </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700">保固年限</label>
-              <input
-                v-model.number="form.warranty_years"
-                type="number"
-                min="0"
-                required
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="0"
-              />
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700">圖片網址</label>
-              <input
-                v-model="form.image_url"
-                type="url"
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="https://example.com/image.jpg"
-              />
-            </div>
-            
+
             <div class="flex justify-end space-x-3 pt-4">
               <button
                 type="button"
@@ -110,7 +100,7 @@
           <h3 class="text-lg font-medium text-gray-900">確認刪除</h3>
           <div class="mt-2 px-7 py-3">
             <p class="text-sm text-gray-500">
-              確定要刪除產品「{{ deleteTarget?.name }}」嗎？此操作無法復原。
+              確定要刪除帳號「{{ deleteTarget?.name }}」嗎？此操作無法復原。
             </p>
           </div>
           <div class="items-center px-4 py-3 flex justify-center space-x-3">
@@ -137,8 +127,13 @@
 
 <script>
 import DataTable from '../components/DataTable.vue'
-// import { mapActions } from 'vuex'
-// import { userAPI } from '../api/users'
+import { mapActions } from 'vuex'
+import {
+  fetchUsers,
+  createUser,
+  updateUser,
+  deleteUser
+} from '../api/users'
 
 export default {
   name: 'AccountManage',
@@ -159,14 +154,16 @@ export default {
       submitting: false,
       deleteTarget: null,
       form: {
-        account_id: '',
-        name: '',
-        access: ''
+        user_id: '',
+        account: '',
+        pwd_hash: '',
+        role_id: ''
       },
       columns: [
-        { key: 'account_id', label: '帳號', sortable: true },
-        { key: 'name', label: '姓名', sortable: true },
-        { key: 'access', label: '使用權限', sortable: true },
+        { key: 'user_id', label: '使用者id', sortable: true },
+        { key: 'account', label: '帳號', sortable: true },
+        { key: 'pwd_hash', label: '密碼', sortable: true },
+        { key: 'role_id', label: '角色', sortable: true }
       ],
       actions: [
         { name: 'edit', label: '編輯', event: 'edit', type: 'edit' },
@@ -189,13 +186,13 @@ export default {
           search: this.searchQuery
         }
         const response = await fetchUsers(params)
-        this.users = response.data.data
+        this.accounts = response.data.data
         this.total = response.data.pagination?.total || response.data.data.length
       } catch (error) {
         console.error('Failed to load users:', error)
         this.showNotification({
           type: 'error',
-          message: '載入產品列表失敗'
+          message: '載入使用者失敗'
         })
       } finally {
         this.loading = false
@@ -205,45 +202,56 @@ export default {
     openAddModal() {
       this.isEditing = false
       this.form = {
-        account_id: '',
-        name: '',
-        access: ''
+        user_id: '',
+        account: '',
+        pwd_hash: '',
+        role_id: ''
       }
       this.showModal = true
     },
-    
+
     openEditModal(user) {
       this.isEditing = true
-      this.form = { ...user }
+      this.form = {
+        user_id: user.user_id,
+        account: user.account,
+        pwd_hash: user.pwd_hash,
+        role_id: user.role_id
+      }
       this.showModal = true
     },
-    
+
     closeModal() {
       this.showModal = false
       this.form = {
-        account_id: '',
-        name: '',
-        access: ''
+        user_id: '',
+        account: '',
+        pwd_hash: '',
+        role_id: ''
       }
     },
 
     async handleSubmit() {
       this.submitting = true
       try {
+        const payload = {
+          account: this.form.account,
+          role_id: this.form.role_id
+        }
+
         if (this.isEditing) {
-          await updateUser(this.form.account_id, this.form)
+          await updateUser(this.form.id, payload)
           this.showNotification({
             type: 'success',
             message: '帳號更新成功'
           })
         } else {
-          await createUser(this.form)
+          await createUser(payload)
           this.showNotification({
             type: 'success',
             message: '帳號新增成功'
           })
         }
-        
         this.closeModal()
         await this.loadUsers()
       } catch (error) {
@@ -256,16 +264,16 @@ export default {
         this.submitting = false
       }
     },
-    
+
     handleDelete(user) {
       this.deleteTarget = user
       this.showDeleteModal = true
     },
-    
+
     async confirmDelete() {
       this.submitting = true
       try {
-        await deleteUser(this.deleteTarget.account_id)
+        await deleteUser(this.deleteTarget.user_id)
         this.showNotification({
           type: 'success',
           message: '帳號刪除成功'
@@ -286,15 +294,14 @@ export default {
 
     async handleSearch(query) {
       this.searchQuery = query
-      this.currentPage = 1 // Reset to first page when searching
+      this.currentPage = 1
       await this.loadUsers()
     },
-    
+
     async handlePageChange(page) {
       this.currentPage = page
       await this.loadUsers()
     }
-  },
+  }
 }
-
-</script> 
+</script>
