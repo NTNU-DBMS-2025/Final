@@ -15,10 +15,14 @@
       :data="products"
       :actions="actions"
       :loading="loading"
+      :total="total"
+      :current-page="currentPage"
+      :page-size="pageSize"
       @add="openAddModal"
       @edit="openEditModal"
       @delete="handleDelete"
       @search="handleSearch"
+      @page-change="handlePageChange"
     />
 
     <!-- Add/Edit Modal -->
@@ -144,6 +148,10 @@ export default {
     return {
       products: [],
       loading: false,
+      total: 0,
+      currentPage: 1,
+      pageSize: 10,
+      searchQuery: '',
       showModal: false,
       showDeleteModal: false,
       isEditing: false,
@@ -177,8 +185,14 @@ export default {
     async loadProducts() {
       this.loading = true
       try {
-        const response = await fetchProducts()
+        const params = {
+          page: this.currentPage,
+          per_page: this.pageSize,
+          search: this.searchQuery
+        }
+        const response = await fetchProducts(params)
         this.products = response.data.data
+        this.total = response.data.pagination?.total || response.data.data.length
       } catch (error) {
         console.error('Failed to load products:', error)
         this.showNotification({
@@ -191,15 +205,14 @@ export default {
     },
     
     async handleSearch(query) {
-      this.loading = true
-      try {
-        const response = await fetchProducts({ search: query })
-        this.products = response.data.data
-      } catch (error) {
-        console.error('Search failed:', error)
-      } finally {
-        this.loading = false
-      }
+      this.searchQuery = query
+      this.currentPage = 1 // Reset to first page when searching
+      await this.loadProducts()
+    },
+    
+    async handlePageChange(page) {
+      this.currentPage = page
+      await this.loadProducts()
     },
     
     openAddModal() {

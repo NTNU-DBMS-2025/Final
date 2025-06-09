@@ -114,9 +114,9 @@
     <!-- Pagination -->
     <Pagination
       v-if="showPagination && !loading"
-      :current-page="currentPage"
+      :current-page="internalCurrentPage"
       :total-pages="totalPages"
-      :total-items="filteredData.length"
+      :total-items="totalItems"
       @page-change="handlePageChange"
     />
   </div>
@@ -166,6 +166,14 @@ export default {
     pageSize: {
       type: Number,
       default: 10
+    },
+    total: {
+      type: Number,
+      default: 0
+    },
+    currentPage: {
+      type: Number,
+      default: 1
     }
   },
   emits: ['edit', 'delete', 'view', 'add', 'search', 'page-change'],
@@ -174,11 +182,22 @@ export default {
       searchQuery: '',
       sortKey: '',
       sortOrder: 'asc',
-      currentPage: 1
+      internalCurrentPage: this.currentPage
+    }
+  },
+  watch: {
+    currentPage(newVal) {
+      this.internalCurrentPage = newVal
     }
   },
   computed: {
     filteredData() {
+      // If total prop is provided, use server-side pagination
+      if (this.total > 0) {
+        return this.data
+      }
+      
+      // Otherwise use client-side filtering
       if (!this.searchQuery) return this.data
       
       return this.data.filter(row => {
@@ -189,6 +208,11 @@ export default {
       })
     },
     sortedData() {
+      // If total prop is provided, assume server handles sorting
+      if (this.total > 0) {
+        return this.filteredData
+      }
+      
       if (!this.sortKey) return this.filteredData
       
       const sorted = [...this.filteredData].sort((a, b) => {
@@ -211,19 +235,31 @@ export default {
       return sorted
     },
     paginatedData() {
+      // If total prop is provided, return data as-is (server handles pagination)
+      if (this.total > 0) {
+        return this.sortedData
+      }
+      
+      // Otherwise use client-side pagination
       if (!this.showPagination) return this.sortedData
       
-      const start = (this.currentPage - 1) * this.pageSize
+      const start = (this.internalCurrentPage - 1) * this.pageSize
       const end = start + this.pageSize
       return this.sortedData.slice(start, end)
     },
     totalPages() {
+      if (this.total > 0) {
+        return Math.ceil(this.total / this.pageSize)
+      }
       return Math.ceil(this.filteredData.length / this.pageSize)
+    },
+    totalItems() {
+      return this.total > 0 ? this.total : this.filteredData.length
     }
   },
   methods: {
     handleSearch() {
-      this.currentPage = 1
+      this.internalCurrentPage = 1
       this.$emit('search', this.searchQuery)
     },
     handleSort(key) {
@@ -235,7 +271,7 @@ export default {
       }
     },
     handlePageChange(page) {
-      this.currentPage = page
+      this.internalCurrentPage = page
       this.$emit('page-change', page)
     },
     getStatusClass(status) {
