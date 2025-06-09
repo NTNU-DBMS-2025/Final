@@ -1,85 +1,109 @@
 # 倉儲管理系統 (Warehouse Management System)
-
-A modern warehouse management system built with Vue.js frontend, Flask backend, and MySQL database.
+# 2025 Database Theories (Team 14)
+A complete warehouse management system with Vue.js frontend, Flask backend, and MySQL database integration.
 
 ## Project Overview
 
-This is a complete warehouse management system featuring:
+This is a fully functional warehouse management system featuring:
 
-- **Frontend**: Vue.js 3 with Tailwind CSS
-- **Backend**: Flask API with SQLAlchemy (to be implemented)
-- **Database**: MySQL with provided DDL schema
-- **Authentication**: JWT-based role management
+- **Frontend**: Vue.js 3 with Tailwind CSS for responsive UI
+- **Backend**: Flask REST API with SQLAlchemy ORM 
+- **Database**: MySQL with comprehensive schema and sample data
+- **Authentication**: JWT-based authentication with role management
+- **Integration**: Fully integrated frontend-backend communication
 
 ## Features
 
 - **Role-based Access Control**: Admin, Sales, Warehouse, and Shipping Vendor roles
 - **Product Management**: Complete CRUD operations for products and suppliers
-- **Order Management**: Track and manage customer orders and shipments
-- **Inventory Management**: Real-time inventory tracking and low stock alerts
-- **Responsive Design**: Built with Tailwind CSS for mobile and desktop
-- **Modern UI**: Clean and intuitive user interface
+- **Order Management**: Full order lifecycle management with item tracking
+- **Inventory Management**: Real-time inventory tracking and location management
+- **Customer Management**: Customer profiles and order history tracking
+- **Shipment Management**: Shipping vendor integration and tracking
+- **Scrap Management**: Waste tracking and analytics
+- **User Management**: Role assignment and user administration
+- **Responsive Design**: Mobile-friendly interface with Tailwind CSS
+- **Dashboard Analytics**: Real-time statistics and reporting
 
 ## Prerequisites
 
-Before running this project on another computer, ensure you have:
+Ensure you have the following installed:
 
 - **Node.js** (version 16.0 or higher) - [Download here](https://nodejs.org/)
-- **npm** (comes with Node.js) or **yarn**
+- **Python 3.8+** - [Download here](https://python.org/)
+- **MySQL 8.0+** - [Download here](https://dev.mysql.com/downloads/)
 - **Git** (for cloning the repository)
-- **Python 3.8+** (for backend, when implemented)
-- **MySQL** (for database, when implemented)
 
-## Quick Start - Frontend Only
+## Quick Start
 
-### 1. Transfer the Project
+### 1. Clone and Setup
 
-**Option A: Using Git (Recommended)**
 ```bash
 # Clone the repository
-git clone <your-repository-url>
-cd <project-name>
+git clone git@github.com:NTNU-DBMS-2025/Final.git
+cd Final
 ```
 
-**Option B: Copy Files**
-- Copy the entire project folder to your new computer
-- Open terminal/command prompt and navigate to the project directory
-
-### 2. Install Frontend Dependencies
+### 2. Database Setup
 
 ```bash
-# Navigate to frontend directory
+# Create MySQL database
+mysql -u root -p -e "CREATE DATABASE warehouse_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+```
+
+### 3. Backend Setup
+
+```bash
+# Navigate to backend directory
+cd backend
+
+# Create virtual environment
+python -m venv .venv
+
+# Activate virtual environment
+# On macOS/Linux:
+source .venv/bin/activate
+# On Windows:
+# .venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Create .env file with your database configuration
+cp .env.example .env
+
+# Initialize database with sample data
+python reset_and_init_data.py
+
+# Start the backend server
+python app.py
+```
+
+The backend API will be available at: **http://localhost:5001**
+
+### 4. Frontend Setup
+
+```bash
+# Navigate to frontend directory (in a new terminal)
 cd frontend
 
-# Install all dependencies
+# Install dependencies
 npm install
-```
 
-This will install all the required packages:
-- Vue 3
-- Vue Router 4
-- Vuex 4
-- Axios
-- Tailwind CSS
-- Vite
-
-### 3. Start Development Server
-
-```bash
+# Start development server
 npm run dev
 ```
 
-The application will be available at: **http://localhost:5173**
+The frontend will be available at: **http://localhost:5173**
 
-### 4. Test Login Credentials
+### 5. Test Login Credentials
 
-Use these test accounts to log in:
-
-| Role | Username | Password |
-|------|----------|----------|
-| Admin | admin | admin |
-| Sales | sales | sales |
-| Warehouse | warehouse | warehouse |
+| Role | Username | Password | Access Level |
+|------|----------|----------|--------------|
+| Admin | admin | admin | Full system access |
+| Sales | sales | sales | Orders, customers, products |
+| Warehouse | warehouse | warehouse | Inventory, locations, scrap |
+| Shipping | shipping | shipping | Shipments and logistics |
 
 ## Project Structure
 
@@ -87,134 +111,198 @@ Use these test accounts to log in:
 /
 ├── frontend/              # Vue.js frontend application
 │   ├── src/
-│   │   ├── components/    # Reusable components
-│   │   ├── views/         # Page components
-│   │   ├── router/        # Vue Router configuration
-│   │   ├── store/         # Vuex store
-│   │   ├── api/           # API functions (currently mocked)
+│   │   ├── components/    # Reusable Vue components
+│   │   ├── views/         # Page components (dashboards, forms)
+│   │   ├── api/           # API integration layer
+│   │   ├── store/         # Vuex state management
+│   │   ├── utils/         # Utility functions
+│   │   ├── assets/        # Static assets
+│   │   ├── router.js      # Vue Router configuration
 │   │   └── main.js        # Application entry point
-│   ├── public/            # Static assets
+│   ├── public/            # Static public assets
 │   ├── tailwind.config.js # Tailwind CSS configuration
-│   ├── vite.config.js     # Vite configuration
+│   ├── vite.config.js     # Vite build configuration
 │   └── package.json       # Frontend dependencies
-├── backend/               # Flask backend (to be implemented)
-├── ddl.sql               # Database schema
-└── README.md             # This file
+├── backend/               # Flask backend API
+│   ├── models.py          # SQLAlchemy database models
+│   ├── app.py             # Main Flask application
+│   ├── auth.py            # Authentication endpoints
+│   ├── products.py        # Product management API
+│   ├── suppliers.py       # Supplier management API
+│   ├── customers.py       # Customer management API
+│   ├── orders.py          # Order management API
+│   ├── inventory.py       # Inventory management API
+│   ├── locations.py       # Location management API
+│   ├── shipments.py       # Shipment management API
+│   ├── scrap.py           # Scrap management API
+│   ├── users.py           # User management API
+│   ├── reports.py         # Reporting and analytics API
+│   ├── init_data.py       # Database initialization script
+│   ├── ddl.sql            # Database schema
+│   └── requirements.txt   # Python dependencies
+├── INTEGRATION_SETUP.md   # Detailed setup and API documentation
+└── README.md              # This file
 ```
 
-## Available Scripts (Frontend)
+## API Endpoints
 
+The system provides comprehensive REST API endpoints:
+
+### Core Modules
+| Module | Base Endpoint | Features |
+|--------|---------------|----------|
+| Authentication | `/api/auth/*` | Login, logout, session management |
+| Products | `/api/products/*` | CRUD operations, search, categories |
+| Suppliers | `/api/suppliers/*` | Supplier management and relationships |
+| Customers | `/api/customers/*` | Customer profiles and order history |
+| Orders | `/api/orders/*` | Order lifecycle, items, status updates |
+| Inventory | `/api/inventory/*` | Stock levels, lot tracking, movements |
+| Locations | `/api/locations/*` | Storage locations and zone management |
+| Shipments | `/api/shipments/*` | Shipping vendors and tracking |
+| Scrap | `/api/scrap/*` | Waste management and analytics |
+| Users | `/api/users/*` | User administration and roles |
+| Reports | `/api/reports/*` | Dashboard statistics and analytics |
+
+## Available Scripts
+
+### Frontend
 ```bash
 cd frontend
 
-# Development
-npm run dev          # Start development server with hot reload
+npm run dev          # Start development server
 npm run build        # Build for production
-npm run preview      # Preview production build locally
-npm run serve        # Alternative dev server command
+npm run preview      # Preview production build
 ```
 
-## Development Tips
-
-### Hot Reload
-The development server includes hot reload - changes to your code will automatically update in the browser.
-
-### Browser Developer Tools
-- Install Vue.js devtools browser extension for debugging
-- Use browser's developer tools for inspecting network requests and console logs
-
-### Code Editing
-Recommended VS Code extensions:
-- Volar (Vue Language Features)
-- Tailwind CSS IntelliSense
-- Auto Rename Tag
-- Bracket Pair Colorizer
-
-## Troubleshooting
-
-### Port Already in Use
-If port 5173 is busy, Vite will automatically use the next available port (5174, 5175, etc.)
-
-### Dependencies Issues
+### Backend
 ```bash
-# Clear node_modules and reinstall
-cd frontend
-rm -rf node_modules package-lock.json
-npm install
+cd backend
+
+python app.py                    # Start Flask development server
+python init_data.py             # Initialize database with sample data
+python test_api.py              # Run API tests
+python reset_and_init_data.py   # Reset and reinitialize database
 ```
 
-### Build Issues
+## Development
+
+### Frontend Development
+- Hot reload enabled for rapid development
+- Vue.js DevTools browser extension recommended
+- Tailwind CSS for styling with built-in responsive design
+- Axios for API communication with automatic error handling
+
+### Backend Development
+- Flask development server with auto-reload
+- SQLAlchemy ORM for database operations
+- Comprehensive error handling and logging
+- JWT authentication with role-based access control
+
+### Database Management
+- MySQL with Unicode support
+- Automated migrations and seeding
+- Comprehensive schema with foreign key constraints
+- Sample data for development and testing
+
+## Testing
+
+### Integration Testing
 ```bash
-# Check for syntax errors
+# Run comprehensive integration tests
+python verify_integration.js
+```
+
+### Manual Testing
+1. Start both frontend and backend servers
+2. Login with different role accounts
+3. Test CRUD operations in each module
+4. Verify role-based access restrictions
+5. Check dashboard analytics and reports
+
+## Production Deployment
+
+### Frontend Build
+```bash
 cd frontend
 npm run build
+# Deploy dist/ folder to web server
 ```
 
-## Production Build
+### Backend Deployment
+- Configure production database connection
+- Set secure SECRET_KEY in environment
+- Use production WSGI server (e.g., Gunicorn)
+- Configure reverse proxy (e.g., Nginx)
 
-To build the frontend for production:
+## Implementation Status
 
-```bash
-cd frontend
-npm run build
-```
+### ✅ Completed Features
+- ✅ Complete Vue.js frontend with all UI components
+- ✅ Full Flask backend API with database integration
+- ✅ JWT authentication and role-based access control
+- ✅ All CRUD operations for core entities
+- ✅ Real-time dashboard with analytics
+- ✅ Responsive design for mobile and desktop
+- ✅ Database schema with comprehensive relationships
+- ✅ Sample data initialization
+- ✅ Integration testing and documentation
+- ✅ Error handling and validation
+- ✅ Search and filtering capabilities
+- ✅ Pagination for large datasets
 
-This creates a `dist/` folder with optimized files ready for deployment.
-
-## Backend Setup (Future Implementation)
-
-The backend Flask API and MySQL database will be implemented in future phases:
-
-1. **Flask API**: RESTful endpoints matching the frontend requirements
-2. **SQLAlchemy Models**: Based on the provided DDL schema
-3. **JWT Authentication**: Real authentication replacing mock system
-4. **Database Integration**: MySQL connection with proper migrations
-
-## Current Implementation Status
-
-### ✅ Completed
-- Complete Vue.js frontend with all UI components
-- Role-based navigation and access control
-- CRUD operations with mock data
-- Responsive design with Tailwind CSS
-- Authentication flow (mocked)
-- Product and supplier management
-- Order and inventory management interfaces
-- Dashboard views for all user roles
-
-### ⏳ To Do
-- Flask backend API implementation
-- MySQL database integration
-- Real JWT authentication
-- API endpoint integration
-- Data persistence
-- Production deployment
+### 🔧 Architecture Features
+- RESTful API design with consistent response formats
+- Modular Flask blueprints for maintainability
+- Vue.js composition API with reactive state management
+- SQLAlchemy models with relationships and constraints
+- Comprehensive input validation and sanitization
+- CORS configuration for development and production
 
 ## Database Schema
 
-The project includes a complete DDL schema (`ddl.sql`) with tables for:
-- Users and Roles
-- Products and Suppliers
-- Customers and Orders
-- Inventory and Locations
-- Shipments and Scrap management
+The system includes a complete database schema with tables for:
+
+- **Users and Roles**: Authentication and authorization
+- **Products and Categories**: Product catalog management
+- **Suppliers**: Vendor relationship management
+- **Customers**: Customer relationship management
+- **Orders and Order Items**: Sales order processing
+- **Inventory and Lots**: Stock level tracking
+- **Locations and Zones**: Warehouse organization
+- **Shipments**: Logistics and shipping management
+- **Scrap Records**: Waste and loss tracking
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Database Connection Errors**
+   - Verify MySQL is running
+   - Check database credentials in .env file
+   - Ensure database exists and has proper permissions
+
+2. **CORS Errors**
+   - Verify backend is running on port 5001
+   - Check CORS configuration in app.py
+   - Ensure frontend uses correct API base URL
+
+3. **Authentication Issues**
+   - Clear browser cookies and local storage
+   - Verify JWT secret key configuration
+   - Check user credentials in database
+
+For detailed troubleshooting, refer to `INTEGRATION_SETUP.md`.
 
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## License
-
-This project is part of a database management system course assignment.
+2. Create a feature branch (`git checkout -b feature/new-feature`)
+3. Make your changes and add tests
+4. Commit your changes (`git commit -am 'Add new feature'`)
+5. Push to the branch (`git push origin feature/new-feature`)
+6. Create a Pull Request
 
 ---
 
-For questions or issues, refer to the documentation:
-- [Vue.js Guide](https://vuejs.org/guide/)
-- [Vite Documentation](https://vitejs.dev/guide/)
-- [Tailwind CSS Docs](https://tailwindcss.com/docs)
-- [Flask Documentation](https://flask.palletsprojects.com/) (for future backend work)
+**Note**: This is a fully functional warehouse management system with integrated frontend and backend. Both components are required for the complete application experience.
+Also, all data is mocked.
