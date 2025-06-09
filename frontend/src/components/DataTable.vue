@@ -100,7 +100,11 @@
                   v-for="action in actions"
                   :key="action.name"
                   @click="$emit(action.event, row)"
-                  :class="getActionClass(action.type)"
+                  :disabled="isActionDisabled(action, row)"
+                  :class="[
+                    getActionClass(action.type, isActionDisabled(action, row)),
+                    isActionDisabled(action, row) ? 'cursor-not-allowed opacity-50' : ''
+                  ]"
                   class="px-2 sm:px-3 py-2 rounded transition-colors text-xs sm:text-sm"
                 >
                   {{ action.label }}
@@ -321,16 +325,33 @@ export default {
       }
       return 'text-gray-900'
     },
-    getActionClass(type) {
+    isActionDisabled(action, row) {
+      // Check if edit/cancel actions should be disabled for shipped/delivered orders
+      if ((action.name === 'edit' || action.name === 'cancel') && 
+          (row.status === '已送達' || row.status === '已出貨')) {
+        return true
+      }
+      return false
+    },
+
+    getActionClass(type, disabled = false) {
+      const baseClass = disabled 
+        ? 'bg-gray-300 text-gray-500' 
+        : 'text-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200'
+      
+      if (disabled) {
+        return baseClass
+      }
+      
       switch (type) {
         case 'edit':
-          return 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200'
+          return `bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 ${baseClass}`
         case 'delete':
-          return 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200'
+          return `bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 ${baseClass}`
         case 'view':
-          return 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200'
+          return `bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 ${baseClass}`
         default:
-          return 'bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200'
+          return `bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 ${baseClass}`
       }
     },
     formatDate(dateString) {

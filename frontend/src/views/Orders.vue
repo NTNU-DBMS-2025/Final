@@ -37,8 +37,8 @@
         @sort="handleSort"
         @search="handleSearch"
         @view="viewOrder"
-        @edit="editOrder"
-        @cancel="cancelOrder"
+        @edit="handleEditOrder"
+        @cancel="handleCancelOrder"
         search-placeholder="搜尋訂單編號、客戶名稱..."
       />
     </div>
@@ -561,6 +561,18 @@ export default {
       this.showModal = true
     },
 
+    handleEditOrder(order) {
+      // Check if order can be edited
+      if (order.status === '已送達' || order.status === '已出貨') {
+        this.$store.dispatch('setNotification', {
+          type: 'warning',
+          message: `訂單狀態為「${order.status}」，無法編輯`
+        })
+        return
+      }
+      this.editOrder(order)
+    },
+
     editOrder(order) {
       this.isEditMode = true
       this.editingId = order.id
@@ -584,6 +596,18 @@ export default {
       
       // Load detailed order items
       await this.loadOrderDetails(order.order_id)
+    },
+
+    handleCancelOrder(order) {
+      // Check if order can be canceled
+      if (order.status === '已送達' || order.status === '已出貨') {
+        this.$store.dispatch('setNotification', {
+          type: 'warning',
+          message: `訂單狀態為「${order.status}」，無法取消`
+        })
+        return
+      }
+      this.cancelOrder(order)
     },
 
     cancelOrder(order) {
