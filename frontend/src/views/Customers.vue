@@ -24,10 +24,6 @@
         :data="customers"
         :actions="actions"
         :loading="loading"
-        :total="total"
-        :current-page="currentPage"
-        :page-size="pageSize"
-        @page-change="handlePageChange"
         @sort="handleSort"
         @search="handleSearch"
         @edit="editCustomer"
@@ -321,9 +317,7 @@ export default {
         this.loading = true
         
         const response = await fetchCustomers({
-          page: this.currentPage,
-          per_page: this.pageSize,
-          search: this.searchQuery
+          per_page: 1000 // Load all customers for client-side sorting
         })
         
         if (response.data.success) {
@@ -338,8 +332,6 @@ export default {
             status: this.getStatusText(customer.status),
             created_at: this.formatDate(customer.created_at)
           }))
-          
-          this.total = response.data.pagination.total
         } else {
           throw new Error(response.data.error || 'Failed to load customers')
         }
@@ -355,21 +347,14 @@ export default {
       }
     },
 
-    handlePageChange(page) {
-      this.currentPage = page
-      this.loadCustomers()
-    },
-
     handleSort({ sortBy, sortOrder }) {
-      this.sortBy = sortBy
-      this.sortOrder = sortOrder
-      this.loadCustomers()
+      // Client-side sorting handled by DataTable
+      console.log('Sorting by:', sortBy, sortOrder)
     },
 
     handleSearch(query) {
       this.searchQuery = query
-      this.currentPage = 1
-      this.loadCustomers()
+      // Client-side search handled by DataTable
     },
 
     openAddModal() {

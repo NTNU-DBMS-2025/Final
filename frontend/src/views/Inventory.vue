@@ -99,10 +99,6 @@
         :columns="columns"
         :data="inventory"
         :loading="loading"
-        :total="total"
-        :current-page="currentPage"
-        :page-size="pageSize"
-        @page-change="handlePageChange"
         @sort="handleSort"
         @search="handleSearch"
         search-placeholder="搜尋商品名稱、SKU或位置..."
@@ -423,11 +419,9 @@ export default {
         this.loading = true
         
         const params = {
-          page: this.currentPage,
-          per_page: this.pageSize
+          per_page: 1000 // Load all inventory for client-side sorting
         }
         
-        if (this.searchQuery) params.search = this.searchQuery
         if (this.statusFilter === 'low_stock') params.low_stock = true
         if (this.locationFilter) params.zone = this.locationFilter
         
@@ -464,8 +458,6 @@ export default {
           ]
         }))
         
-        this.total = response.data.pagination.total
-        
       } catch (error) {
         console.error('Error loading inventory:', error)
         this.$store.dispatch('setNotification', {
@@ -495,21 +487,14 @@ export default {
       // This method is now replaced by loadStatistics()
     },
 
-    handlePageChange(page) {
-      this.currentPage = page
-      this.loadInventory()
-    },
-
     handleSort({ sortBy, sortOrder }) {
-      this.sortBy = sortBy
-      this.sortOrder = sortOrder
-      this.loadInventory()
+      // Client-side sorting handled by DataTable
+      console.log('Sorting by:', sortBy, sortOrder)
     },
 
     handleSearch(query) {
       this.searchQuery = query
-      this.currentPage = 1
-      this.loadInventory()
+      // Client-side search handled by DataTable
     },
 
     getStockStatusFromAPI(status) {

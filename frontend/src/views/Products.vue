@@ -15,14 +15,11 @@
       :data="products"
       :actions="actions"
       :loading="loading"
-      :total="total"
-      :current-page="currentPage"
-      :page-size="pageSize"
       @add="openAddModal"
       @edit="openEditModal"
       @delete="handleDelete"
       @search="handleSearch"
-      @page-change="handlePageChange"
+      @sort="handleSort"
     />
 
     <!-- Add/Edit Modal -->
@@ -185,14 +182,12 @@ export default {
     async loadProducts() {
       this.loading = true
       try {
+        // Load all products for client-side sorting and pagination
         const params = {
-          page: this.currentPage,
-          per_page: this.pageSize,
-          search: this.searchQuery
+          per_page: 1000 // Load a large number to get all products
         }
         const response = await fetchProducts(params)
         this.products = response.data.data
-        this.total = response.data.pagination?.total || response.data.data.length
       } catch (error) {
         console.error('Failed to load products:', error)
         this.showNotification({
@@ -206,13 +201,13 @@ export default {
     
     async handleSearch(query) {
       this.searchQuery = query
-      this.currentPage = 1 // Reset to first page when searching
-      await this.loadProducts()
+      // For client-side search, no need to reload data
+      // The DataTable component will handle filtering
     },
     
-    async handlePageChange(page) {
-      this.currentPage = page
-      await this.loadProducts()
+    async handleSort({ sortBy, sortOrder }) {
+      // For client-side sorting, the DataTable component handles it automatically
+      console.log('Sorting by:', sortBy, sortOrder)
     },
     
     openAddModal() {

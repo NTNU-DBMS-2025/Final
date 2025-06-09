@@ -24,10 +24,6 @@
         :data="suppliers"
         :actions="actions"
         :loading="loading"
-        :total="total"
-        :current-page="currentPage"
-        :page-size="pageSize"
-        @page-change="handlePageChange"
         @sort="handleSort"
         @search="handleSearch"
         @edit="editSupplier"
@@ -285,17 +281,10 @@ export default {
       try {
         this.loading = true
         
-        // Real API call to backend
-        const params = {}
-        if (this.searchQuery) {
-          params.search = this.searchQuery
+        // Load all suppliers for client-side sorting
+        const params = {
+          per_page: 1000 // Load all suppliers
         }
-        if (this.sortBy) {
-          params.sort = this.sortBy
-          params.order = this.sortOrder
-        }
-        params.page = this.currentPage
-        params.per_page = this.pageSize
         
         const response = await fetchSuppliers(params)
         
@@ -307,8 +296,6 @@ export default {
             status_display: this.getStatusText(supplier.status),
             created_at_display: this.formatDate(supplier.created_at)
           }))
-          
-          this.total = response.data.pagination?.total || this.suppliers.length
         } else {
           throw new Error(response.data.error || 'Failed to load suppliers')
         }
@@ -324,21 +311,14 @@ export default {
       }
     },
 
-    handlePageChange(page) {
-      this.currentPage = page
-      this.loadSuppliers()
-    },
-
     handleSort({ sortBy, sortOrder }) {
-      this.sortBy = sortBy
-      this.sortOrder = sortOrder
-      this.loadSuppliers()
+      // Client-side sorting handled by DataTable
+      console.log('Sorting by:', sortBy, sortOrder)
     },
 
     handleSearch(query) {
       this.searchQuery = query
-      this.currentPage = 1
-      this.loadSuppliers()
+      // Client-side search handled by DataTable
     },
 
     openAddModal() {

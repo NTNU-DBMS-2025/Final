@@ -33,10 +33,6 @@
         :data="locations"
         :actions="actions"
         :loading="loading"
-        :total="total"
-        :current-page="currentPage"
-        :page-size="pageSize"
-        @page-change="handlePageChange"
         @sort="handleSort"
         @search="handleSearch"
         @edit="editLocation"
@@ -252,12 +248,7 @@ export default {
         this.loading = true
         
         const params = {
-          page: this.currentPage,
-          per_page: this.pageSize
-        }
-        
-        if (this.searchQuery) {
-          params.search = this.searchQuery
+          per_page: 1000 // Load all locations for client-side sorting
         }
         
         console.log('📡 Calling API with params:', params)
@@ -281,7 +272,7 @@ export default {
             return processed
           })
           
-          this.total = response.data.pagination?.total || this.locations.length
+          // Remove total for client-side mode
           console.log(`📊 Loaded ${this.locations.length} locations, total: ${this.total}`)
           
         } else {
@@ -301,21 +292,14 @@ export default {
       }
     },
 
-    handlePageChange(page) {
-      this.currentPage = page
-      this.loadLocations()
-    },
-
     handleSort({ sortBy, sortOrder }) {
-      this.sortBy = sortBy
-      this.sortOrder = sortOrder
-      this.loadLocations()
+      // Client-side sorting handled by DataTable
+      console.log('Sorting by:', sortBy, sortOrder)
     },
 
     handleSearch(query) {
       this.searchQuery = query
-      this.currentPage = 1
-      this.loadLocations()
+      // Client-side search handled by DataTable
     },
 
     openAddModal() {

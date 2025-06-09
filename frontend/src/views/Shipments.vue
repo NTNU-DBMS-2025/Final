@@ -339,9 +339,9 @@ export default {
       return statusMap[status?.toLowerCase()] || status || '未知狀態'
     },
 
-    handleSort(column) {
+    handleSort({ sortBy, sortOrder }) {
       // Handle sorting logic
-      console.log('Sorting by:', column)
+      console.log('Sorting by:', sortBy, sortOrder)
       this.loadShipments()
     },
     viewShipment(shipment) {

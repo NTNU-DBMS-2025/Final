@@ -176,7 +176,7 @@ export default {
       default: 1
     }
   },
-  emits: ['edit', 'delete', 'view', 'add', 'search', 'page-change'],
+  emits: ['edit', 'delete', 'view', 'add', 'search', 'page-change', 'sort'],
   data() {
     return {
       searchQuery: '',
@@ -269,6 +269,12 @@ export default {
         this.sortKey = key
         this.sortOrder = 'asc'
       }
+      
+      // Emit sort event to parent component
+      this.$emit('sort', {
+        sortBy: this.sortKey,
+        sortOrder: this.sortOrder
+      })
     },
     handlePageChange(page) {
       this.internalCurrentPage = page

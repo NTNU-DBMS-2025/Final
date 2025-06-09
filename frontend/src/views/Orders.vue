@@ -23,10 +23,6 @@
         :columns="columns"
         :data="orders"
         :loading="loading"
-        :total="total"
-        :current-page="currentPage"
-        :page-size="pageSize"
-        @page-change="handlePageChange"
         @sort="handleSort"
         @search="handleSearch"
         search-placeholder="搜尋訂單編號、客戶名稱..."
@@ -320,11 +316,7 @@ export default {
         this.loading = true
         
         const response = await ordersAPI.getOrders({
-          page: this.currentPage,
-          per_page: this.pageSize,
-          search: this.searchQuery,
-          sortBy: this.sortBy,
-          sortOrder: this.sortOrder
+          per_page: 1000 // Load all orders for client-side sorting
         })
         
         // Fix: Access the response data correctly
@@ -356,7 +348,7 @@ export default {
           ]
         }))
         
-        this.total = response.data.total || response.total || ordersData.length
+        // Remove total for client-side mode
         
       } catch (error) {
         console.error('Error loading orders:', error)
@@ -369,21 +361,14 @@ export default {
       }
     },
 
-    handlePageChange(page) {
-      this.currentPage = page
-      this.loadOrders()
-    },
-
     handleSort({ sortBy, sortOrder }) {
-      this.sortBy = sortBy
-      this.sortOrder = sortOrder
-      this.loadOrders()
+      // Client-side sorting handled by DataTable
+      console.log('Sorting by:', sortBy, sortOrder)
     },
 
     handleSearch(query) {
       this.searchQuery = query
-      this.currentPage = 1
-      this.loadOrders()
+      // Client-side search handled by DataTable
     },
 
     openAddModal() {

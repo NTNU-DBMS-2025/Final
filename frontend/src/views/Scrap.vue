@@ -382,8 +382,9 @@ export default {
         this.loading = false
       }
     },
-    handleSort(column) {
-      console.log('Sorting by:', column)
+    handleSort({ sortBy, sortOrder }) {
+      console.log('Sorting by:', sortBy, sortOrder)
+      // Handle sorting logic here - for now just log it
     },
     viewScrapItem(item) {
       console.log('Viewing scrap item:', item)
