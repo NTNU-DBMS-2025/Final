@@ -100,10 +100,11 @@ The frontend will be available at: **http://localhost:5173**
 
 | Role | Username | Password | Access Level |
 |------|----------|----------|--------------|
+|Owner | owner | owner | Full system access |
 | Admin | admin | admin | Full system access |
 | Sales | sales | sales | Orders, customers, products |
 | Warehouse | warehouse | warehouse | Inventory, locations, scrap |
-| Shipping | shipping | shipping | Shipments and logistics |
+
 
 ## Project Structure
 
