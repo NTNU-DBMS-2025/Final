@@ -122,12 +122,7 @@
       <div class="bg-white rounded-lg shadow-sm overflow-hidden">
         <DataTable
           :columns="columns"
-          :data="filteredScrapItems"
-          :actions="[
-            { name: 'view', label: '查看', type: 'view', event: 'viewScrapItem' },
-            { name: 'edit', label: '編輯', type: 'edit', event: 'editScrapItem' },
-            { name: 'process', label: '處理', type: 'delete', event: 'processScrapItem' }
-          ]"
+          :data="scrapItemsWithActions"
           :loading="loading"
           @sort="handleSort"
           @viewScrapItem="viewScrapItem"
@@ -426,7 +421,8 @@ export default {
         { key: 'status', label: '狀態', sortable: true },
         { key: 'estimated_value', label: '預估價值', sortable: true },
         { key: 'scrap_date', label: '報廢日期', sortable: true },
-        { key: 'created_by', label: '建立人', sortable: true }
+        { key: 'created_by', label: '建立人', sortable: true },
+        { key: 'actions', label: '操作', sortable: false }
       ]
     }
   },
@@ -456,6 +452,12 @@ export default {
 
       return filtered
     },
+    scrapItemsWithActions() {
+      return this.filteredScrapItems.map(item => ({
+        ...item,
+        actions: this.getActionsForItem(item)
+      }))
+    },
     monthlyScrap() {
       return this.stats.monthly_scrap
     },
@@ -470,6 +472,31 @@ export default {
     }
   },
   methods: {
+    getActionsForItem(item) {
+      const actions = [
+        {
+          label: '查看',
+          action: () => this.viewScrapItem(item),
+          class: 'text-gray-600 hover:text-gray-900'
+        }
+      ]
+
+      // Only show edit and process buttons for pending items
+      if (item.status === '待處理') {
+        actions.push({
+          label: '編輯',
+          action: () => this.editScrapItem(item),
+          class: 'text-blue-600 hover:text-blue-900'
+        })
+        actions.push({
+          label: '處理',
+          action: () => this.processScrapItem(item),
+          class: 'text-red-600 hover:text-red-900'
+        })
+      }
+
+      return actions
+    },
     async loadScrapData() {
       try {
         this.loading = true
