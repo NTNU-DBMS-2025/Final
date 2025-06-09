@@ -25,79 +25,79 @@ const routes = [
         path: '/login',
         name: 'Login',
         component: Login,
-        meta: { requiresAuth: false }
+        meta: { requiresAuth: false, title: '登入' }
     },
     {
         path: '/admin',
         name: 'AdminDashboard',
         component: AdminDashboard,
-        meta: { requiresAuth: true, allowedRoles: ['Admin'] }
+        meta: { requiresAuth: true, allowedRoles: ['Admin'], title: '管理者總覽' }
     },
     {
         path: '/sales',
         name: 'SalesDashboard',
         component: SalesDashboard,
-        meta: { requiresAuth: true, allowedRoles: ['Sales'] }
+        meta: { requiresAuth: true, allowedRoles: ['Sales'], title: '銷售總覽' }
     },
     {
         path: '/warehouse',
         name: 'WarehouseDashboard',
         component: WarehouseDashboard,
-        meta: { requiresAuth: true, allowedRoles: ['Warehouse'] }
+        meta: { requiresAuth: true, allowedRoles: ['Warehouse'], title: '倉庫總覽' }
     },
     {
         path: '/products',
         name: 'Products',
         component: Products,
-        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Warehouse'] }
+        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Warehouse'], title: '產品管理' }
     },
     {
         path: '/suppliers',
         name: 'Suppliers',
         component: Suppliers,
-        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Warehouse'] }
+        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Warehouse'], title: '供應商管理' }
     },
     {
         path: '/customers',
         name: 'Customers',
         component: Customers,
-        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Sales'] }
+        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Sales'], title: '客戶管理' }
     },
     {
         path: '/orders',
         name: 'Orders',
         component: Orders,
-        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Sales'] }
+        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Sales'], title: '訂單管理' }
     },
     {
         path: '/shipments',
         name: 'Shipments',
         component: Shipments,
-        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Sales', 'Shipping_Vendor'] }
+        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Sales', 'Shipping_Vendor'], title: '出貨管理' }
     },
     {
         path: '/inventory',
         name: 'Inventory',
         component: Inventory,
-        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Warehouse'] }
+        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Warehouse'], title: '庫存管理' }
     },
     {
         path: '/locations',
         name: 'Locations',
         component: Locations,
-        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Warehouse'] }
+        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Warehouse'], title: '儲位管理' }
     },
     {
         path: '/scrap',
         name: 'Scrap',
         component: Scrap,
-        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Warehouse'] }
+        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Warehouse'], title: '報廢管理' }
     },
     {
         path: '/reports',
         name: 'Reports',
         component: Reports,
-        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Sales', 'Warehouse'] }
+        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Sales', 'Warehouse'], title: '報表' }
     }
 ]
 
@@ -162,6 +162,16 @@ router.beforeEach(async (to, from, next) => {
     }
 
     next()
+})
+
+// Update document title after each navigation
+router.afterEach((to) => {
+    const baseTitle = '倉儲管理系統'
+    if (to.meta.title) {
+        document.title = `${to.meta.title} - ${baseTitle}`
+    } else {
+        document.title = baseTitle
+    }
 })
 
 export default router 
