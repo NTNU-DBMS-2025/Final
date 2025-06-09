@@ -1,25 +1,26 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Header -->
-    <div class="bg-white shadow-sm border-b">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="flex justify-between items-center">
-          <h1 class="text-2xl font-bold text-gray-900">報廢管理</h1>
-          <button
-            @click="showModal = true"
-            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
-          >
-            <i class="fas fa-plus mr-2"></i>
-            新增報廢
-          </button>
+     <div class="bg-white shadow rounded-lg p-6">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 mb-2">報廢管理</h1>
+          <p class="text-gray-600">顯示所有報廢的物品。</p>
         </div>
+        <button 
+          @click="showModal = true"
+          class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
+        >
+          <span class="mr-2">+</span>
+          + 新增報廢
+        </button>
       </div>
     </div>
 
     <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="space-y-6">
       <!-- Statistics Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6 mt-6">
         <div class="bg-white rounded-lg shadow-sm p-6">
           <div class="flex items-center">
             <div class="p-2 bg-red-100 rounded-lg">

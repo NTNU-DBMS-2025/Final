@@ -78,7 +78,7 @@
                 NT$ {{ Number(row[column.key]).toLocaleString() }}
               </div>
               <div v-else-if="column.key === 'actions'">
-                <div class="flex justify-end space-x-2">
+                <div class="flex justify-center space-x-2">
                   <button
                     v-for="action in row[column.key]"
                     :key="action.label"
@@ -95,7 +95,7 @@
               </div>
             </td>
             <td v-if="actions.length > 0" class="px-3 sm:px-6 py-3 sm:py-4 text-center text-sm font-medium">
-              <div class="flex justify-end space-x-2">
+              <div class="flex justify-center space-x-2">
                 <button
                   v-for="action in actions"
                   :key="action.name"
