@@ -47,8 +47,9 @@ export default {
         items.push({ name: 'reports', label: '報表', to: '/reports' })
       }
 
+      // Account management for admin users
       if (this.isAuthenticated) {
-        items.push({ name: 'AccountManage', label: '帳號管理', to: '/AccountMange' })
+        items.push({ name: 'AccountManage', label: '帳號管理', to: '/AccountManage' })
       }
       
       return items

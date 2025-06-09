@@ -204,17 +204,6 @@ export default {
       }
     },
     
-    async handleSearch(query) {
-      this.searchQuery = query
-      this.currentPage = 1 // Reset to first page when searching
-      await this.loadProducts()
-    },
-    
-    async handlePageChange(page) {
-      this.currentPage = page
-      await this.loadProducts()
-    },
-    
     openAddModal() {
       this.isEditing = false
       this.form = {
@@ -297,7 +286,18 @@ export default {
       } finally {
         this.submitting = false
       }
-    }
+    },
+    
+    async handleSearch(query) {
+      this.searchQuery = query
+      this.currentPage = 1 // Reset to first page when searching
+      await this.loadProducts()
+    },
+    
+    async handlePageChange(page) {
+      this.currentPage = page
+      await this.loadProducts()
+    },
   }
 }
 </script> 
