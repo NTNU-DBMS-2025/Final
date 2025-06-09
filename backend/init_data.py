@@ -1491,6 +1491,576 @@ def init_sample_data():
             print(f"Error creating shipments: {e}")
             db.session.rollback()
 
+        # Create sample inventory movements
+        print("Creating inventory movement history...")
+        try:
+            movement_data = [
+                # Initial stock receiving (inbound movements)
+                {
+                    'product_name': 'Laptop Dell XPS 13',
+                    'location_code': 'A1-01',
+                    'movement_type': 'inbound',
+                    'quantity': 30,
+                    'previous_quantity': 0,
+                    'new_quantity': 30,
+                    'unit_cost': 45000.00,
+                    'reference_type': 'purchase',
+                    'reference_number': 'PO-2024-001',
+                    'reason': '新進貨品',
+                    'notes': '供應商：Tech Supplier Inc.',
+                    'user_account': 'warehouse',
+                    'days_ago': 30
+                },
+                {
+                    'product_name': 'iPhone 15 Pro',
+                    'location_code': 'A1-02',
+                    'movement_type': 'inbound',
+                    'quantity': 60,
+                    'previous_quantity': 0,
+                    'new_quantity': 60,
+                    'unit_cost': 29900.00,
+                    'reference_type': 'purchase',
+                    'reference_number': 'PO-2024-002',
+                    'reason': '新進貨品',
+                    'notes': '供應商：Electronics Wholesale',
+                    'user_account': 'warehouse',
+                    'days_ago': 28
+                },
+                {
+                    'product_name': 'MacBook Pro M3',
+                    'location_code': 'B2-01',
+                    'movement_type': 'inbound',
+                    'quantity': 20,
+                    'previous_quantity': 0,
+                    'new_quantity': 20,
+                    'unit_cost': 65000.00,
+                    'reference_type': 'purchase',
+                    'reference_number': 'PO-2024-003',
+                    'reason': '新進貨品',
+                    'notes': '高價值商品，特別保管',
+                    'user_account': 'warehouse_super',
+                    'days_ago': 25
+                },
+
+                # Sales/Outbound movements
+                {
+                    'product_name': 'Laptop Dell XPS 13',
+                    'location_code': 'A1-01',
+                    'movement_type': 'outbound',
+                    'quantity': -2,
+                    'previous_quantity': 30,
+                    'new_quantity': 28,
+                    'unit_cost': 45000.00,
+                    'reference_type': 'order',
+                    'reference_number': 'ORD202412150001',
+                    'reason': '客戶訂單出貨',
+                    'notes': '客戶：台積電股份有限公司',
+                    'user_account': 'warehouse_staff1',
+                    'days_ago': 5
+                },
+                {
+                    'product_name': 'MacBook Pro M3',
+                    'location_code': 'B2-01',
+                    'movement_type': 'outbound',
+                    'quantity': -1,
+                    'previous_quantity': 20,
+                    'new_quantity': 19,
+                    'unit_cost': 65000.00,
+                    'reference_type': 'order',
+                    'reference_number': 'ORD202412150001',
+                    'reason': '客戶訂單出貨',
+                    'notes': '客戶：台積電股份有限公司',
+                    'user_account': 'warehouse_staff1',
+                    'days_ago': 5
+                },
+                {
+                    'product_name': 'iPhone 15 Pro',
+                    'location_code': 'A1-02',
+                    'movement_type': 'outbound',
+                    'quantity': -3,
+                    'previous_quantity': 60,
+                    'new_quantity': 57,
+                    'unit_cost': 29900.00,
+                    'reference_type': 'order',
+                    'reference_number': 'ORD202412150002',
+                    'reason': '客戶訂單出貨',
+                    'notes': '客戶：鴻海精密工業股份有限公司',
+                    'user_account': 'warehouse_staff2',
+                    'days_ago': 3
+                },
+
+                # Inventory adjustments
+                {
+                    'product_name': 'Laptop Dell XPS 13',
+                    'location_code': 'A1-01',
+                    'movement_type': 'adjustment',
+                    'quantity': -3,
+                    'previous_quantity': 28,
+                    'new_quantity': 25,
+                    'unit_cost': 45000.00,
+                    'reference_type': 'adjustment',
+                    'reference_number': 'ADJ-2024-001',
+                    'reason': '盤點差異調整',
+                    'notes': '定期盤點發現短少，可能為系統錯誤',
+                    'user_account': 'warehouse_super',
+                    'days_ago': 2
+                },
+                {
+                    'product_name': 'iPhone 15 Pro',
+                    'location_code': 'A1-02',
+                    'movement_type': 'adjustment',
+                    'quantity': -7,
+                    'previous_quantity': 57,
+                    'new_quantity': 50,
+                    'unit_cost': 29900.00,
+                    'reference_type': 'adjustment',
+                    'reference_number': 'ADJ-2024-002',
+                    'reason': '品質檢查發現瑕疵',
+                    'notes': '發現包裝破損，移至待處理區',
+                    'user_account': 'warehouse_staff3',
+                    'days_ago': 1
+                },
+
+                # Transfers between locations
+                {
+                    'product_name': 'MacBook Pro M3',
+                    'location_code': 'B2-01',
+                    'movement_type': 'transfer',
+                    'quantity': -4,
+                    'previous_quantity': 19,
+                    'new_quantity': 15,
+                    'unit_cost': 65000.00,
+                    'reference_type': 'transfer',
+                    'reference_number': 'TRF-2024-001',
+                    'from_location_code': 'B2-01',
+                    'to_location_code': 'E5-02',
+                    'reason': '調撥至高價值商品區',
+                    'notes': '提升安全性管理',
+                    'user_account': 'warehouse_super',
+                    'days_ago': 7
+                },
+
+                # Additional realistic movements for other products
+                {
+                    'product_name': 'Wireless Mouse Logitech',
+                    'location_code': 'B2-02',
+                    'movement_type': 'inbound',
+                    'quantity': 120,
+                    'previous_quantity': 0,
+                    'new_quantity': 120,
+                    'unit_cost': 1200.00,
+                    'reference_type': 'purchase',
+                    'reference_number': 'PO-2024-004',
+                    'reason': '補充庫存',
+                    'notes': '熱銷商品補貨',
+                    'user_account': 'warehouse',
+                    'days_ago': 20
+                },
+                {
+                    'product_name': 'Wireless Mouse Logitech',
+                    'location_code': 'B2-02',
+                    'movement_type': 'outbound',
+                    'quantity': -20,
+                    'previous_quantity': 120,
+                    'new_quantity': 100,
+                    'unit_cost': 1200.00,
+                    'reference_type': 'order',
+                    'reference_number': 'ORD202412150002',
+                    'reason': '客戶訂單出貨',
+                    'notes': '配件銷售',
+                    'user_account': 'warehouse_staff1',
+                    'days_ago': 3
+                },
+                {
+                    'product_name': 'Monitor 24 inch LG',
+                    'location_code': 'C3-01',
+                    'movement_type': 'inbound',
+                    'quantity': 35,
+                    'previous_quantity': 0,
+                    'new_quantity': 35,
+                    'unit_cost': 8900.00,
+                    'reference_type': 'purchase',
+                    'reference_number': 'PO-2024-005',
+                    'reason': '新進貨品',
+                    'notes': '辦公室顯示器到貨',
+                    'user_account': 'warehouse',
+                    'days_ago': 15
+                },
+                {
+                    'product_name': 'Monitor 24 inch LG',
+                    'location_code': 'C3-01',
+                    'movement_type': 'outbound',
+                    'quantity': -5,
+                    'previous_quantity': 35,
+                    'new_quantity': 30,
+                    'unit_cost': 8900.00,
+                    'reference_type': 'order',
+                    'reference_number': 'ORD202412150003',
+                    'reason': '客戶訂單出貨',
+                    'notes': '企業採購',
+                    'user_account': 'warehouse_staff2',
+                    'days_ago': 2
+                },
+
+                # Scrap movements
+                {
+                    'product_name': 'Laptop Dell XPS 13',
+                    'location_code': 'A1-01',
+                    'movement_type': 'scrap',
+                    'quantity': -3,
+                    'previous_quantity': 25,
+                    'new_quantity': 22,
+                    'unit_cost': 45000.00,
+                    'reference_type': 'scrap',
+                    'reference_number': 'SCR-2024-001',
+                    'reason': '產品過期報廢',
+                    'notes': '保固期已過，無法銷售',
+                    'user_account': 'warehouse_super',
+                    'days_ago': 10
+                },
+
+                # More recent movements for variety
+                {
+                    'product_name': 'Samsung Galaxy S24',
+                    'location_code': 'F6-01',
+                    'movement_type': 'inbound',
+                    'quantity': 50,
+                    'previous_quantity': 0,
+                    'new_quantity': 50,
+                    'unit_cost': 28000.00,
+                    'reference_type': 'purchase',
+                    'reference_number': 'PO-2024-010',
+                    'reason': '新產品進貨',
+                    'notes': '最新手機型號',
+                    'user_account': 'warehouse',
+                    'days_ago': 12
+                },
+                {
+                    'product_name': 'Samsung Galaxy S24',
+                    'location_code': 'F6-01',
+                    'movement_type': 'outbound',
+                    'quantity': -5,
+                    'previous_quantity': 50,
+                    'new_quantity': 45,
+                    'unit_cost': 28000.00,
+                    'reference_type': 'order',
+                    'reference_number': 'ORD202412150007',
+                    'reason': '客戶訂單出貨',
+                    'notes': 'Acer公司採購',
+                    'user_account': 'warehouse_staff1',
+                    'days_ago': 4
+                },
+
+                # Additional mock movements that match frontend display
+                {
+                    'product_name': 'Laptop Dell XPS 13',
+                    'location_code': 'C3-02',
+                    'movement_type': 'inbound',
+                    'quantity': 5,
+                    'previous_quantity': 20,
+                    'new_quantity': 25,
+                    'unit_cost': 45000.00,
+                    'reference_type': 'purchase',
+                    'reference_number': 'PO-2025-001',
+                    'reason': '新進貨補充',
+                    'notes': '新進貨補充',
+                    'user_account': 'admin',
+                    'days_ago': 1
+                },
+                {
+                    'product_name': 'Laptop Dell XPS 13',
+                    'location_code': 'C3-02',
+                    'movement_type': 'outbound',
+                    'quantity': -3,
+                    'previous_quantity': 25,
+                    'new_quantity': 22,
+                    'unit_cost': 45000.00,
+                    'reference_type': 'order',
+                    'reference_number': 'ORD20250608001',
+                    'reason': '客戶訂單出貨',
+                    'notes': '客戶訂單出貨',
+                    'user_account': 'warehouse_staff1',
+                    'days_ago': 2
+                },
+                {
+                    'product_name': 'Laptop Dell XPS 13',
+                    'location_code': 'C3-02',
+                    'movement_type': 'adjustment',
+                    'quantity': 10,
+                    'previous_quantity': 12,
+                    'new_quantity': 22,
+                    'unit_cost': 45000.00,
+                    'reference_type': 'adjustment',
+                    'reference_number': 'ADJ-2025-003',
+                    'reason': '庫存盤點調整',
+                    'notes': '庫存盤點調整',
+                    'user_account': 'admin',
+                    'days_ago': 3
+                },
+                {
+                    'product_name': 'Laptop Dell XPS 13',
+                    'location_code': 'A1-01',
+                    'movement_type': 'transfer',
+                    'quantity': -5,
+                    'previous_quantity': 17,
+                    'new_quantity': 12,
+                    'unit_cost': 45000.00,
+                    'reference_type': 'transfer',
+                    'reference_number': 'TRF-2025-012',
+                    'from_location_code': 'A1-01',
+                    'to_location_code': 'C3-02',
+                    'reason': '轉移至B區',
+                    'notes': '轉移至B區',
+                    'user_account': 'warehouse_staff2',
+                    'days_ago': 4
+                },
+                {
+                    'product_name': 'Laptop Dell XPS 13',
+                    'location_code': 'A1-01',
+                    'movement_type': 'inbound',
+                    'quantity': 15,
+                    'previous_quantity': 2,
+                    'new_quantity': 17,
+                    'unit_cost': 45000.00,
+                    'reference_type': 'purchase',
+                    'reference_number': 'PO-2025-002',
+                    'reason': '初始庫存建立',
+                    'notes': '初始庫存建立',
+                    'user_account': 'warehouse',
+                    'days_ago': 5
+                },
+
+                # Mock movements for iPhone 15 Pro
+                {
+                    'product_name': 'iPhone 15 Pro',
+                    'location_code': 'A1-02',
+                    'movement_type': 'inbound',
+                    'quantity': 8,
+                    'previous_quantity': 42,
+                    'new_quantity': 50,
+                    'unit_cost': 29900.00,
+                    'reference_type': 'purchase',
+                    'reference_number': 'PO-2025-015',
+                    'reason': '補充熱銷商品',
+                    'notes': '熱銷商品補貨',
+                    'user_account': 'admin',
+                    'days_ago': 1
+                },
+                {
+                    'product_name': 'iPhone 15 Pro',
+                    'location_code': 'A1-02',
+                    'movement_type': 'outbound',
+                    'quantity': -8,
+                    'previous_quantity': 50,
+                    'new_quantity': 42,
+                    'unit_cost': 29900.00,
+                    'reference_type': 'order',
+                    'reference_number': 'ORD20250607001',
+                    'reason': '企業採購出貨',
+                    'notes': '大客戶批量訂單',
+                    'user_account': 'warehouse_staff1',
+                    'days_ago': 2
+                },
+
+                # Mock movements for MacBook Pro M3
+                {
+                    'product_name': 'MacBook Pro M3',
+                    'location_code': 'B2-01',
+                    'movement_type': 'adjustment',
+                    'quantity': 3,
+                    'previous_quantity': 12,
+                    'new_quantity': 15,
+                    'unit_cost': 65000.00,
+                    'reference_type': 'adjustment',
+                    'reference_number': 'ADJ-2025-008',
+                    'reason': '盤點發現增加',
+                    'notes': '重新盤點發現遺漏',
+                    'user_account': 'warehouse_super',
+                    'days_ago': 1
+                },
+                {
+                    'product_name': 'MacBook Pro M3',
+                    'location_code': 'B2-01',
+                    'movement_type': 'outbound',
+                    'quantity': -3,
+                    'previous_quantity': 15,
+                    'new_quantity': 12,
+                    'unit_cost': 65000.00,
+                    'reference_type': 'order',
+                    'reference_number': 'ORD20250605001',
+                    'reason': '高端客戶訂單',
+                    'notes': '企業高端設備採購',
+                    'user_account': 'warehouse_staff2',
+                    'days_ago': 4
+                },
+
+                # Mock movements for Conference Table
+                {
+                    'product_name': 'Conference Table',
+                    'location_code': 'C3-02',
+                    'movement_type': 'inbound',
+                    'quantity': 3,
+                    'previous_quantity': 0,
+                    'new_quantity': 3,
+                    'unit_cost': 25000.00,
+                    'reference_type': 'purchase',
+                    'reference_number': 'PO-2025-020',
+                    'reason': '新進會議桌',
+                    'notes': '大型會議室設備採購',
+                    'user_account': 'warehouse_super',
+                    'days_ago': 15
+                },
+                {
+                    'product_name': 'Conference Table',
+                    'location_code': 'C3-02',
+                    'movement_type': 'outbound',
+                    'quantity': -1,
+                    'previous_quantity': 3,
+                    'new_quantity': 2,
+                    'unit_cost': 25000.00,
+                    'reference_type': 'order',
+                    'reference_number': 'ORD202412150005',
+                    'reason': '客戶會議室設置',
+                    'notes': '企業會議室設備需求',
+                    'user_account': 'warehouse_staff1',
+                    'days_ago': 1
+                },
+                {
+                    'product_name': 'Conference Table',
+                    'location_code': 'C3-02',
+                    'movement_type': 'adjustment',
+                    'quantity': 0,
+                    'previous_quantity': 2,
+                    'new_quantity': 2,
+                    'unit_cost': 25000.00,
+                    'reference_type': 'adjustment',
+                    'reference_number': 'ADJ-2025-015',
+                    'reason': '庫存盤點確認',
+                    'notes': '月度盤點，數量正確',
+                    'user_account': 'warehouse_super',
+                    'days_ago': 3
+                },
+
+                # Mock movements for Executive Desk
+                {
+                    'product_name': 'Executive Desk',
+                    'location_code': 'I9-01',
+                    'movement_type': 'inbound',
+                    'quantity': 6,
+                    'previous_quantity': 0,
+                    'new_quantity': 6,
+                    'unit_cost': 35000.00,
+                    'reference_type': 'purchase',
+                    'reference_number': 'PO-2025-018',
+                    'reason': '主管辦公桌採購',
+                    'notes': '高階主管辦公室設備',
+                    'user_account': 'warehouse',
+                    'days_ago': 20
+                },
+                {
+                    'product_name': 'Executive Desk',
+                    'location_code': 'I9-01',
+                    'movement_type': 'outbound',
+                    'quantity': -2,
+                    'previous_quantity': 6,
+                    'new_quantity': 4,
+                    'unit_cost': 35000.00,
+                    'reference_type': 'order',
+                    'reference_number': 'ORD20250601001',
+                    'reason': '高層辦公室裝修',
+                    'notes': '總經理辦公室更新',
+                    'user_account': 'warehouse_staff2',
+                    'days_ago': 5
+                },
+
+                # Mock movements for Standing Desk
+                {
+                    'product_name': 'Standing Desk',
+                    'location_code': 'D4-02',
+                    'movement_type': 'inbound',
+                    'quantity': 8,
+                    'previous_quantity': 0,
+                    'new_quantity': 8,
+                    'unit_cost': 15000.00,
+                    'reference_type': 'purchase',
+                    'reference_number': 'PO-2025-012',
+                    'reason': '健康辦公設備',
+                    'notes': '員工健康促進計畫',
+                    'user_account': 'warehouse',
+                    'days_ago': 10
+                },
+                {
+                    'product_name': 'Standing Desk',
+                    'location_code': 'D4-02',
+                    'movement_type': 'outbound',
+                    'quantity': -3,
+                    'previous_quantity': 8,
+                    'new_quantity': 5,
+                    'unit_cost': 15000.00,
+                    'reference_type': 'order',
+                    'reference_number': 'ORD202412150005',
+                    'reason': '辦公室升級',
+                    'notes': '現代化辦公環境建置',
+                    'user_account': 'warehouse_staff1',
+                    'days_ago': 1
+                }
+            ]
+
+            for movement_info in movement_data:
+                product = Product.query.filter_by(
+                    name=movement_info['product_name']).first()
+                location = Location.query.filter_by(
+                    location_code=movement_info['location_code']).first()
+                user = User.query.filter_by(
+                    account=movement_info['user_account']).first()
+
+                if product and location and user:
+                    from_location = None
+                    to_location = None
+
+                    # Handle transfer movements
+                    if movement_info['movement_type'] == 'transfer':
+                        if 'from_location_code' in movement_info:
+                            from_location = Location.query.filter_by(
+                                location_code=movement_info['from_location_code']
+                            ).first()
+                        if 'to_location_code' in movement_info:
+                            to_location = Location.query.filter_by(
+                                location_code=movement_info['to_location_code']
+                            ).first()
+
+                    movement_date = datetime.utcnow(
+                    ) - timedelta(days=movement_info['days_ago'])
+                    total_value = abs(
+                        movement_info['quantity']) * movement_info['unit_cost']
+
+                    movement = InventoryMovement(
+                        product_id=product.product_id,
+                        location_id=location.location_id,
+                        movement_type=movement_info['movement_type'],
+                        quantity=movement_info['quantity'],
+                        previous_quantity=movement_info['previous_quantity'],
+                        new_quantity=movement_info['new_quantity'],
+                        unit_cost=movement_info['unit_cost'],
+                        total_value=total_value,
+                        reference_type=movement_info['reference_type'],
+                        reference_number=movement_info['reference_number'],
+                        from_location_id=from_location.location_id if from_location else None,
+                        to_location_id=to_location.location_id if to_location else None,
+                        reason=movement_info['reason'],
+                        notes=movement_info['notes'],
+                        user_id=user.user_id,
+                        movement_date=movement_date
+                    )
+                    db.session.add(movement)
+
+            db.session.commit()
+            print("Inventory movement history created!")
+
+        except Exception as e:
+            print(f"Error creating inventory movements: {e}")
+            db.session.rollback()
+
         print("\n🎉 Enhanced sample data initialized successfully!")
         print("\n📊 Database now contains:")
         print(f"- {User.query.count()} Users")
