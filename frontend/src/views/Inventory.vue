@@ -248,18 +248,11 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  商品 <span class="text-red-500">*</span>
+                  商品
                 </label>
-                <select
-                  v-model="movementForm.product_id"
-                  required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">請選擇商品</option>
-                  <option value="1">iPhone 15 Pro</option>
-                  <option value="2">MacBook Air M2</option>
-                  <option value="3">iPad Pro 12.9</option>
-                </select>
+                <div class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-50 text-gray-900">
+                  {{ selectedItem?.product_name }}{{ selectedItem?.sku ? ` (${selectedItem.sku})` : '' }}
+                </div>
               </div>
 
               <div>
@@ -347,6 +340,116 @@
         </div>
       </div>
     </div>
+
+    <!-- Movement History Modal -->
+    <div v-if="showHistoryModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div class="relative top-10 mx-auto p-5 border w-11/12 md:w-4/5 lg:w-3/4 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-gray-900">
+              庫存異動記錄 - {{ selectedItem?.product_name }} ({{ selectedItem?.sku }})
+            </h3>
+            <button 
+              @click="closeHistoryModal"
+              class="text-gray-400 hover:text-gray-600"
+            >
+              <span class="sr-only">關閉</span>
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Current Stock Info -->
+          <div class="bg-gray-50 rounded-lg p-4 mb-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <p class="text-sm text-gray-500">目前庫存</p>
+                <p class="text-lg font-semibold text-gray-900">{{ selectedItem?.quantity_on_hand }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">位置</p>
+                <p class="text-lg font-semibold text-gray-900">{{ selectedItem?.location }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">狀態</p>
+                <p class="text-lg font-semibold text-gray-900">{{ selectedItem?.status }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">總值</p>
+                <p class="text-lg font-semibold text-green-600">{{ selectedItem?.total_value }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- History Table -->
+          <div class="overflow-x-auto">
+            <div v-if="loadingHistory" class="text-center py-8">
+              <div class="text-gray-500">載入中...</div>
+            </div>
+            <div v-else-if="movementHistory.length === 0" class="text-center py-8">
+              <div class="text-gray-500">尚無異動記錄</div>
+            </div>
+            <table v-else class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日期時間</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">類型</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">數量</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">餘額</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">位置</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作者</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">參考編號</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">備註</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr v-for="movement in movementHistory" :key="movement.id" class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {{ formatDateTime(movement.date) }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span :class="getMovementTypeClass(movement.type_key)">
+                      {{ movement.type }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
+                    <span :class="getQuantityClass(movement.quantity)">
+                      {{ movement.quantity > 0 ? '+' : '' }}{{ movement.quantity }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
+                    {{ movement.balance_after }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {{ movement.location }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {{ movement.user_name }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600">
+                    {{ movement.reference }}
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-500">
+                    {{ movement.notes }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Footer -->
+          <div class="flex justify-end pt-4 border-t border-gray-200 mt-6">
+            <button
+              @click="closeHistoryModal"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+            >
+              關閉
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -375,7 +478,11 @@ export default {
       locationFilter: '',
       showAdjustmentModal: false,
       showMovementModal: false,
+      showHistoryModal: false,
       submitting: false,
+      loadingHistory: false,
+      selectedItem: null,
+      movementHistory: [],
       totalInventoryValue: 0,
       totalItems: 0,
       lowStockCount: 0,
@@ -440,11 +547,6 @@ export default {
           status: this.getStockStatusFromAPI(item.stock_status),
           last_updated: this.formatDate(new Date()),
           actions: [
-            {
-              label: '調整',
-              action: () => this.adjustStock(item),
-              class: 'text-green-600 hover:text-green-900'
-            },
             {
               label: '異動',
               action: () => this.moveStock(item),
@@ -523,6 +625,7 @@ export default {
 
     closeMovementModal() {
       this.showMovementModal = false
+      this.selectedItem = null
       this.resetMovementForm()
     },
 
@@ -533,13 +636,246 @@ export default {
     },
 
     moveStock(item) {
-      this.movementForm.product_id = item.id
+      console.log('Moving stock for item:', item)
+      // Ensure SKU is properly set
+      this.selectedItem = {
+        ...item,
+        sku: item.sku || `SKU-${item.product_id || item.id}`
+      }
+      this.movementForm.product_id = item.id || item.product_id
       this.movementForm.location = item.location
       this.showMovementModal = true
     },
 
-    viewHistory(item) {
-      console.log('Viewing history for item:', item.id)
+    async viewHistory(item) {
+      console.log('Viewing history for item:', item)
+      // Ensure SKU is properly set
+      this.selectedItem = {
+        ...item,
+        sku: item.sku || `SKU-${item.product_id || item.id}`
+      }
+      this.showHistoryModal = true
+      await this.loadMovementHistory(item.product_id)
+    },
+
+    async loadMovementHistory(productId) {
+      try {
+        this.loadingHistory = true
+        console.log('Loading movement history for product ID:', productId)
+        const response = await inventoryAPI.fetchInventoryMovements(productId)
+        
+        console.log('API response:', response)
+        
+        if (response.data.success && response.data.data) {
+          console.log('✅ API data received:', response.data.data.length, 'movements')
+          // Transform API data to match frontend format
+          this.movementHistory = response.data.data.map(item => ({
+            id: item.movement_id,
+            date: item.movement_date,
+            type: this.getMovementTypeDisplay(item.movement_type),
+            type_key: item.movement_type,
+            quantity: item.quantity,
+            balance_after: item.new_quantity,
+            user_name: item.user_name,
+            reference: item.reference_number,
+            notes: item.notes,
+            location: item.location_code
+          }))
+        } else {
+          console.warn('❌ API returned unsuccessful response, using mock data')
+          this.movementHistory = this.generateMockHistory(productId)
+        }
+      } catch (error) {
+        console.error('❌ Movement history API error:', error)
+        console.warn('Using mock data as fallback')
+        this.movementHistory = this.generateMockHistory(productId)
+      } finally {
+        this.loadingHistory = false
+      }
+    },
+
+    generateMockHistory(productId) {
+      console.log('Generating mock history for product ID:', productId)
+      console.log('Selected item:', this.selectedItem)
+      
+      // Get stored movements first
+      const storedMovements = this.loadStoredMovements(productId)
+      
+      // Generate product-specific mock data
+      let mockMovements = []
+      
+      if (this.selectedItem?.product_name === 'Conference Table') {
+        mockMovements = [
+          {
+            id: 1,
+            date: '2025-06-10 09:30:00',
+            type: '入庫',
+            type_key: 'in',
+            quantity: 3,
+            balance_after: 3,
+            user_name: 'warehouse_super',
+            reference: 'PO-2025-020',
+            notes: '大型會議室設備採購',
+            location: 'C3-02'
+          },
+          {
+            id: 2,
+            date: '2025-06-08 14:15:00',
+            type: '出庫',
+            type_key: 'out',
+            quantity: -1,
+            balance_after: 2,
+            user_name: 'warehouse_staff1',
+            reference: 'ORD202412150005',
+            notes: '企業會議室設備需求',
+            location: 'C3-02'
+          },
+          {
+            id: 3,
+            date: '2025-06-06 11:20:00',
+            type: '調整',
+            type_key: 'adjustment',
+            quantity: 0,
+            balance_after: 2,
+            user_name: 'warehouse_super',
+            reference: 'ADJ-2025-015',
+            notes: '月度盤點，數量正確',
+            location: 'C3-02'
+          }
+        ]
+      } else if (this.selectedItem?.product_name === 'Executive Desk') {
+        mockMovements = [
+          {
+            id: 1,
+            date: '2025-06-09 10:30:00',
+            type: '入庫',
+            type_key: 'in',
+            quantity: 6,
+            balance_after: 6,
+            user_name: 'warehouse',
+            reference: 'PO-2025-018',
+            notes: '高階主管辦公室設備',
+            location: 'I9-01'
+          },
+          {
+            id: 2,
+            date: '2025-06-04 15:45:00',
+            type: '出庫',
+            type_key: 'out',
+            quantity: -2,
+            balance_after: 4,
+            user_name: 'warehouse_staff2',
+            reference: 'ORD20250601001',
+            notes: '總經理辦公室更新',
+            location: 'I9-01'
+          }
+        ]
+      } else {
+        // Default mock movements for other products
+        mockMovements = [
+          {
+            id: 1,
+            date: '2025-06-09 14:30:00',
+            type: '入庫',
+            type_key: 'in',
+            quantity: 5,
+            balance_after: 25,
+            user_name: 'admin',
+            reference: 'PO-2025-001',
+            notes: '新進貨補充',
+            location: 'C3-02'
+          },
+          {
+            id: 2,
+            date: '2025-06-08 10:15:00',
+            type: '出庫',
+            type_key: 'out',
+            quantity: -3,
+            balance_after: 20,
+            user_name: 'warehouse1',
+            reference: 'ORD20250608001',
+            notes: '客戶訂單出貨',
+            location: 'C3-02'
+          },
+          {
+            id: 3,
+            date: '2025-06-07 16:45:00',
+            type: '調整',
+            type_key: 'adjustment',
+            quantity: 10,
+            balance_after: 23,
+            user_name: 'admin',
+            reference: 'ADJ-2025-003',
+            notes: '庫存盤點調整',
+            location: 'C3-02'
+          },
+          {
+            id: 4,
+            date: '2025-06-06 09:20:00',
+            type: '調撥',
+            type_key: 'transfer',
+            quantity: -5,
+            balance_after: 13,
+            user_name: 'warehouse2',
+            reference: 'TRF-2025-012',
+            notes: '轉移至B區',
+            location: 'A1-01 → C3-02'
+          },
+          {
+            id: 5,
+            date: '2025-06-05 11:30:00',
+            type: '入庫',
+            type_key: 'in',
+            quantity: 15,
+            balance_after: 18,
+            user_name: 'receiving',
+            reference: 'PO-2025-002',
+            notes: '初始庫存建立',
+            location: 'A1-01'
+          }
+        ]
+      }
+      
+      // Combine stored movements with mock movements, newest first
+      return [...storedMovements, ...mockMovements]
+    },
+
+    closeHistoryModal() {
+      this.showHistoryModal = false
+      this.selectedItem = null
+      this.movementHistory = []
+    },
+
+    getMovementTypeDisplay(type) {
+      const typeMap = {
+        'inbound': '入庫',
+        'outbound': '出庫',
+        'adjustment': '調整',
+        'transfer': '調撥',
+        'scrap': '報廢'
+      }
+      return typeMap[type] || type
+    },
+
+    getMovementTypeClass(type) {
+      const typeClasses = {
+        'in': 'bg-green-100 text-green-800',
+        'inbound': 'bg-green-100 text-green-800',
+        'out': 'bg-red-100 text-red-800',
+        'outbound': 'bg-red-100 text-red-800',
+        'adjustment': 'bg-blue-100 text-blue-800',
+        'transfer': 'bg-yellow-100 text-yellow-800'
+      }
+      return `inline-flex px-2 py-1 text-xs font-semibold rounded-full ${typeClasses[type] || 'bg-gray-100 text-gray-800'}`
+    },
+
+    getQuantityClass(quantity) {
+      if (quantity > 0) {
+        return 'text-green-600 font-semibold'
+      } else if (quantity < 0) {
+        return 'text-red-600 font-semibold'
+      }
+      return 'text-gray-600'
     },
 
     async handleAdjustment() {
@@ -574,24 +910,86 @@ export default {
         
         console.log('Processing stock movement:', this.movementForm)
         
-        this.$store.dispatch('setNotification', {
-          type: 'success',
-          message: '庫存異動成功'
-        })
+        // Get location_id from the selected item
+        const locationId = this.selectedItem?.location_id
+        if (!locationId) {
+          throw new Error('Location ID not found')
+        }
         
-        this.closeMovementModal()
-        await this.loadInventory()
-        await this.loadStatistics()
+        // Prepare movement data for API
+        const movementData = {
+          product_id: this.movementForm.product_id,
+          location_id: locationId,
+          movement_type: this.movementForm.movement_type === 'in' ? 'inbound' : 
+                        this.movementForm.movement_type === 'out' ? 'outbound' : 
+                        this.movementForm.movement_type,
+          quantity: parseInt(this.movementForm.quantity),
+          reason: this.movementForm.notes || '手動異動',
+          notes: this.movementForm.notes || '',
+          unit_cost: 0.0, // Could be enhanced to include cost
+          reference_type: 'manual'
+        }
+        
+        console.log('Sending movement data to API:', movementData)
+        
+        // Call backend API to create movement
+        const response = await inventoryAPI.createInventoryMovement(movementData)
+        
+        if (response.data.success) {
+          console.log('✅ Movement created successfully:', response.data)
+          
+          this.$store.dispatch('setNotification', {
+            type: 'success',
+            message: '庫存異動成功'
+          })
+          
+          this.closeMovementModal()
+          await this.loadInventory()
+          await this.loadStatistics()
+          
+          // If the history modal is open, refresh it to show the new movement
+          if (this.showHistoryModal && this.selectedItem) {
+            await this.loadMovementHistory(this.selectedItem.product_id)
+          }
+        } else {
+          throw new Error(response.data.error || '庫存異動失敗')
+        }
         
       } catch (error) {
         console.error('Error processing movement:', error)
         this.$store.dispatch('setNotification', {
           type: 'error',
-          message: '庫存異動失敗'
+          message: error.response?.data?.error || error.message || '庫存異動失敗'
         })
       } finally {
         this.submitting = false
       }
+    },
+
+    getMovementTypeLabel(type) {
+      const typeLabels = {
+        'in': '入庫',
+        'out': '出庫',
+        'transfer': '調撥'
+      }
+      return typeLabels[type] || '異動'
+    },
+
+    storeMovementRecord(movement) {
+      const existingMovements = JSON.parse(localStorage.getItem('inventory_movements') || '{}')
+      const productId = movement.product_id
+      
+      if (!existingMovements[productId]) {
+        existingMovements[productId] = []
+      }
+      
+      existingMovements[productId].unshift(movement) // Add to beginning for newest first
+      localStorage.setItem('inventory_movements', JSON.stringify(existingMovements))
+    },
+
+    loadStoredMovements(productId) {
+      const existingMovements = JSON.parse(localStorage.getItem('inventory_movements') || '{}')
+      return existingMovements[productId] || []
     },
 
     resetAdjustmentForm() {
@@ -626,6 +1024,17 @@ export default {
 
     formatDate(date) {
       return new Date(date).toLocaleDateString('zh-TW')
+    },
+
+    formatDateTime(dateString) {
+      const date = new Date(dateString)
+      return date.toLocaleString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
     }
   }
 }

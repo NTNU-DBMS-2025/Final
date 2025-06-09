@@ -49,6 +49,24 @@ export function bulkUpdateInventory(updates) {
     return apiClient.post('/inventory/bulk-update', { updates })
 }
 
+export function fetchInventoryMovements(productId, params = {}) {
+    const { page = 1, per_page = 50, start_date, end_date } = params
+
+    const queryParams = new URLSearchParams({
+        page: page.toString(),
+        per_page: per_page.toString()
+    })
+
+    if (start_date) queryParams.append('start_date', start_date)
+    if (end_date) queryParams.append('end_date', end_date)
+
+    return apiClient.get(`/inventory/movements/${productId}?${queryParams}`)
+}
+
+export function createInventoryMovement(data) {
+    return apiClient.post('/inventory/movements', data)
+}
+
 // Locations API
 export function fetchLocations(params = {}) {
     const { page = 1, per_page = 20, zone, search, include_stats } = params
@@ -105,6 +123,8 @@ export const inventoryAPI = {
     updateInventoryLot: updateInventoryLot,
     deleteInventoryLot,
     bulkUpdateInventory,
+    fetchInventoryMovements,
+    createInventoryMovement,
     fetchLocations,
     fetchLocationStats,
     fetchZones,

@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
-from models import db, InventoryLot, Product, Location
+from models import db, InventoryLot, Product, Location, InventoryMovement
 from datetime import datetime, date, timedelta
-from sqlalchemy import func, and_
+from sqlalchemy import func, and_, desc
 from sqlalchemy.exc import IntegrityError
 
 inventory_bp = Blueprint('inventory', __name__, url_prefix='/api/inventory')
@@ -540,4 +540,199 @@ def get_expiring_items():
         return jsonify({
             'success': False,
             'error': f'Failed to fetch expiring items: {str(e)}'
+        }), 500
+
+
+@inventory_bp.route('/movements', methods=['POST'])
+def create_inventory_movement():
+    """Create a new inventory movement record"""
+    try:
+        data = request.get_json()
+
+        # Validate required fields
+        required_fields = ['product_id',
+                           'location_id', 'movement_type', 'quantity']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({
+                    'success': False,
+                    'error': f'Missing required field: {field}'
+                }), 400
+
+        # Validate product and location exist
+        product = Product.query.get(data['product_id'])
+        if not product:
+            return jsonify({
+                'success': False,
+                'error': 'Product not found'
+            }), 404
+
+        location = Location.query.get(data['location_id'])
+        if not location:
+            return jsonify({
+                'success': False,
+                'error': 'Location not found'
+            }), 404
+
+        # Get current inventory lot
+        current_lot = InventoryLot.query.filter(
+            and_(InventoryLot.product_id == data['product_id'],
+                 InventoryLot.location_id == data['location_id'])
+        ).first()
+
+        previous_quantity = current_lot.quantity if current_lot else 0
+        movement_quantity = int(data['quantity'])
+
+        # Calculate new quantity based on movement type
+        if data['movement_type'] in ['outbound', 'out']:
+            # Ensure negative for outbound
+            movement_quantity = -abs(movement_quantity)
+        elif data['movement_type'] in ['inbound', 'in']:
+            # Ensure positive for inbound
+            movement_quantity = abs(movement_quantity)
+        # For adjustment, use the quantity as-is
+
+        new_quantity = previous_quantity + movement_quantity
+
+        # Validate new quantity
+        if new_quantity < 0:
+            return jsonify({
+                'success': False,
+                'error': 'Insufficient inventory for this movement'
+            }), 400
+
+        # Create movement record
+        movement = InventoryMovement(
+            product_id=data['product_id'],
+            location_id=data['location_id'],
+            movement_type=data['movement_type'],
+            quantity=movement_quantity,
+            previous_quantity=previous_quantity,
+            new_quantity=new_quantity,
+            unit_cost=data.get('unit_cost', 0.0),
+            total_value=abs(movement_quantity) * data.get('unit_cost', 0.0),
+            reference_type=data.get('reference_type', 'manual'),
+            reference_number=data.get(
+                'reference_number', f'MAN-{datetime.now().strftime("%Y%m%d%H%M%S")}'),
+            reason=data.get('reason', '手動異動'),
+            notes=data.get('notes', ''),
+            user_id=1,  # TODO: Get from authentication
+            movement_date=datetime.utcnow()
+        )
+
+        db.session.add(movement)
+
+        # Update or create inventory lot
+        if current_lot:
+            current_lot.quantity = new_quantity
+        else:
+            # Create new lot if doesn't exist
+            new_lot = InventoryLot(
+                product_id=data['product_id'],
+                location_id=data['location_id'],
+                quantity=new_quantity,
+                expiry_date=None
+            )
+            db.session.add(new_lot)
+
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'data': movement.to_dict(),
+            'message': '庫存異動記錄已建立'
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': f'Failed to create movement: {str(e)}'
+        }), 500
+
+
+@inventory_bp.route('/movements/<int:product_id>', methods=['GET'])
+def get_inventory_movements(product_id):
+    """Get movement history for a specific product"""
+    try:
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 50, type=int)
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        location_id = request.args.get('location_id', type=int)
+
+        # Validate product exists
+        product = Product.query.get(product_id)
+        if not product:
+            return jsonify({
+                'success': False,
+                'error': 'Product not found'
+            }), 404
+
+        # Build query
+        query = InventoryMovement.query.filter(
+            InventoryMovement.product_id == product_id
+        )
+
+        # Apply filters
+        if start_date:
+            try:
+                start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+                query = query.filter(
+                    InventoryMovement.movement_date >= start_dt)
+            except ValueError:
+                return jsonify({
+                    'success': False,
+                    'error': 'Invalid start_date format. Use YYYY-MM-DD'
+                }), 400
+
+        if end_date:
+            try:
+                end_dt = datetime.strptime(
+                    end_date, '%Y-%m-%d') + timedelta(days=1)
+                query = query.filter(InventoryMovement.movement_date < end_dt)
+            except ValueError:
+                return jsonify({
+                    'success': False,
+                    'error': 'Invalid end_date format. Use YYYY-MM-DD'
+                }), 400
+
+        if location_id:
+            query = query.filter(InventoryMovement.location_id == location_id)
+
+        # Order by movement date (newest first)
+        query = query.order_by(desc(InventoryMovement.movement_date))
+
+        # Paginate
+        pagination = query.paginate(
+            page=page, per_page=per_page, error_out=False
+        )
+
+        movements = []
+        for movement in pagination.items:
+            movement_dict = movement.to_dict()
+            movements.append(movement_dict)
+
+        return jsonify({
+            'success': True,
+            'data': movements,
+            'pagination': {
+                'page': pagination.page,
+                'pages': pagination.pages,
+                'per_page': pagination.per_page,
+                'total': pagination.total,
+                'has_next': pagination.has_next,
+                'has_prev': pagination.has_prev
+            },
+            'product': {
+                'product_id': product.product_id,
+                'name': product.name,
+                'category': product.category
+            }
+        })
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Failed to fetch inventory movements: {str(e)}'
         }), 500

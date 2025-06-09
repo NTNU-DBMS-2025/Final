@@ -340,6 +340,79 @@ class InventoryLot(db.Model):
     location = db.relationship('Location', back_populates='inventory_lots')
 
 
+class InventoryMovement(db.Model):
+    __tablename__ = 'Inventory_Movement'
+
+    movement_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    product_id = db.Column(db.Integer, db.ForeignKey(
+        'Product.product_id'), nullable=False)
+    location_id = db.Column(db.Integer, db.ForeignKey(
+        'Location.location_id'), nullable=False)
+    # 'inbound', 'outbound', 'adjustment', 'transfer', 'scrap'
+    movement_type = db.Column(db.String(50), nullable=False)
+    # Positive for inbound, negative for outbound
+    quantity = db.Column(db.Integer, nullable=False)
+    previous_quantity = db.Column(db.Integer, nullable=False, default=0)
+    new_quantity = db.Column(db.Integer, nullable=False, default=0)
+    unit_cost = db.Column(db.Numeric(10, 2), default=0.00)
+    total_value = db.Column(db.Numeric(12, 2), default=0.00)
+    # 'order', 'purchase', 'adjustment', 'transfer'
+    reference_type = db.Column(db.String(50))
+    # Reference to order_id, purchase_id, etc.
+    reference_id = db.Column(db.Integer)
+    # Order number, PO number, etc.
+    reference_number = db.Column(db.String(100))
+    from_location_id = db.Column(db.Integer, db.ForeignKey(
+        'Location.location_id'))  # For transfers
+    to_location_id = db.Column(db.Integer, db.ForeignKey(
+        'Location.location_id'))  # For transfers
+    reason = db.Column(db.String(255))
+    notes = db.Column(db.Text)
+    user_id = db.Column(db.Integer, db.ForeignKey('User.user_id'))
+    movement_date = db.Column(
+        db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationships
+    product = db.relationship('Product', foreign_keys=[product_id])
+    location = db.relationship('Location', foreign_keys=[location_id])
+    from_location = db.relationship(
+        'Location', foreign_keys=[from_location_id])
+    to_location = db.relationship('Location', foreign_keys=[to_location_id])
+    user = db.relationship('User', foreign_keys=[user_id])
+
+    def to_dict(self):
+        """Convert InventoryMovement object to dictionary"""
+        return {
+            'movement_id': self.movement_id,
+            'product_id': self.product_id,
+            'product_name': self.product.name if self.product else None,
+            'product_category': self.product.category if self.product else None,
+            'location_id': self.location_id,
+            'location_code': self.location.location_code if self.location else None,
+            'location_name': self.location.location_name if self.location else None,
+            'movement_type': self.movement_type,
+            'quantity': self.quantity,
+            'previous_quantity': self.previous_quantity,
+            'new_quantity': self.new_quantity,
+            'unit_cost': float(self.unit_cost) if self.unit_cost else 0.0,
+            'total_value': float(self.total_value) if self.total_value else 0.0,
+            'reference_type': self.reference_type,
+            'reference_id': self.reference_id,
+            'reference_number': self.reference_number,
+            'from_location_id': self.from_location_id,
+            'from_location_code': self.from_location.location_code if self.from_location else None,
+            'to_location_id': self.to_location_id,
+            'to_location_code': self.to_location.location_code if self.to_location else None,
+            'reason': self.reason,
+            'notes': self.notes,
+            'user_id': self.user_id,
+            'user_name': self.user.account if self.user else None,
+            'movement_date': self.movement_date.isoformat() if self.movement_date else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
+
 class Scrap(db.Model):
     __tablename__ = 'Scrap'
 
