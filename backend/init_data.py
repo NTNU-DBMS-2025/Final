@@ -1491,8 +1491,8 @@ def init_sample_data():
             print(f"Error creating shipments: {e}")
             db.session.rollback()
 
-        print("\n🎉 Enhanced sample data initialized successfully!")
-        print("\n📊 Database now contains:")
+        print("\n Enhanced sample data initialized successfully!")
+        print("\n Database now contains:")
         print(f"- {User.query.count()} Users")
         print(f"- {Role.query.count()} Roles")
         print(f"- {Product.query.count()} Products")
@@ -1512,12 +1512,12 @@ def init_sample_data():
             print("- Orders: N/A")
             print("- Shipping vendors: N/A")
 
-        print("\n🔑 Demo accounts:")
+        print("\n Demo accounts:")
         print("Admin: admin/admin, admin2/admin123")
         print("Sales: sales/sales, sales_manager/sales123, sales_rep1/sales123, sales_rep2/sales123")
         print("Warehouse: warehouse/warehouse, warehouse_super/warehouse123, warehouse_staff1/warehouse123, etc.")
 
-        print("\n📈 Enhanced features added:")
+        print("\n Enhanced features added:")
         print("- 11 total users across different roles")
         print("- 28 products in Electronics, Furniture, and Office Supplies")
         print("- 12 suppliers with various types and statuses")
