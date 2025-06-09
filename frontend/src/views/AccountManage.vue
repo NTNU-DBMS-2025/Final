@@ -33,16 +33,20 @@
         </h3>
         
         <form @submit.prevent="handleSubmit" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700">帳號名稱</label>
-            <input
-              v-model="form.account"
-              type="text"
-              required
-              class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder="請輸入帳號名稱"
-            />
-          </div>
+                      <div>
+              <label class="block text-sm font-medium text-gray-700">帳號名稱</label>
+              <input
+                v-model="form.account"
+                type="text"
+                required
+                :disabled="isEditing"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                placeholder="請輸入帳號名稱"
+              />
+              <p v-if="isEditing" class="mt-1 text-xs text-gray-500">
+                帳號名稱無法修改
+              </p>
+            </div>
           
           <div v-if="!isEditing">
             <label class="block text-sm font-medium text-gray-700">密碼</label>
@@ -57,22 +61,18 @@
           
           <div v-if="isEditing">
             <div class="flex items-center justify-between">
-              <label class="block text-sm font-medium text-gray-700">密碼</label>
+              <label class="block text-sm font-medium text-gray-700">密碼重置</label>
               <button
                 type="button"
-                @click="showPasswordField = !showPasswordField"
-                class="text-sm text-blue-600 hover:text-blue-800"
+                @click="resetPassword"
+                class="px-3 py-1 text-sm bg-yellow-500 text-white rounded hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500"
               >
-                {{ showPasswordField ? '取消修改密碼' : '修改密碼' }}
+                重置密碼
               </button>
             </div>
-            <input
-              v-if="showPasswordField"
-              v-model="form.password"
-              type="password"
-              class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder="請輸入新密碼 (至少6位)"
-            />
+            <p class="mt-1 text-xs text-gray-500">
+              點擊重置密碼將會把密碼重置為帳號名稱
+            </p>
           </div>
           
                       <div>
@@ -152,7 +152,8 @@ import {
   createUser,
   updateUser,
   deleteUser,
-  fetchRoles
+  fetchRoles,
+  resetPassword as resetUserPassword
 } from '../api/users'
 
 export default {
@@ -171,7 +172,7 @@ export default {
       searchQuery: '',
       showModal: false,
       showDeleteModal: false,
-      showPasswordField: false,
+
       isEditing: false,
       submitting: false,
       deleteTarget: null,
@@ -262,7 +263,6 @@ export default {
 
     openAddModal() {
       this.isEditing = false
-      this.showPasswordField = false
       this.form = {
         account: '',
         password: '',
@@ -291,7 +291,6 @@ export default {
       }
 
       this.isEditing = true
-      this.showPasswordField = false
       this.form = {
         user_id: user.user_id,
         account: user.account,
@@ -303,7 +302,6 @@ export default {
 
     closeModal() {
       this.showModal = false
-      this.showPasswordField = false
       this.form = {
         account: '',
         password: '',
@@ -311,12 +309,39 @@ export default {
       }
     },
 
+    async resetPassword() {
+      if (!this.form.user_id) return
+
+      try {
+        this.submitting = true
+        // Call reset password API
+        await resetUserPassword(this.form.user_id)
+        this.showNotification({
+          type: 'success',
+          message: '密碼重置成功'
+        })
+      } catch (error) {
+        console.error('Reset password failed:', error)
+        const errorMessage = error.response?.data?.error || error.message || '重置失敗'
+        this.showNotification({
+          type: 'error',
+          message: `密碼重置失敗: ${errorMessage}`
+        })
+      } finally {
+        this.submitting = false
+      }
+    },
+
     async handleSubmit() {
       this.submitting = true
       try {
         const payload = {
-          account: this.form.account,
           role_id: parseInt(this.form.role_id)
+        }
+
+        // Only include account name for new users
+        if (!this.isEditing) {
+          payload.account = this.form.account
         }
 
         if (this.isEditing) {
@@ -339,10 +364,7 @@ export default {
             return
           }
 
-          // Only add password if we're in edit mode and password field is shown and password is provided
-          if (this.showPasswordField && this.form.password && this.form.password.trim()) {
-            payload.password = this.form.password
-          }
+          // No password field in edit mode - use reset password instead
           await updateUser(this.form.user_id, payload)
           this.showNotification({
             type: 'success',

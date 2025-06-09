@@ -272,21 +272,7 @@ def update_user(user_id):
                     'error': 'Admin cannot modify other Admin accounts'
                 }), 403
 
-        # Update account name
-        if 'account' in data:
-            # Check if new account name already exists
-            existing_user = User.query.filter(
-                User.account == data['account'],
-                User.user_id != user_id
-            ).first()
-
-            if existing_user:
-                return jsonify({
-                    'success': False,
-                    'error': 'Account name already exists'
-                }), 400
-
-            user.account = data['account'].strip()
+        # Account name cannot be modified - removed for security
 
         # Update password
         if 'password' in data and data['password']:
@@ -696,7 +682,58 @@ def get_user_stats():
             'error': f'Failed to fetch user statistics: {str(e)}'
         }), 500
 
-# Password change endpoint
+# Password management endpoints
+
+
+@users_bp.route('/<int:user_id>/reset-password', methods=['PUT'])
+def reset_password(user_id):
+    """Reset user password to account name"""
+    try:
+        # Get current user from token
+        current_user = get_current_user()
+        if not current_user:
+            return jsonify({
+                'success': False,
+                'error': 'Authentication required'
+            }), 401
+
+        user = User.query.get_or_404(user_id)
+
+        # Check authorization for password reset
+        user_primary_role = Role.query.get(user.role_id)
+        current_user_primary_role = Role.query.get(current_user.role_id)
+
+        # Only Owner can reset Owner accounts
+        if user_primary_role and user_primary_role.role_name == 'Owner':
+            if not current_user_primary_role or current_user_primary_role.role_name != 'Owner':
+                return jsonify({
+                    'success': False,
+                    'error': 'Only Owner can reset Owner passwords'
+                }), 403
+
+        # Admin cannot reset other Admin accounts
+        if user_primary_role and user_primary_role.role_name == 'Admin':
+            if current_user_primary_role and current_user_primary_role.role_name == 'Admin' and user.user_id != current_user.user_id:
+                return jsonify({
+                    'success': False,
+                    'error': 'Admin cannot reset other Admin passwords'
+                }), 403
+
+        # Reset password to account name
+        user.pwd_hash = generate_password_hash(user.account)
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': 'Password reset successfully'
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': f'Failed to reset password: {str(e)}'
+        }), 500
 
 
 @users_bp.route('/<int:user_id>/change-password', methods=['PUT'])

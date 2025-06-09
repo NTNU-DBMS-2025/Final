@@ -39,6 +39,10 @@ export function changePassword(userId, passwordData) {
     return apiClient.patch(`/users/${userId}/password`, passwordData)
 }
 
+export function resetPassword(userId) {
+    return apiClient.put(`/users/${userId}/reset-password`)
+}
+
 // User Roles API
 export function getUserRoles(userId) {
     return apiClient.get(`/users/${userId}/roles`)
@@ -91,6 +95,7 @@ export const usersAPI = {
     updateUser,
     deleteUser,
     changePassword,
+    resetPassword,
     getUserRoles,
     assignRole,
     removeRole,
