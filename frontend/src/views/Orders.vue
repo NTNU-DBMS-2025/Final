@@ -441,7 +441,6 @@ export default {
         { key: 'total_amount', label: '總金額', sortable: true },
         { key: 'status', label: '狀態', sortable: true },
         { key: 'priority', label: '優先級', sortable: true },
-        { key: 'actions', label: '操作', sortable: false }
       ],
       actions: [
         {
