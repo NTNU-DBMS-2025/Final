@@ -34,6 +34,7 @@ def get_products():
                 'name': product.name,
                 'category': product.category,
                 'warranty_years': product.warranty_years,
+                'price': float(product.price) if product.price else 0.0,
                 'image_url': product.image_url,
                 'suppliers': [{'supplier_id': s.supplier_id, 'supplier_name': s.supplier_name}
                             for s in product.suppliers]
@@ -67,6 +68,7 @@ def get_product(product_id):
                 'name': product.name,
                 'category': product.category,
                 'warranty_years': product.warranty_years,
+                'price': float(product.price) if product.price else 0.0,
                 'image_url': product.image_url,
                 'suppliers': [{'supplier_id': s.supplier_id, 'supplier_name': s.supplier_name}
                               for s in product.suppliers]
@@ -84,7 +86,7 @@ def create_product():
         data = request.get_json()
 
         # Validate required fields
-        required_fields = ['name', 'category', 'warranty_years']
+        required_fields = ['name', 'category', 'warranty_years', 'price']
         for field in required_fields:
             if field not in data:
                 return jsonify({'success': False, 'error': f'{field} is required'}), 400
@@ -93,6 +95,7 @@ def create_product():
             name=data['name'],
             category=data['category'],
             warranty_years=data['warranty_years'],
+            price=data['price'],
             image_url=data.get('image_url')
         )
 
@@ -114,6 +117,7 @@ def create_product():
                 'name': product.name,
                 'category': product.category,
                 'warranty_years': product.warranty_years,
+                'price': float(product.price) if product.price else 0.0,
                 'image_url': product.image_url
             }
         }), 201
@@ -137,6 +141,8 @@ def update_product(product_id):
             product.category = data['category']
         if 'warranty_years' in data:
             product.warranty_years = data['warranty_years']
+        if 'price' in data:
+            product.price = data['price']
         if 'image_url' in data:
             product.image_url = data['image_url']
 
@@ -159,6 +165,7 @@ def update_product(product_id):
                 'name': product.name,
                 'category': product.category,
                 'warranty_years': product.warranty_years,
+                'price': float(product.price) if product.price else 0.0,
                 'image_url': product.image_url,
                 'suppliers': [{'supplier_id': s.supplier_id, 'supplier_name': s.supplier_name}
                               for s in product.suppliers]

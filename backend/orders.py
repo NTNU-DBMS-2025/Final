@@ -201,7 +201,6 @@ def create_order():
         # Generate order number if not provided
         order_number = data.get('order_number')
         if not order_number:
-            from datetime import datetime
             timestamp = datetime.now().strftime("%Y%m%d%H%M")
             order_number = f"ORD{timestamp}"
 
@@ -211,13 +210,31 @@ def create_order():
             for item_data in data['order_items']
         )
 
+        # Parse order_date and expected_delivery_date
+        order_date = datetime.utcnow()
+        if 'order_date' in data and data['order_date']:
+            try:
+                order_date = datetime.fromisoformat(
+                    data['order_date'].replace('Z', '+00:00'))
+            except (ValueError, TypeError):
+                # If parsing fails, use current time
+                order_date = datetime.utcnow()
+
+        expected_delivery_date = None
+        if 'expected_delivery_date' in data and data['expected_delivery_date']:
+            try:
+                expected_delivery_date = datetime.fromisoformat(
+                    data['expected_delivery_date'].replace('Z', '+00:00'))
+            except (ValueError, TypeError):
+                expected_delivery_date = None
+
         # Create order with new fields
         order = Order(
             order_number=order_number,
             customer_id=data['customer_id'],
             user_id=data['user_id'],
-            order_date=datetime.utcnow(),
-            expected_delivery_date=data.get('expected_delivery_date'),
+            order_date=order_date,
+            expected_delivery_date=expected_delivery_date,
             status=data.get('status', 'pending'),
             priority=data.get('priority', 'normal'),
             ship_to=data['ship_to'],

@@ -162,7 +162,7 @@
             <!-- Order Items -->
             <div class="border-t pt-4">
               <div class="flex justify-between items-center mb-3">
-                <h4 class="text-md font-medium text-gray-900">訂單項目</h4>
+                <h4 class="text-md font-medium text-gray-900">訂單項目 ({{ products.length }} products available)</h4>
                 <button
                   type="button"
                   @click="addOrderItem"
@@ -181,6 +181,7 @@
                   <div>
                     <select
                       v-model="item.product_id"
+                      @change="onProductChange(item)"
                       class="w-full border border-gray-300 rounded px-2 py-1 text-gray-900 placeholder-gray-500 text-sm"
                       required
                     >
@@ -206,12 +207,13 @@
                       type="number"
                       step="0.01"
                       placeholder="單價"
-                      class="w-full border border-gray-300 rounded px-2 py-1 text-gray-900 placeholder-gray-500 text-sm"
+                      class="w-full border border-gray-300 rounded px-2 py-1 text-gray-800 placeholder-gray-500 text-sm bg-gray-50"
+                      readonly
                       required
                     />
                   </div>
                   <div class="flex items-center">
-                    <span class="text-sm font-medium">
+                    <span class="text-sm font-medium text-gray-800">
                       ${{ (item.quantity * item.unit_price).toFixed(2) }}
                     </span>
                   </div>
@@ -228,7 +230,7 @@
               </div>
 
               <div class="mt-3 text-right">
-                <span class="text-lg font-semibold">
+                <span class="text-lg font-semibold text-gray-900">
                   總金額: ${{ calculateTotal().toFixed(2) }}
                 </span>
               </div>
@@ -411,10 +413,20 @@ export default {
       try {
         this.submitting = true
 
+        // Get current user from store
+        const currentUser = this.$store.state.user
+        if (!currentUser) {
+          this.$store.dispatch('setNotification', {
+            type: 'error',
+            message: '用戶未登入，請重新登入'
+          })
+          return
+        }
+
         const orderData = {
           order_number: this.form.order_number,
           customer_id: parseInt(this.form.customer_id),
-          user_id: 1, // Default to first user, should be current logged in user
+          user_id: currentUser.user_id,
           order_date: this.form.order_date,
           expected_delivery_date: this.form.expected_delivery_date || null,
           status: this.form.status,
@@ -471,15 +483,20 @@ export default {
     async loadProducts() {
       try {
         const { fetchProducts } = await import('../api/products')
-        const response = await fetchProducts()
+        // Request more products for order creation - get all available products
+        const response = await fetchProducts({ per_page: 1000 })
+        console.log('Products API response:', response.data)
         if (response.data.success) {
           this.products = response.data.data
+          console.log('Products loaded:', this.products)
         } else {
           // Handle cases where response doesn't have success flag
           this.products = response.data || []
+          console.log('Products loaded (fallback):', this.products)
         }
       } catch (error) {
         console.error('Error loading products:', error)
+        this.products = []
       }
     },
 
@@ -511,6 +528,16 @@ export default {
       this.form.order_number = `ORD${year}${month}${day}${time}`
     },
 
+    onProductChange(item) {
+      if (item.product_id) {
+        const selectedProduct = this.products.find(product => product.product_id == item.product_id)
+        if (selectedProduct && selectedProduct.price) {
+          item.unit_price = selectedProduct.price
+        }
+      } else {
+        item.unit_price = 0
+      }
+    },
     addOrderItem() {
       this.form.order_items.push({
         product_id: '',

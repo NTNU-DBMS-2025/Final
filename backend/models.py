@@ -27,6 +27,7 @@ class Product(db.Model):
     name = db.Column(db.String(100), nullable=False)
     category = db.Column(db.String(50), nullable=False)
     warranty_years = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Numeric(10, 2), nullable=False, default=0.00)
     image_url = db.Column(db.String(255))
     reorder_point = db.Column(db.Integer, nullable=False, default=10)
 

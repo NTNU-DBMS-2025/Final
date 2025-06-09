@@ -197,162 +197,189 @@ def init_sample_data():
                 'name': 'Laptop Dell XPS 13',
                 'category': 'Electronics',
                 'warranty_years': 3,
+                'price': 45000.00,
                 'image_url': 'https://example.com/dell-xps13.jpg'
             },
             {
                 'name': 'Office Chair Ergonomic',
                 'category': 'Furniture',
                 'warranty_years': 2,
+                'price': 8500.00,
                 'image_url': 'https://example.com/office-chair.jpg'
             },
             {
                 'name': 'Wireless Mouse Logitech',
                 'category': 'Electronics',
                 'warranty_years': 1,
+                'price': 1200.00,
                 'image_url': 'https://example.com/mouse.jpg'
             },
             {
                 'name': 'Monitor 24 inch LG',
                 'category': 'Electronics',
                 'warranty_years': 2,
+                'price': 8900.00,
                 'image_url': 'https://example.com/monitor.jpg'
             },
             {
                 'name': 'iPhone 15 Pro',
                 'category': 'Electronics',
                 'warranty_years': 1,
+                'price': 29900.00,
                 'image_url': 'https://example.com/iphone15.jpg'
             },
             {
                 'name': 'MacBook Pro M3',
                 'category': 'Electronics',
                 'warranty_years': 3,
+                'price': 65000.00,
                 'image_url': 'https://example.com/macbook.jpg'
             },
             {
                 'name': 'Standing Desk',
                 'category': 'Furniture',
                 'warranty_years': 5,
+                'price': 15000.00,
                 'image_url': 'https://example.com/standing-desk.jpg'
             },
             {
                 'name': 'Wireless Keyboard',
                 'category': 'Electronics',
                 'warranty_years': 2,
+                'price': 2500.00,
                 'image_url': 'https://example.com/keyboard.jpg'
             },
             {
                 'name': 'Conference Table',
                 'category': 'Furniture',
                 'warranty_years': 10,
+                'price': 25000.00,
                 'image_url': 'https://example.com/conference-table.jpg'
             },
             {
                 'name': 'Printer HP LaserJet',
                 'category': 'Electronics',
                 'warranty_years': 2,
+                'price': 12000.00,
                 'image_url': 'https://example.com/printer.jpg'
             },
             {
                 'name': 'Gaming Chair',
                 'category': 'Furniture',
                 'warranty_years': 3,
+                'price': 18000.00,
                 'image_url': 'https://example.com/gaming-chair.jpg'
             },
             {
                 'name': 'Tablet iPad Air',
                 'category': 'Electronics',
                 'warranty_years': 1,
+                'price': 22000.00,
                 'image_url': 'https://example.com/ipad.jpg'
             },
             {
                 'name': 'Samsung Galaxy S24',
                 'category': 'Electronics',
                 'warranty_years': 2,
+                'price': 28000.00,
                 'image_url': 'https://example.com/galaxy-s24.jpg'
             },
             {
                 'name': 'Dell OptiPlex Desktop',
                 'category': 'Electronics',
                 'warranty_years': 3,
+                'price': 32000.00,
                 'image_url': 'https://example.com/dell-desktop.jpg'
             },
             {
                 'name': 'ASUS Gaming Monitor 27"',
                 'category': 'Electronics',
                 'warranty_years': 3,
+                'price': 16500.00,
                 'image_url': 'https://example.com/asus-monitor.jpg'
             },
             {
                 'name': 'Logitech Webcam HD',
                 'category': 'Electronics',
                 'warranty_years': 2,
+                'price': 3200.00,
                 'image_url': 'https://example.com/webcam.jpg'
             },
             {
                 'name': 'Microsoft Surface Pro',
                 'category': 'Electronics',
                 'warranty_years': 2,
+                'price': 38000.00,
                 'image_url': 'https://example.com/surface-pro.jpg'
             },
             {
                 'name': 'Executive Desk',
                 'category': 'Furniture',
                 'warranty_years': 7,
+                'price': 35000.00,
                 'image_url': 'https://example.com/executive-desk.jpg'
             },
             {
                 'name': 'Bookshelf Unit',
                 'category': 'Furniture',
                 'warranty_years': 5,
+                'price': 12000.00,
                 'image_url': 'https://example.com/bookshelf.jpg'
             },
             {
                 'name': 'Storage Cabinet',
                 'category': 'Furniture',
                 'warranty_years': 8,
+                'price': 8800.00,
                 'image_url': 'https://example.com/storage-cabinet.jpg'
             },
             {
                 'name': 'Wireless Headphones',
                 'category': 'Electronics',
                 'warranty_years': 2,
+                'price': 4500.00,
                 'image_url': 'https://example.com/headphones.jpg'
             },
             {
                 'name': 'Smart Watch Apple',
                 'category': 'Electronics',
                 'warranty_years': 1,
+                'price': 12900.00,
                 'image_url': 'https://example.com/apple-watch.jpg'
             },
             {
                 'name': 'Bluetooth Speaker',
                 'category': 'Electronics',
                 'warranty_years': 2,
+                'price': 2800.00,
                 'image_url': 'https://example.com/speaker.jpg'
             },
             {
                 'name': 'Desk Lamp LED',
                 'category': 'Office Supplies',
                 'warranty_years': 3,
+                'price': 1800.00,
                 'image_url': 'https://example.com/desk-lamp.jpg'
             },
             {
                 'name': 'Ergonomic Footrest',
                 'category': 'Office Supplies',
                 'warranty_years': 2,
+                'price': 2200.00,
                 'image_url': 'https://example.com/footrest.jpg'
             },
             {
                 'name': 'Router Wi-Fi 6',
                 'category': 'Electronics',
                 'warranty_years': 3,
+                'price': 5800.00,
                 'image_url': 'https://example.com/router.jpg'
             },
             {
                 'name': 'External Hard Drive 2TB',
                 'category': 'Electronics',
                 'warranty_years': 3,
+                'price': 3500.00,
                 'image_url': 'https://example.com/hard-drive.jpg'
             }
         ]
@@ -1183,15 +1210,12 @@ def init_sample_data():
                     'status': 'confirmed',
                     'priority': 'normal',
                     'ship_to': '台北市信義區信義路五段7號',
-                    'total_amount': 129900.00,
                     'notes': '緊急訂單，請優先處理',
                     'customer_name': '台積電股份有限公司',
                     'user_account': 'sales',
                     'items': [
-                        {'product_name': 'Laptop Dell XPS 13',
-                            'quantity': 2, 'unit_price': 39950.00},
-                        {'product_name': 'MacBook Pro M3',
-                            'quantity': 1, 'unit_price': 50000.00}
+                        {'product_name': 'Laptop Dell XPS 13', 'quantity': 2},
+                        {'product_name': 'MacBook Pro M3', 'quantity': 1}
                     ]
                 },
                 {
@@ -1201,15 +1225,12 @@ def init_sample_data():
                     'status': 'processing',
                     'priority': 'high',
                     'ship_to': '新北市板橋區縣民大道二段7號',
-                    'total_amount': 95800.00,
                     'notes': '客戶要求週五前交貨',
                     'customer_name': '鴻海精密工業股份有限公司',
                     'user_account': 'admin',
                     'items': [
-                        {'product_name': 'iPhone 15 Pro',
-                            'quantity': 3, 'unit_price': 29900.00},
-                        {'product_name': 'Wireless Mouse Logitech',
-                            'quantity': 5, 'unit_price': 1200.00}
+                        {'product_name': 'iPhone 15 Pro', 'quantity': 3},
+                        {'product_name': 'Wireless Mouse Logitech', 'quantity': 5}
                     ]
                 },
                 {
@@ -1219,15 +1240,12 @@ def init_sample_data():
                     'status': 'pending',
                     'priority': 'normal',
                     'ship_to': '新竹市科學園區力行路3號',
-                    'total_amount': 88000.00,
                     'notes': '辦公室設備採購',
                     'customer_name': '聯發科技股份有限公司',
                     'user_account': 'sales',
                     'items': [
-                        {'product_name': 'Monitor 24 inch LG',
-                            'quantity': 4, 'unit_price': 12000.00},
-                        {'product_name': 'Office Chair Ergonomic',
-                            'quantity': 2, 'unit_price': 20000.00}
+                        {'product_name': 'Monitor 24 inch LG', 'quantity': 4},
+                        {'product_name': 'Office Chair Ergonomic', 'quantity': 2}
                     ]
                 },
                 {
@@ -1237,15 +1255,12 @@ def init_sample_data():
                     'status': 'shipped',
                     'priority': 'urgent',
                     'ship_to': '台北市大安區羅斯福路四段1號',
-                    'total_amount': 67600.00,
                     'notes': '教育用途設備',
-                    'customer_name': '國立台灣大學',
+                    'customer_name': '台灣大學',
                     'user_account': 'admin',
                     'items': [
-                        {'product_name': 'Tablet iPad Air',
-                            'quantity': 4, 'unit_price': 15900.00},
-                        {'product_name': 'Wireless Keyboard',
-                            'quantity': 4, 'unit_price': 1500.00}
+                        {'product_name': 'Tablet iPad Air', 'quantity': 4},
+                        {'product_name': 'Wireless Keyboard', 'quantity': 4}
                     ]
                 },
                 {
@@ -1255,17 +1270,13 @@ def init_sample_data():
                     'status': 'pending',
                     'priority': 'low',
                     'ship_to': '台中市南屯區市政路2號',
-                    'total_amount': 156000.00,
                     'notes': '大宗採購，可議價',
-                    'customer_name': '友達光電股份有限公司',
+                    'customer_name': '遠傳電信股份有限公司',
                     'user_account': 'sales',
                     'items': [
-                        {'product_name': 'Standing Desk',
-                            'quantity': 3, 'unit_price': 25000.00},
-                        {'product_name': 'Gaming Chair',
-                            'quantity': 2, 'unit_price': 30000.00},
-                        {'product_name': 'Conference Table',
-                            'quantity': 1, 'unit_price': 51000.00}
+                        {'product_name': 'Standing Desk', 'quantity': 3},
+                        {'product_name': 'Gaming Chair', 'quantity': 2},
+                        {'product_name': 'Conference Table', 'quantity': 1}
                     ]
                 },
                 {
@@ -1275,13 +1286,11 @@ def init_sample_data():
                     'status': 'delivered',
                     'priority': 'normal',
                     'ship_to': '台北市中正區忠孝東路一段150號',
-                    'total_amount': 45000.00,
                     'notes': '訂單已完成交付',
                     'customer_name': '台北市政府',
                     'user_account': 'warehouse',
                     'items': [
-                        {'product_name': 'Printer HP LaserJet',
-                            'quantity': 3, 'unit_price': 15000.00}
+                        {'product_name': 'Printer HP LaserJet', 'quantity': 3}
                     ]
                 },
                 {
@@ -1291,17 +1300,13 @@ def init_sample_data():
                     'status': 'processing',
                     'priority': 'normal',
                     'ship_to': '新北市汐止區新台五路一段88號',
-                    'total_amount': 285000.00,
                     'notes': 'Acer公司大量採購',
                     'customer_name': '宏碁股份有限公司',
                     'user_account': 'sales_manager',
                     'items': [
-                        {'product_name': 'Samsung Galaxy S24',
-                            'quantity': 10, 'unit_price': 24000.00},
-                        {'product_name': 'Wireless Headphones',
-                            'quantity': 5, 'unit_price': 1500.00},
-                        {'product_name': 'Smart Watch Apple',
-                            'quantity': 3, 'unit_price': 12000.00}
+                        {'product_name': 'Samsung Galaxy S24', 'quantity': 10},
+                        {'product_name': 'Wireless Headphones', 'quantity': 5},
+                        {'product_name': 'Smart Watch Apple', 'quantity': 3}
                     ]
                 },
                 {
@@ -1311,59 +1316,15 @@ def init_sample_data():
                     'status': 'shipped',
                     'priority': 'high',
                     'ship_to': '台北市北投區立德路150號',
-                    'total_amount': 195000.00,
                     'notes': 'ASUS辦公設備更新',
                     'customer_name': '華碩電腦股份有限公司',
                     'user_account': 'sales_rep1',
                     'items': [
-                        {'product_name': 'Dell OptiPlex Desktop',
-                            'quantity': 3, 'unit_price': 35000.00},
-                        {'product_name': 'ASUS Gaming Monitor 27"',
-                            'quantity': 2, 'unit_price': 18000.00},
-                        {'product_name': 'Router Wi-Fi 6',
-                            'quantity': 4, 'unit_price': 8000.00}
+                        {'product_name': 'Dell OptiPlex Desktop', 'quantity': 3},
+                        {'product_name': 'ASUS Gaming Monitor 27"', 'quantity': 2},
+                        {'product_name': 'Router Wi-Fi 6', 'quantity': 4}
                     ]
                 },
-                {
-                    'order_number': 'ORD202412150009',
-                    'order_date': datetime.now() - timedelta(days=1),
-                    'expected_delivery_date': date.today() + timedelta(days=15),
-                    'status': 'pending',
-                    'priority': 'low',
-                    'ship_to': '台南市東區大學路1號',
-                    'total_amount': 176500.00,
-                    'notes': '成功大學研究室設備採購',
-                    'customer_name': '成功大學',
-                    'user_account': 'sales_rep2',
-                    'items': [
-                        {'product_name': 'Microsoft Surface Pro',
-                            'quantity': 5, 'unit_price': 25000.00},
-                        {'product_name': 'Logitech Webcam HD',
-                            'quantity': 8, 'unit_price': 3500.00},
-                        {'product_name': 'Executive Desk',
-                            'quantity': 2, 'unit_price': 30000.00}
-                    ]
-                },
-                {
-                    'order_number': 'ORD202412150010',
-                    'order_date': datetime.now(),
-                    'expected_delivery_date': date.today() + timedelta(days=6),
-                    'status': 'confirmed',
-                    'priority': 'urgent',
-                    'ship_to': '台北市內湖區瑞光路188號',
-                    'total_amount': 142000.00,
-                    'notes': '遠傳電信緊急設備採購',
-                    'customer_name': '遠傳電信股份有限公司',
-                    'user_account': 'admin2',
-                    'items': [
-                        {'product_name': 'Router Wi-Fi 6',
-                            'quantity': 10, 'unit_price': 8000.00},
-                        {'product_name': 'External Hard Drive 2TB',
-                            'quantity': 6, 'unit_price': 3500.00},
-                        {'product_name': 'Bluetooth Speaker',
-                            'quantity': 8, 'unit_price': 2500.00}
-                    ]
-                }
             ]
 
             for order_data in orders_data:
@@ -1378,6 +1339,48 @@ def init_sample_data():
                     existing_order = Order.query.filter_by(
                         order_number=order_data['order_number']).first()
                     if not existing_order:
+                        # Calculate total amount from product prices
+                        total_amount = 0
+                        order_items_data = []
+                        for item_data in order_data['items']:
+                            product = Product.query.filter_by(
+                                name=item_data['product_name']).first()
+
+                            # If product doesn't exist, create it with default values
+                            if not product:
+                                print(
+                                    f"   Creating missing product: {item_data['product_name']}")
+                                # Determine category based on product name
+                                product_name = item_data['product_name'].lower(
+                                )
+                                if any(keyword in product_name for keyword in ['chair', 'desk', 'table', 'cabinet', 'shelf']):
+                                    category = 'Furniture'
+                                elif any(keyword in product_name for keyword in ['lamp', 'footrest']):
+                                    category = 'Office Supplies'
+                                else:
+                                    category = 'Electronics'
+
+                                # Create new product with reasonable defaults
+                                product = Product(
+                                    name=item_data['product_name'],
+                                    category=category,
+                                    warranty_years=2,  # Default warranty
+                                    price=10000.00,    # Default price
+                                    image_url=f'https://example.com/{item_data["product_name"].lower().replace(" ", "-")}.jpg',
+                                    reorder_point=10
+                                )
+                                db.session.add(product)
+                                db.session.flush()  # Get product_id
+
+                            unit_price = float(product.price)
+                            subtotal = unit_price * item_data['quantity']
+                            total_amount += subtotal
+                            order_items_data.append({
+                                'product': product,
+                                'quantity': item_data['quantity'],
+                                'unit_price': unit_price
+                            })
+
                         order = Order(
                             order_number=order_data['order_number'],
                             order_date=order_data['order_date'],
@@ -1385,7 +1388,7 @@ def init_sample_data():
                             status=order_data['status'],
                             priority=order_data['priority'],
                             ship_to=order_data['ship_to'],
-                            total_amount=order_data['total_amount'],
+                            total_amount=total_amount,
                             notes=order_data['notes'],
                             customer_id=customer.customer_id,
                             user_id=user.user_id
@@ -1393,18 +1396,15 @@ def init_sample_data():
                         db.session.add(order)
                         db.session.flush()  # Get order_id
 
-                        # Create order items
-                        for item_data in order_data['items']:
-                            product = Product.query.filter_by(
-                                name=item_data['product_name']).first()
-                            if product:
-                                order_item = OrderItem(
-                                    order_id=order.order_id,
-                                    product_id=product.product_id,
-                                    quantity=item_data['quantity'],
-                                    unit_price=item_data['unit_price']
-                                )
-                                db.session.add(order_item)
+                        # Create order items with product prices
+                        for item_info in order_items_data:
+                            order_item = OrderItem(
+                                order_id=order.order_id,
+                                product_id=item_info['product'].product_id,
+                                quantity=item_info['quantity'],
+                                unit_price=item_info['unit_price']
+                            )
+                            db.session.add(order_item)
 
             db.session.commit()
             print("Sample orders created!")
