@@ -5,7 +5,17 @@
       <div class="flex justify-between items-center">
         <div>
           <h1 class="text-2xl font-bold text-gray-900 mb-2">訂單管理</h1>
-          <p class="text-gray-600">管理客戶訂單與出貨狀況</p>
+          <p class="text-gray-600">
+            {{ filteredCustomerName ? `顯示客戶「${filteredCustomerName}」的訂單` : '管理客戶訂單與出貨狀況' }}
+          </p>
+          <div v-if="$route.query.customer_id" class="mt-2">
+            <button 
+              @click="clearCustomerFilter"
+              class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm"
+            >
+              顯示所有訂單
+            </button>
+          </div>
         </div>
         <button 
           @click="openAddModal"
@@ -22,9 +32,13 @@
       <DataTable
         :columns="columns"
         :data="orders"
+        :actions="actions"
         :loading="loading"
         @sort="handleSort"
         @search="handleSearch"
+        @view="viewOrder"
+        @edit="editOrder"
+        @cancel="cancelOrder"
         search-placeholder="搜尋訂單編號、客戶名稱..."
       />
     </div>
@@ -256,6 +270,126 @@
         </div>
       </div>
     </div>
+
+    <!-- Order Detail Modal -->
+    <div v-if="showOrderDetailModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div class="relative top-10 mx-auto p-5 border w-11/12 md:w-4/5 lg:w-3/4 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-gray-900">
+              訂單詳細資訊 - {{ selectedOrder?.order_number }}
+            </h3>
+            <button 
+              @click="closeOrderDetailModal"
+              class="text-gray-400 hover:text-gray-600"
+            >
+              <span class="sr-only">關閉</span>
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Order Summary Info -->
+          <div class="bg-gray-50 rounded-lg p-4 mb-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <p class="text-sm text-gray-500">客戶名稱</p>
+                <p class="text-lg font-semibold text-gray-900">{{ selectedOrder?.customer_name }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">訂單日期</p>
+                <p class="text-lg font-semibold text-gray-900">{{ selectedOrder?.order_date }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">狀態</p>
+                <p class="text-lg font-semibold" :class="getStatusClass(selectedOrder?.status)">{{ selectedOrder?.status }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">總金額</p>
+                <p class="text-lg font-semibold text-green-600">{{ selectedOrder?.total_amount }}</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <div>
+                <p class="text-sm text-gray-500">優先級</p>
+                <p class="text-lg font-semibold text-gray-900">{{ selectedOrder?.priority }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">預計交貨日期</p>
+                <p class="text-lg font-semibold text-gray-900">{{ selectedOrder?.expected_delivery_date }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">送貨地址</p>
+                <p class="text-lg font-semibold text-gray-900">{{ selectedOrder?.ship_to }}</p>
+              </div>
+            </div>
+            <div v-if="selectedOrder?.notes" class="mt-4">
+              <p class="text-sm text-gray-500">備註</p>
+              <p class="text-lg font-semibold text-gray-900">{{ selectedOrder?.notes }}</p>
+            </div>
+          </div>
+
+          <!-- Order Items Table -->
+          <div class="overflow-x-auto">
+            <div v-if="loadingOrderDetails" class="text-center py-8">
+              <div class="text-gray-500">載入中...</div>
+            </div>
+            <div v-else-if="orderItems.length === 0" class="text-center py-8">
+              <div class="text-gray-500">此訂單尚無商品項目</div>
+            </div>
+            <table v-else class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商品名稱</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">類別</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">數量</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">單價</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">小計</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr v-for="item in orderItems" :key="item.order_item_id" class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {{ item.product_name }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {{ item.category }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
+                    {{ item.quantity }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                    ${{ parseFloat(item.unit_price || 0).toLocaleString() }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
+                    ${{ (parseFloat(item.unit_price || 0) * parseInt(item.quantity || 0)).toLocaleString() }}
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot class="bg-gray-50">
+                <tr>
+                  <td colspan="4" class="px-6 py-4 text-sm font-medium text-gray-900 text-right">總計：</td>
+                  <td class="px-6 py-4 text-sm font-bold text-gray-900 text-right">
+                    {{ selectedOrder?.total_amount }}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <!-- Footer -->
+          <div class="flex justify-end pt-4 border-t border-gray-200 mt-6">
+            <button
+              @click="closeOrderDetailModal"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+            >
+              關閉
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -281,9 +415,13 @@ export default {
       sortBy: '',
       sortOrder: 'asc',
       showModal: false,
+      showOrderDetailModal: false,
       isEditMode: false,
       submitting: false,
       editingId: null,
+      selectedOrder: null,
+      orderItems: [],
+      loadingOrderDetails: false,
       form: {
         order_number: '',
         customer_id: '',
@@ -304,7 +442,37 @@ export default {
         { key: 'status', label: '狀態', sortable: true },
         { key: 'priority', label: '優先級', sortable: true },
         { key: 'actions', label: '操作', sortable: false }
+      ],
+      actions: [
+        {
+          name: 'view',
+          label: '查看',
+          event: 'view',
+          type: 'view'
+        },
+        {
+          name: 'edit',
+          label: '編輯',
+          event: 'edit',
+          type: 'edit'
+        },
+        {
+          name: 'cancel',
+          label: '取消',
+          event: 'cancel',
+          type: 'delete'
+        }
       ]
+    }
+  },
+  computed: {
+    filteredCustomerName() {
+      const customerId = this.$route.query.customer_id
+      if (customerId && this.customers.length > 0) {
+        const customer = this.customers.find(c => c.customer_id.toString() === customerId.toString())
+        return customer ? customer.name : null
+      }
+      return null
     }
   },
   async created() {
@@ -312,17 +480,39 @@ export default {
     await this.loadCustomers()
     await this.loadProducts()
   },
+  watch: {
+    '$route.query.customer_id': {
+      handler() {
+        this.loadOrders()
+      },
+      immediate: false
+    }
+  },
   methods: {
     async loadOrders() {
       try {
         this.loading = true
         
-        const response = await ordersAPI.getOrders({
-          per_page: 1000 // Load all orders for client-side sorting
-        })
+        // Check if we have a customer_id filter from the route query
+        const customerId = this.$route.query.customer_id
+        const queryParams = { per_page: 1000 } // Load all orders for client-side sorting
+        
+        if (customerId) {
+          queryParams.customer_id = customerId
+        }
+        
+        const response = await ordersAPI.getOrders(queryParams)
         
         // Fix: Access the response data correctly
-        const ordersData = response.data.data || response.data || []
+        let ordersData = response.data.data || response.data || []
+        
+        // If we have a customer_id filter but the API doesn't support filtering,
+        // filter client-side as fallback
+        if (customerId && ordersData.length > 0) {
+          ordersData = ordersData.filter(order => 
+            order.customer_id && order.customer_id.toString() === customerId.toString()
+          )
+        }
         
         this.orders = ordersData.map(order => ({
           ...order,
@@ -330,24 +520,7 @@ export default {
           expected_delivery_date: order.expected_delivery_date ? this.formatDate(order.expected_delivery_date) : '未設定',
           total_amount: `$${order.total_amount.toLocaleString()}`,
           status: this.getStatusText(order.status_key || order.status),
-          priority: this.getPriorityText(order.priority_key || order.priority),
-          actions: [
-            {
-              label: '查看',
-              action: () => this.viewOrder(order),
-              class: 'text-green-600 hover:text-green-900'
-            },
-            {
-              label: '編輯',
-              action: () => this.editOrder(order),
-              class: 'text-blue-600 hover:text-blue-900'
-            },
-            {
-              label: '取消',
-              action: () => this.cancelOrder(order),
-              class: 'text-red-600 hover:text-red-900'
-            }
-          ]
+          priority: this.getPriorityText(order.priority_key || order.priority)
         }))
         
         // Remove total for client-side mode
@@ -378,6 +551,13 @@ export default {
       this.editingId = null
       this.resetForm()
       this.generateOrderNumber()
+      
+      // Pre-populate customer if we're viewing a specific customer's orders
+      const customerId = this.$route.query.customer_id
+      if (customerId) {
+        this.form.customer_id = customerId
+      }
+      
       this.showModal = true
     },
 
@@ -398,8 +578,12 @@ export default {
       this.showModal = true
     },
 
-    viewOrder(order) {
-      console.log('Viewing order:', order)
+    async viewOrder(order) {
+      this.selectedOrder = order
+      this.showOrderDetailModal = true
+      
+      // Load detailed order items
+      await this.loadOrderDetails(order.order_id)
     },
 
     cancelOrder(order) {
@@ -576,6 +760,51 @@ export default {
         'urgent': '緊急'
       }
       return priorities[priority] || priority
+    },
+
+    async loadOrderDetails(orderId) {
+      try {
+        this.loadingOrderDetails = true
+        const response = await ordersAPI.getOrder(orderId)
+        
+        if (response.data.success) {
+          this.orderItems = response.data.data.order_items || []
+        } else {
+          console.error('Failed to load order details:', response.data.error)
+          this.orderItems = []
+        }
+      } catch (error) {
+        console.error('Error loading order details:', error)
+        this.orderItems = []
+        this.$store.dispatch('setNotification', {
+          type: 'error',
+          message: '載入訂單詳細資料失敗'
+        })
+      } finally {
+        this.loadingOrderDetails = false
+      }
+    },
+
+    closeOrderDetailModal() {
+      this.showOrderDetailModal = false
+      this.selectedOrder = null
+      this.orderItems = []
+    },
+
+    getStatusClass(status) {
+      const statusClasses = {
+        '待處理': 'text-yellow-600',
+        '已確認': 'text-blue-600', 
+        '處理中': 'text-purple-600',
+        '已出貨': 'text-indigo-600',
+        '已送達': 'text-green-600',
+        '已取消': 'text-red-600'
+      }
+      return statusClasses[status] || 'text-gray-600'
+    },
+
+    clearCustomerFilter() {
+      this.$router.push({ name: 'Orders', query: {} })
     },
 
     formatDate(date) {
