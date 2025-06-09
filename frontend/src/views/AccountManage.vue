@@ -1,11 +1,19 @@
 <template>
   <div class="space-y-6">
-    <!-- Page Header -->
-    <div>
-      <h1 class="text-2xl font-bold text-gray-900">帳號管理</h1>
-      <p class="mt-1 text-sm text-gray-500">
-        管理所有使用者帳號。
-      </p>
+    <div class="bg-white shadow rounded-lg p-6">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 mb-2">帳號管理</h1>
+          <p class="text-gray-600">管理所有使用者帳號。</p>
+        </div>
+        <button 
+          @click="openAddModal"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
+        >
+          <span class="mr-2">+</span>
+          新增帳號
+        </button>
+      </div>
     </div>
     
     <!-- Account Table -->
@@ -33,7 +41,7 @@
         </h3>
         
         <form @submit.prevent="handleSubmit" class="space-y-4">
-                      <div>
+          <div>
               <label class="block text-sm font-medium text-gray-700">帳號名稱</label>
               <input
                 v-model="form.account"
@@ -74,25 +82,23 @@
               點擊重置密碼將會把密碼重置為帳號名稱
             </p>
           </div>
-          
-                      <div>
-              <label class="block text-sm font-medium text-gray-700">角色</label>
-              <select
-                v-model="form.role_id"
-                required
-                :disabled="isOwnerRoleUser"
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-              >
-                <option value="">請選擇角色</option>
-                <option v-for="role in filteredRoles" :key="role.role_id" :value="role.role_id">
-                  {{ role.role_name }}
-                </option>
-              </select>
-              <p v-if="isOwnerRoleUser" class="mt-1 text-xs text-gray-500">
-                擁有者角色不能被修改
-              </p>
-            </div>
-
+        <div>
+        <label class="block text-sm font-medium text-gray-700">角色</label>
+        <select
+          v-model="form.role_id"
+          required
+          :disabled="isOwnerRoleUser"
+          class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+        >
+          <option value="">請選擇角色</option>
+          <option v-for="role in filteredRoles" :key="role.role_id" :value="role.role_id">
+            {{ role.role_name }}
+          </option>
+        </select>
+        <p v-if="isOwnerRoleUser" class="mt-1 text-xs text-gray-500">
+          擁有者角色不能被修改
+        </p>
+      </div>
           <div class="flex justify-end space-x-3 pt-4">
             <button
               type="button"

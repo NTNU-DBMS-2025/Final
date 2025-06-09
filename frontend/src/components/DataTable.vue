@@ -15,7 +15,8 @@
           />
           <button 
             v-if="showAddButton"
-            @click="$emit('add')"
+            @click="$emit('search', searchQuery)"
+            type="button"
             class="bg-blue-500 hover:bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm w-full sm:w-auto"
           >
             搜尋
