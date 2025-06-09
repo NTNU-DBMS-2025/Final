@@ -15,6 +15,8 @@ from sqlalchemy import text
 def reset_database():
     """Drop and recreate all tables with updated schema"""
     app = create_app()
+    # show which database is being used
+    print(f"Using database: {os.getenv('DATABASE_URL')}")
 
     with app.app_context():
         print("🗑️  Dropping all tables...")
@@ -237,8 +239,10 @@ def print_available_endpoints():
     print("\nOrder Reports:")
     print("  - GET /api/reports/orders/pending")
     print("  - GET /api/reports/orders/delayed-shipping")
-    print("\n🖥️ Frontend URL: http://localhost:5173")
-    print("🔧 Backend URL: http://localhost:5001")
+    print(
+        f"\n🖥️ Frontend URL: {os.getenv('FRONTEND_URL', 'http://localhost:5173')}")
+    print(
+        f"🔧 Backend URL: {os.getenv('BACKEND_URL', 'http://localhost:5000')}")
 
 
 def main():
