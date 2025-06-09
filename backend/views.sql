@@ -31,7 +31,7 @@ WHERE status = 'pending';
 CREATE OR REPLACE VIEW v_orders_unshipped_today AS
 SELECT o.*
 FROM `Order` o
-WHERE DATE(o.scheduled_ship_date) = CURDATE()
+WHERE DATE(o.expected_delivery_date) = CURDATE()
   AND o.status = 'pending';
 
 /* ========== 近 30 天銷售彙總（每日） ========== */
@@ -260,4 +260,4 @@ WHERE o.status = 'pending'
 CREATE OR REPLACE VIEW v_orders_to_ship_this_week AS
 SELECT *
 FROM `Order`
-WHERE scheduled_ship_date BETWEEN CURDATE() AND CURDATE() + INTERVAL 7 DAY;
+WHERE expected_delivery_date BETWEEN CURDATE() AND CURDATE() + INTERVAL 7 DAY;

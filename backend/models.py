@@ -28,6 +28,7 @@ class Product(db.Model):
     category = db.Column(db.String(50), nullable=False)
     warranty_years = db.Column(db.Integer, nullable=False)
     image_url = db.Column(db.String(255))
+    reorder_point = db.Column(db.Integer, nullable=False, default=10)
 
     # Relationships
     suppliers = db.relationship(
