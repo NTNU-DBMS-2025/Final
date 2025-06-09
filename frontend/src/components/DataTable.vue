@@ -26,7 +26,7 @@
     </div>
 
     <!-- Table -->
-    <div class="table-responsive">
+    <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200 text-center">
         <thead class="bg-gray-50">
           <tr>
@@ -95,7 +95,7 @@
               </div>
             </td>
             <td v-if="actions.length > 0" class="px-3 sm:px-6 py-3 sm:py-4 text-center text-sm font-medium">
-              <div class="flex justify-center space-x-2">
+              <div class="flex justify-center space-x-1 sm:space-x-2">
                 <button
                   v-for="action in actions"
                   :key="action.name"
@@ -103,9 +103,10 @@
                   :disabled="isActionDisabled(action, row)"
                   :class="[
                     getActionClass(action.type, isActionDisabled(action, row)),
-                    isActionDisabled(action, row) ? 'cursor-not-allowed opacity-50' : ''
+                    isActionDisabled(action, row) ? 'cursor-not-allowed opacity-50' : '',
+                    'min-w-0 whitespace-nowrap'
                   ]"
-                  class="px-2 sm:px-3 py-2 rounded transition-colors text-xs sm:text-sm"
+                  class="px-2 sm:px-3 py-1 sm:py-2 rounded transition-colors text-xs sm:text-sm"
                 >
                   {{ action.label }}
                 </button>
@@ -336,8 +337,8 @@ export default {
 
     getActionClass(type, disabled = false) {
       const baseClass = disabled 
-        ? 'bg-gray-300 text-gray-500' 
-        : 'text-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200'
+        ? 'bg-gray-300 text-gray-500 border border-gray-400' 
+        : 'text-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 border'
       
       if (disabled) {
         return baseClass
@@ -345,13 +346,13 @@ export default {
       
       switch (type) {
         case 'edit':
-          return `bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 ${baseClass}`
+          return `bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 border-blue-600 ${baseClass}`
         case 'delete':
-          return `bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 ${baseClass}`
+          return `bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 border-red-600 ${baseClass}`
         case 'view':
-          return `bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 ${baseClass}`
+          return `bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 border-green-600 ${baseClass}`
         default:
-          return `bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 ${baseClass}`
+          return `bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 border-indigo-600 ${baseClass}`
       }
     },
     formatDate(dateString) {

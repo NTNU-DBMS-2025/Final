@@ -39,6 +39,8 @@
         @view="viewLocation"
         search-placeholder="搜尋位置編號、區域或類型..."
       />
+      
+
     </div>
 
     <!-- Add/Edit Modal -->
@@ -178,6 +180,123 @@
         </div>
       </div>
     </div>
+
+    <!-- View Location Details Modal -->
+    <div v-if="showViewModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-2/3 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-gray-900">
+              倉位詳細資訊
+            </h3>
+            <button 
+              @click="closeViewModal"
+              class="text-gray-400 hover:text-gray-600"
+            >
+              <span class="sr-only">關閉</span>
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div v-if="selectedLocation" class="space-y-6">
+            <!-- Basic Information -->
+            <div class="bg-blue-50 rounded-lg p-4">
+              <h4 class="text-md font-semibold text-blue-900 mb-3">基本資訊</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-2">
+                  <div class="flex justify-between">
+                    <span class="font-medium text-gray-700">位置編號:</span>
+                    <span class="text-gray-900">{{ selectedLocation.location_code }}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="font-medium text-gray-700">位置名稱:</span>
+                    <span class="text-gray-900">{{ selectedLocation.location_name }}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="font-medium text-gray-700">區域:</span>
+                    <span class="text-gray-900">{{ selectedLocation.zone }}</span>
+                  </div>
+                </div>
+                <div class="space-y-2">
+                  <div class="flex justify-between">
+                    <span class="font-medium text-gray-700">類型:</span>
+                    <span class="text-gray-900">{{ selectedLocation.location_type }}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="font-medium text-gray-700">容量:</span>
+                    <span class="text-gray-900">{{ selectedLocation.capacity || 'N/A' }}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="font-medium text-gray-700">狀態:</span>
+                    <span :class="getStatusBadgeClass(selectedLocation.status_key)" class="px-2 py-1 rounded-full text-xs font-medium">
+                      {{ selectedLocation.status }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Utilization Information -->
+            <div class="bg-green-50 rounded-lg p-4">
+              <h4 class="text-md font-semibold text-green-900 mb-3">使用率資訊</h4>
+              <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                  <span class="font-medium text-gray-700">目前使用率:</span>
+                  <span class="text-lg font-bold text-green-600">{{ selectedLocation.utilization }}</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                  <div 
+                    class="bg-green-500 h-3 rounded-full transition-all duration-300" 
+                    :style="{ width: selectedLocation.utilization }"
+                  ></div>
+                </div>
+                <div class="text-sm text-gray-600">
+                  <span v-if="getUtilizationRate(selectedLocation.utilization) >= 90" class="text-red-600">⚠️ 使用率過高</span>
+                  <span v-else-if="getUtilizationRate(selectedLocation.utilization) >= 70" class="text-yellow-600">⚡ 使用率偏高</span>
+                  <span v-else class="text-green-600">✅ 使用率正常</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="bg-gray-50 rounded-lg p-4">
+              <h4 class="text-md font-semibold text-gray-900 mb-3">其他資訊</h4>
+              <div class="space-y-2">
+                <div class="flex justify-between">
+                  <span class="font-medium text-gray-700">建立時間:</span>
+                  <span class="text-gray-900">{{ formatDateTime(selectedLocation.created_at) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="font-medium text-gray-700">最後更新:</span>
+                  <span class="text-gray-900">{{ formatDateTime(selectedLocation.updated_at) }}</span>
+                </div>
+                <div v-if="selectedLocation.notes" class="mt-3">
+                  <span class="font-medium text-gray-700">備註:</span>
+                  <p class="mt-1 text-gray-900 bg-white p-2 rounded border">{{ selectedLocation.notes }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end pt-4 border-t border-gray-200 mt-6">
+            <button
+              @click="closeViewModal"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors mr-3"
+            >
+              關閉
+            </button>
+            <button
+              @click="editFromView"
+              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+            >
+              編輯此倉位
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -201,9 +320,11 @@ export default {
       sortBy: '',
       sortOrder: 'asc',
       showModal: false,
+      showViewModal: false,
       isEditMode: false,
       submitting: false,
       editingId: null,
+      selectedLocation: null,
       form: {
         location_code: '',
         location_name: '',
@@ -325,7 +446,20 @@ export default {
     },
 
     viewLocation(location) {
-      console.log('Viewing location:', location.id)
+      console.log('Viewing location:', location)
+      this.selectedLocation = location
+      this.showViewModal = true
+    },
+
+    closeViewModal() {
+      this.showViewModal = false
+      this.selectedLocation = null
+    },
+
+    editFromView() {
+      // Close view modal and open edit modal with current location
+      this.closeViewModal()
+      this.editLocation(this.selectedLocation)
     },
 
     async handleSubmit() {
@@ -387,6 +521,33 @@ export default {
         'disabled': '停用'
       }
       return statuses[status] || status
+    },
+
+    getStatusBadgeClass(status) {
+      const classes = {
+        'active': 'bg-green-100 text-green-800',
+        'occupied': 'bg-yellow-100 text-yellow-800',
+        'maintenance': 'bg-orange-100 text-orange-800',
+        'disabled': 'bg-red-100 text-red-800'
+      }
+      return classes[status] || 'bg-gray-100 text-gray-800'
+    },
+
+    getUtilizationRate(utilization) {
+      // Extract percentage number from string like "80%"
+      return parseInt(utilization.replace('%', ''))
+    },
+
+    formatDateTime(dateString) {
+      if (!dateString) return 'N/A'
+      const date = new Date(dateString)
+      return date.toLocaleString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
     }
   }
 }
