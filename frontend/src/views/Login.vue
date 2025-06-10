@@ -108,7 +108,15 @@ export default {
         // Redirect based on user role
         this.redirectToDashboard()
       } catch (error) {
-        this.error = error.message || '登入失敗，請檢查您的帳號密碼'
+        // Check if it's an authentication error (401) or credentials mismatch
+        if (error.response?.status === 401 || 
+            error.message?.includes('401') || 
+            error.message?.includes('Invalid credentials') ||
+            error.message?.includes('Login failed')) {
+          this.error = 'Invalid credentials'
+        } else {
+          this.error = error.message || '登入失敗，請檢查您的帳號密碼'
+        }
       } finally {
         this.loading = false
       }
