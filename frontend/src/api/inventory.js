@@ -2,7 +2,7 @@ import apiClient from './axios'
 
 // Real API functions
 export function fetchInventory(params = {}) {
-    const { page = 1, per_page = 10, low_stock, search, product_id, location_id } = params
+    const { page = 1, per_page = 10, low_stock, search, product_id, location_id, zone } = params
 
     const queryParams = new URLSearchParams({
         page: page.toString(),
@@ -13,6 +13,7 @@ export function fetchInventory(params = {}) {
     if (search) queryParams.append('search', search)
     if (product_id) queryParams.append('product_id', product_id.toString())
     if (location_id) queryParams.append('location_id', location_id.toString())
+    if (zone) queryParams.append('zone', zone)
 
     return apiClient.get(`/inventory?${queryParams}`)
 }

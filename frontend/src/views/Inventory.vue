@@ -71,16 +71,6 @@
         <h2 class="text-lg font-semibold text-gray-900">庫存明細</h2>
         <div class="flex space-x-2">
           <select
-            v-model="statusFilter"
-            @change="loadInventory"
-            class="border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 text-sm"
-          >
-            <option value="">全部狀態</option>
-            <option value="in_stock">有庫存</option>
-            <option value="low_stock">低庫存</option>
-            <option value="out_of_stock">缺貨</option>
-          </select>
-          <select
             v-model="locationFilter"
             @change="loadInventory"
             class="border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 text-sm"
@@ -604,7 +594,6 @@ export default {
       searchQuery: '',
       sortBy: '',
       sortOrder: 'asc',
-      statusFilter: '',
       locationFilter: '',
       showAdjustmentModal: false,
       showMovementModal: false,
@@ -668,13 +657,14 @@ export default {
           per_page: 1000 // Load all inventory for client-side sorting
         }
         
-        if (this.statusFilter === 'low_stock') params.low_stock = true
         if (this.locationFilter) params.zone = this.locationFilter
         
         const response = await inventoryAPI.fetchInventory(params)
         
+        let inventoryData = response.data.data
+        
         // Format data for display
-        this.inventory = response.data.data.map(item => ({
+        this.inventory = inventoryData.map(item => ({
           ...item,
           sku: `SKU-${item.product_id}`,
           quantity_on_hand: item.quantity,
