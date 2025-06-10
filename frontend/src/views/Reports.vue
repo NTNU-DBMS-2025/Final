@@ -1,23 +1,24 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Header -->
-    <div class="bg-white shadow-sm border-b">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="flex justify-between items-center">
-          <h1 class="text-2xl font-bold text-gray-900">報表管理</h1>
-          <button
-            @click="refreshAllData"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-          >
-            <i class="fas fa-sync-alt mr-2"></i>
-            刷新資料
-          </button>
+    <div class="bg-white shadow rounded-lg p-6">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 mb-2">報表</h1>
+          <p class="text-gray-600">顯示所有報表。</p>
         </div>
+        <button 
+          @click="refreshAllData"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+        >
+          <span class="mr-2">+</span>
+          刷新資料
+        </button>
       </div>
     </div>
 
     <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="space-y-6 mt-6">
       <!-- Quick Report Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div 
