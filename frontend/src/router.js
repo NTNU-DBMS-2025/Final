@@ -75,7 +75,7 @@ const routes = [
         path: '/shipments',
         name: 'Shipments',
         component: Shipments,
-        meta: { requiresAuth: true, allowedRoles: ['Admin', 'Sales', 'Shipping_Vendor'], title: '出貨管理' }
+        meta: { requiresAuth: true, allowedRoles: ['Owner', 'Admin', 'Sales', 'Shipping_Vendor'], title: '出貨管理' }
     },
     {
         path: '/inventory',
