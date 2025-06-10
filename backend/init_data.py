@@ -2102,8 +2102,8 @@ def init_sample_data():
             print(f"Error creating inventory movements: {e}")
             db.session.rollback()
 
-        print("\n🎉 Enhanced sample data initialized successfully!")
-        print("\n📊 Database now contains:")
+        print("\n Enhanced sample data initialized successfully!")
+        print("\n Database now contains:")
         print(f"- {User.query.count()} Users")
         print(f"- {Role.query.count()} Roles")
         print(f"- {Product.query.count()} Products")
